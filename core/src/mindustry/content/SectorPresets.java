@@ -10,7 +10,9 @@ public class SectorPresets{
     craters, biomassFacility, frozenForest, ruinousShores, windsweptIslands, stainedMountains, tarFields,
     fungalPass, extractionOutpost, saltFlats, overgrowth,
     impact0078, desolateRift, nuclearComplex, planetaryTerminal,
-    coastline, navalFortress,
+    coastline, navalFortress, cruxscape, weatheredChannels, seaPort,
+    polarAerodrome, desertWastes, facility32m, geothermalStronghold,
+    testingGrounds,
 
     onset, aegis, lake, intersect, basin, atlas, split, marsh, peaks, ravine, caldera,
     stronghold, crevice, siege, crossroads, karst, origin;
@@ -107,7 +109,42 @@ public class SectorPresets{
             difficulty = 10;
             isLastSector = true;
         }};
+        
+        geothermalStronghold = new SectorPreset("geothermalStronghold", serpulo, 264){{
+            difficulty = 10;
+        }};
 
+        cruxscape = new SectorPreset("cruxscape", serpulo, 54){{
+            difficulty = 10;
+        }};
+        
+        polarAerodrome = new SectorPreset("polarAerodrome", serpulo, 68){{
+            difficulty = 7;
+        }};
+        
+        seaPort = new SectorPreset("seaPort", serpulo, 47){{
+            difficulty = 4;
+        }};
+
+        facility32m = new SectorPreset("facility32m", serpulo, 64){{
+            captureWave = 25;
+            difficulty = 4;
+        }};
+
+        weatheredChannels = new SectorPreset("weatheredChannels", serpulo, 39){{
+            captureWave = 40;
+            difficulty = 9;
+        }};
+
+        desertWastes = new SectorPreset("desertWastes", serpulo, 120){{
+            captureWave = 60;
+            difficulty = 5;
+        }};
+
+        testingGrounds = new SectorPreset("testingGrounds", serpulo, 3){{
+            difficulty = 7;
+            captureWave = 33;
+        }};
         //endregion
         //region erekir
 
