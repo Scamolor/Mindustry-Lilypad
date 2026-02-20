@@ -28,8 +28,16 @@ public class Planets{
     public static void load(){
         sun = new Planet("sun", null, 4f){{
             bloom = true;
-            accessible = false;
-
+            accessible = true; //hehehe
+            alwaysUnlocked = true;
+            allowLaunchToNumbered = true;
+            allowWaves = true;
+            allowWaveSimulation = true;
+            allowSectorInvasion = true;
+            allowLaunchSchematics = true;
+            enemyCoreSpawnReplace = true;
+            allowLaunchLoadout = true;
+            visible = true;
             meshLoader = () -> new SunMesh(
                 this, 4,
                 5, 0.3, 1.7, 1.2, 1,
@@ -67,9 +75,7 @@ public class Planets{
             iconColor = Color.valueOf("ff9266");
             hiddenItems.addAll(Items.serpuloItems).removeAll(Items.erekirItems);
             enemyBuildSpeedMultiplier = 0.4f;
-
-            //TODO disallowed for now
-            allowLaunchToNumbered = false;
+            allowLaunchToNumbered = true;
 
             //TODO SHOULD there be lighting?
             updateLighting = false;
@@ -109,13 +115,21 @@ public class Planets{
         tantros = new Planet("tantros", sun, 1f, 2){{
             generator = new TantrosPlanetGenerator();
             meshLoader = () -> new HexMesh(this, 4);
-            accessible = false;
-            visible = false;
+            accessible = true;
+            visible = true;
+            alwaysUnlocked = true;
             atmosphereColor = Color.valueOf("3db899");
             iconColor = Color.valueOf("597be3");
             startSector = 10;
             atmosphereRadIn = -0.01f;
             atmosphereRadOut = 0.3f;
+            allowWaves = true;
+            allowWaveSimulation = true;
+            allowSectorInvasion = true;
+            allowLaunchSchematics = true;
+            enemyCoreSpawnReplace = true;
+            allowLaunchLoadout = true;
+            allowLaunchToNumbered = true;
             defaultEnv = Env.underwater | Env.terrestrial;
             ruleSetter = r -> {
 
@@ -170,8 +184,16 @@ public class Planets{
             sectors.add(new Sector(this, Ptile.empty));
             camRadius = 0.68f * scale;
             minZoom = 0.6f;
-            drawOrbit = false;
-            accessible = false;
+            visible = true;
+            drawOrbit = true;
+            accessible = true;
+            alwaysUnlocked = true;
+            allowWaves = true;
+            allowWaveSimulation = true;
+            allowSectorInvasion = true;
+            allowLaunchSchematics = true;
+            enemyCoreSpawnReplace = true;
+            allowLaunchLoadout = true;
             clipRadius = 2f;
             defaultEnv = Env.space;
             icon = "commandRally";

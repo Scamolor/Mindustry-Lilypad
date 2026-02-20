@@ -100,9 +100,9 @@ public class Vars implements Loadable{
     /** duration of time between turns in ticks */
     public static final float turnDuration = 2 * Time.toMinutes;
     /** chance of an invasion per turn, 1 = 100% */
-    public static final float baseInvasionChance = 1f / 100f;
+    public static final float baseInvasionChance = 1f / 125f;
     /** how many minutes have to pass before invasions in a *captured* sector start */
-    public static final float invasionGracePeriod = 20;
+    public static final float invasionGracePeriod = 30;
     /** min armor fraction damage; e.g. 0.05 = at least 5% damage */
     public static final float minArmorDamage = 0.1f;
     /** land/launch animation duration */
@@ -149,9 +149,9 @@ public class Vars implements Loadable{
     /** whether the graphical game client has loaded */
     public static boolean clientLoaded = false;
     /** max GL texture size */
-    public static int maxTextureSize = 2048;
+    public static int maxTextureSize = 4096;
     /** Maximum schematic size.*/
-    public static int maxSchematicSize = 64;
+    public static int maxSchematicSize = 96;
     /** Whether to show sector info upon landing. */
     public static boolean showSectorLandInfo = true;
     /** Whether to check for memory use before taking screenshots. */

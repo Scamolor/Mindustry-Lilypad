@@ -11,8 +11,9 @@ public class SectorPresets{
     fungalPass, extractionOutpost, saltFlats, overgrowth,
     impact0078, desolateRift, nuclearComplex, planetaryTerminal,
     coastline, navalFortress, cruxscape, weatheredChannels, seaPort,
-    polarAerodrome, desertWastes, facility32m, geothermalStronghold,
+    polarAerodrome, facility32m, geothermalStronghold,
     testingGrounds,
+    //desertWastes
 
     onset, aegis, lake, intersect, basin, atlas, split, marsh, peaks, ravine, caldera,
     stronghold, crevice, siege, crossroads, karst, origin;
@@ -136,10 +137,10 @@ public class SectorPresets{
             difficulty = 9;
         }};
 
-        desertWastes = new SectorPreset("desertWastes", serpulo, 120){{
-            captureWave = 60;
-            difficulty = 5;
-        }};
+        //desertWastes = new SectorPreset("desertWastes", serpulo, 120){{
+        //    captureWave = 60;
+        //    difficulty = 5;
+        //}};
 
         testingGrounds = new SectorPreset("testingGrounds", serpulo, 3){{
             difficulty = 7;

@@ -107,7 +107,7 @@ public class Weathers{
             particleRegion = "particle";
             statusGround = false;
             useWindVector = true;
-            hidden = true;
+            hidden = false;
             sizeMax = 4f;
             sizeMin = 1.4f;
             minAlpha = 0.5f;

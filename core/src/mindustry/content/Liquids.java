@@ -70,7 +70,7 @@ public class Liquids{
 
         gallium = new Liquid("gallium", Color.valueOf("9a9dbf")){{
             coolant = false;
-            hidden = true;
+            hidden = false;
         }};
 
         ozone = new Liquid("ozone", Color.valueOf("fc81dd")){{

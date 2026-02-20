@@ -3785,7 +3785,7 @@ public class UnitTypes{
             hitSize = 36f;
             payloadCapacity = Mathf.sqr(3f) * tilePayload;
             researchCostMultiplier = 0f;
-            targetAir = false;
+            targetAir = true;
 
             engineSize = 4.8f;
             engineOffset = 61 / 4f;
@@ -3812,10 +3812,10 @@ public class UnitTypes{
                     shake = 1f;
                     speed = 0f;
                     keepVelocity = false;
-                    collidesAir = false;
+                    collidesAir = true;
 
                     spawnUnit = new MissileUnitType("quell-missile"){{
-                        targetAir = false;
+                        targetAir = true;
                         speed = 4.3f;
                         maxRange = 6f;
                         lifetime = 60f * 1.4f;
@@ -3832,7 +3832,7 @@ public class UnitTypes{
                             shootOnDeath = true;
                             bullet = new ExplosionBulletType(110f, 25f){{
                                 shootEffect = Fx.massiveExplosion;
-                                collidesAir = false;
+                                collidesAir = true;
                             }};
                         }});
                     }};
@@ -3852,14 +3852,14 @@ public class UnitTypes{
             lowAltitude = false;
             flying = true;
             drag = 0.07f;
-            speed = 1f;
+            speed = 1.02f;
             rotateSpeed = 2f;
             accel = 0.1f;
             health = 12000f;
             armor = 9f;
             hitSize = 46f;
             payloadCapacity = Mathf.sqr(6f) * tilePayload;
-            targetAir = false;
+            targetAir = true;
 
             engineSize = 6f;
             engineOffset = 25.25f;
@@ -3925,7 +3925,7 @@ public class UnitTypes{
                     shake = 1f;
                     speed = 0f;
                     keepVelocity = false;
-                    collidesAir = false;
+                    collidesAir = true;
 
                     spawnUnit = new MissileUnitType("disrupt-missile"){{
                         targetAir = false;
@@ -4008,7 +4008,7 @@ public class UnitTypes{
             drownTimeMultiplier = 2f;
             segments = 3;
             drawBody = false;
-            hidden = true;
+            hidden = false;
             crushDamage = 0.5f;
             aiController = HugAI::new;
             targetAir = false;
@@ -4028,7 +4028,7 @@ public class UnitTypes{
             drownTimeMultiplier = 4f;
             segments = 4;
             drawBody = false;
-            hidden = true;
+            hidden = false;
             crushDamage = 2f;
             aiController = HugAI::new;
             targetAir = false;
@@ -4263,7 +4263,7 @@ public class UnitTypes{
             health = 1;
             rotateSpeed = 360f;
             itemCapacity = 0;
-            hidden = true;
+            hidden = false;
             internal = true;
         }};
 
@@ -4287,7 +4287,7 @@ public class UnitTypes{
             hitSize = 11f;
             engineSize = 2.3f;
             engineOffset = 6.5f;
-            hidden = true;
+            hidden = false;
 
             setEnginesMirror(
                 new UnitEngine(24 / 4f, -24 / 4f, 2.3f, 315f)
@@ -4310,7 +4310,7 @@ public class UnitTypes{
 
             outlineColor = Pal.darkOutline;
             isEnemy = false;
-            hidden = true;
+            hidden = false;
             useUnitCap = false;
             logicControllable = false;
             playerControllable = false;
