@@ -156,7 +156,7 @@ public class Blocks{
 
     //payloads
     payloadConveyor, payloadRouter, reinforcedPayloadConveyor, reinforcedPayloadRouter, payloadMassDriver, largePayloadMassDriver, smallDeconstructor, deconstructor, constructor, largeConstructor, payloadLoader, payloadUnloader,
-    
+
     //logic
     message, switchBlock, microProcessor, logicProcessor, hyperProcessor, largeLogicDisplay, logicDisplay, memoryCell, memoryBank,
     canvas, reinforcedMessage,
@@ -175,7 +175,7 @@ public class Blocks{
         spawn = new SpawnBlock("spawn");
 
         cliff = new Cliff("cliff"){{
-            inEditor = false;
+            inEditor = true;
             saveData = true;
         }};
 
@@ -1280,7 +1280,7 @@ public class Blocks{
             itemCapacity = 0;
             consumePower(100f / 60f);
         }};
-        
+
         slagHeater = new HeatProducer("slag-heater"){{
             requirements(Category.crafting, with(Items.tungsten, 50, Items.oxide, 20, Items.beryllium, 20));
 
@@ -1358,7 +1358,7 @@ public class Blocks{
         }};
 
         slagCentrifuge = new GenericCrafter("slag-centrifuge"){{
-            requirements(Category.crafting, BuildVisibility.debugOnly, with(Items.carbide, 70, Items.graphite, 60, Items.silicon, 40, Items.oxide, 40));
+            requirements(Category.crafting, BuildVisibility.shown, with(Items.carbide, 70, Items.graphite, 60, Items.silicon, 40, Items.oxide, 40));
 
             consumePower(2f / 60f);
 
@@ -1489,7 +1489,7 @@ public class Blocks{
         }};
 
         heatReactor = new HeatProducer("heat-reactor"){{
-            requirements(Category.crafting, BuildVisibility.debugOnly, with(Items.oxide, 70, Items.graphite, 20, Items.carbide, 10, Items.thorium, 80));
+            requirements(Category.crafting, BuildVisibility.shown, with(Items.oxide, 70, Items.graphite, 20, Items.carbide, 10, Items.thorium, 80));
             size = 3;
             craftTime = 60f * 10f;
 
@@ -1614,14 +1614,14 @@ public class Blocks{
         }};
 
         scrapWall = new Wall("scrap-wall"){{
-            requirements(Category.defense, BuildVisibility.sandboxOnly, with(Items.scrap, 6));
+            requirements(Category.defense, with(Items.scrap, 6));
             health = 60 * wallHealthMultiplier;
             variants = 5;
             envDisabled |= Env.scorching;
         }};
 
         scrapWallLarge = new Wall("scrap-wall-large"){{
-            requirements(Category.defense, BuildVisibility.sandboxOnly, ItemStack.mult(scrapWall.requirements, 4));
+            requirements(Category.defense, ItemStack.mult(scrapWall.requirements, 4));
             health = 60 * 4 * wallHealthMultiplier;
             size = 2;
             variants = 4;
@@ -1629,7 +1629,7 @@ public class Blocks{
         }};
 
         scrapWallHuge = new Wall("scrap-wall-huge"){{
-            requirements(Category.defense, BuildVisibility.sandboxOnly, ItemStack.mult(scrapWall.requirements, 9));
+            requirements(Category.defense, ItemStack.mult(scrapWall.requirements, 9));
             health = 60 * 9 * wallHealthMultiplier;
             size = 3;
             variants = 3;
@@ -1637,14 +1637,14 @@ public class Blocks{
         }};
 
         scrapWallGigantic = new Wall("scrap-wall-gigantic"){{
-            requirements(Category.defense, BuildVisibility.sandboxOnly, ItemStack.mult(scrapWall.requirements, 16));
+            requirements(Category.defense, ItemStack.mult(scrapWall.requirements, 16));
             health = 60 * 16 * wallHealthMultiplier;
             size = 4;
             envDisabled |= Env.scorching;
         }};
 
         thruster = new Thruster("thruster"){{
-            requirements(Category.defense, BuildVisibility.sandboxOnly, with(Items.scrap, 96));
+            requirements(Category.defense, with(Items.scrap, 96));
             health = 55 * 16 * wallHealthMultiplier;
             size = 4;
             envDisabled |= Env.scorching;
@@ -1890,6 +1890,17 @@ public class Blocks{
             radius = 400f;
 
             consumePower(5f);
+        }};
+
+        shieldBreaker = new ShieldBreaker("shield-breaker"){{
+            requirements(Category.effect, BuildVisibility.editorOnly, with());
+
+            size = 5;
+            toDestroy = new Block[]{Blocks.shieldProjector, Blocks.largeShieldProjector};
+
+            consumeItem(Items.tungsten, 100);
+            itemCapacity = 100;
+            scaledHealth = 120f;
         }};
 
         //endregion
@@ -3045,6 +3056,19 @@ public class Blocks{
                     reloadMultiplier = 1.5f;
                     ammoMultiplier = 5;
                     lifetime = 60f;
+                }},
+                Items.pyratite, new BasicBulletType(3.2f, 16){{
+                    width = 10f;
+                    height = 12f;
+                    frontColor = Pal.lightishOrange;
+                    backColor = Pal.lightOrange;
+                    status = StatusEffects.burning;
+                    hitEffect = new MultiEffect(Fx.hitBulletSmall, Fx.fireHit);
+                    ammoMultiplier = 5;
+                    splashDamage = 10f;
+                    splashDamageRadius = 22f;
+                    makeFire = true;
+                    lifetime = 60f;
                 }}
             );
 
@@ -3184,6 +3208,19 @@ public class Blocks{
                     despawnEffect = Fx.none;
                     status = StatusEffects.burning;
                     hittable = false;
+                }},
+                Items.sporePod, new BulletType(3.725f, 20f){{
+                    ammoMultiplier = 4f;
+                    hitSize = 7f;
+                    lifetime = 18f;
+                    pierce = true;
+                    collidesAir = true;
+                    statusDuration = 60f * 6;
+                    shootEffect = Fx.sapExplosion;
+                    hitEffect = Fx.hitFlameSmall;
+                    despawnEffect = Fx.none;
+                    status = StatusEffects.sporeSlowed;
+                    hittable = false;
                 }}
             );
             recoil = 0f;
@@ -3269,7 +3306,14 @@ public class Blocks{
                 Liquids.oil, new LiquidBulletType(Liquids.oil){{
                     drag = 0.01f;
                     layer = Layer.bullet - 2f;
-                }}
+                }},
+                Liquids.gallium, new LiquidBulletType(Liquids.gallium){{
+                    knockback = 1.5f;
+                    drag = 0.001f;
+                }},
+                Liquids.neoplasm, new LiquidBulletType(Liquids.neoplasm){{
+                    drag = 0.1f;
+                }},
             );
             size = 2;
             recoil = 0f;
@@ -3420,7 +3464,7 @@ public class Blocks{
                     lightningLength = 10;
                 }}
             );
-            
+
             shoot = new ShootBarrel(){{
                 barrels = new float[]{
                     -4, -1.25f, 0,
@@ -3589,6 +3633,29 @@ public class Blocks{
                     statusDuration = 60f * 4f;
                     damage = 0.2f;
                     layer = Layer.bullet - 2f;
+                }},
+                Liquids.gallium, new LiquidBulletType(Liquids.gallium){{
+                    lifetime = 49f;
+                    speed = 4f;
+                    knockback = 2.6f;
+                    puddleSize = 8f;
+                    orbSize = 3f;
+                    drag = 0.001f;
+                    ammoMultiplier = 0.4f;
+                    statusDuration = 60f * 4f;
+                    damage = 0.1f;
+                }},
+                Liquids.neoplasm, new LiquidBulletType(Liquids.neoplasm){{
+                    lifetime = 49f;
+                    speed = 2f;
+                    knockback = 1.0f;
+                    puddleSize = 12f;
+                    orbSize = 4f;
+                    drag = 0.1f;
+                    ammoMultiplier = 0.3f;
+                    statusDuration = 60f * 4f
+                    status = StatusEffects.corroded;
+                    damage = 0.4f;
                 }}
             );
             size = 3;
@@ -4622,7 +4689,7 @@ public class Blocks{
                         interval = 7f;
                     }});
                 }};
-            }}
+            }},
             );
 
             drawer = new DrawTurret("reinforced-"){{
@@ -5930,7 +5997,7 @@ public class Blocks{
 
         worldCell = new MemoryBlock("world-cell"){{
             requirements(Category.logic, BuildVisibility.editorOnly, with());
-            
+
             targetable = false;
             privileged = true;
             memoryCapacity = 128;
@@ -5939,7 +6006,7 @@ public class Blocks{
 
         worldMessage = new MessageBlock("world-message"){{
             requirements(Category.logic, BuildVisibility.editorOnly, with());
-            
+
             targetable = false;
             privileged = true;
         }};

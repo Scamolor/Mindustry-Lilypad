@@ -69,6 +69,11 @@ public class Liquids{
         }};
 
         gallium = new Liquid("gallium", Color.valueOf("9a9dbf")){{
+            heatCapacity = 0.9f;
+            temperature = 0.11f;
+            viscosity = 0.2f;
+            flammability = 0f;
+            effect = StatusEffects.electrified;
             coolant = false;
             hidden = false;
         }};
