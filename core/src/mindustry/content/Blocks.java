@@ -3314,6 +3314,9 @@ public class Blocks{
                 Liquids.neoplasm, new LiquidBulletType(Liquids.neoplasm){{
                     drag = 0.1f;
                 }},
+                Liquids.arkycite, new LiquidBulletType(Liquids.arkycite){{
+                    drag = 0.01f;
+                }}
             );
             size = 2;
             recoil = 0f;
@@ -3653,7 +3656,7 @@ public class Blocks{
                     orbSize = 4f;
                     drag = 0.1f;
                     ammoMultiplier = 0.3f;
-                    statusDuration = 60f * 4f
+                    statusDuration = 60f * 4f;
                     status = StatusEffects.corroded;
                     damage = 0.4f;
                 }}
@@ -4689,7 +4692,7 @@ public class Blocks{
                         interval = 7f;
                     }});
                 }};
-            }},
+            }}
             );
 
             drawer = new DrawTurret("reinforced-"){{
