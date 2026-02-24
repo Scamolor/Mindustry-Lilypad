@@ -21,17 +21,7 @@ if(new File(settingsDir, 'local.properties').exists()){
 
 if(System.getenv("JITPACK") == "true") hasSdk = false
 
-if(hasSdk){
-    //hack: pretend the Android module doesn't exist when imported through IntelliJ
-    //why? because IntelliJ chokes on the new version of the Android plugin
-
-    //UPDATE: it no longer chokes on AGP with the latest version, but instead gives a completely different error. brilliant.
-    if(!System.getProperty("jna.tmpdir")?.contains("JetBrains")){
-        include 'android'
-    }
-}else{
-    println("No Android SDK found. Skipping Android module.")
-}
+println("Android module disabled by settings.gradle")
 
 if(!hasProperty("release")){
     if(new File(settingsDir, '../Arc').exists()){
@@ -50,14 +40,9 @@ if(!hasProperty("release")){
         ':Arc:extensions:profiling',
         ':Arc:natives',
         ':Arc:natives:natives-desktop',
-        ':Arc:natives:natives-android',
-        ':Arc:natives:natives-ios',
         ':Arc:natives:natives-freetype-desktop',
-        ':Arc:natives:natives-freetype-android',
-        ':Arc:natives:natives-freetype-ios',
         ':Arc:backends',
         ':Arc:backends:backend-sdl',
-        ':Arc:backends:backend-android',
         ':Arc:backends:backend-robovm',
         ':Arc:backends:backend-headless'
         )
