@@ -136,7 +136,7 @@ public class Blocks{
     duo, scatter, scorch, hail, arc, wave, lancer, swarmer, salvo, fuse, ripple, cyclone, foreshadow, spectre, meltdown, segment, parallax, tsunami,
 
     //turrets - erekir
-    breach, diffuse, sublimate, titan, disperse, afflict, lustre, scathe, smite, malign,
+    breach, diffuse, sublimate, titan, disperse, afflict, lustre, scathe, smite, malign, fracture
 
     //units
     groundFactory, airFactory, navalFactory,
