@@ -5727,7 +5727,7 @@ public class Blocks{
             requirements(Category.units, with(Items.graphite, 10));
 
             size = 3;
-            consumes.power(3f);
+            consumePower(3f);
 
             droneType = UnitTypes.effectDrone;
         }};
@@ -5954,7 +5954,6 @@ public class Blocks{
 
         warheadAssembler = new Constructor("warhead-assembler"){{
             requirements(Category.crafting, BuildVisibility.shown, with(Items.thorium, 100));
-            result = nuclearWarhead;
             size = 3;
             buildSpeed = 0.3f;
             hasPower = true;
