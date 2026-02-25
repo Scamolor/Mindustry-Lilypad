@@ -78,7 +78,7 @@ public class UnitTypes{
     public static @EntityDef({Unitc.class, BlockUnitc.class}) UnitType block;
 
     //special building tethered (has payload capability, because it's necessary sometimes)
-    public static @EntityDef({Unitc.class, BuildingTetherc.class, Payloadc.class}) UnitType manifold, assemblyDrone;
+    public static @EntityDef({Unitc.class, BuildingTetherc.class, Payloadc.class}) UnitType manifold, assemblyDrone, effectDrone;
 
     //tank
     public static @EntityDef({Unitc.class, Tankc.class}) UnitType stell, locus, precept, vanquish, conquer;
@@ -2633,7 +2633,7 @@ public class UnitTypes{
                         width = 5f;
                         height = 7f;
                         lifetime = 15f;
-                        hitSize = 4f;    
+                        hitSize = 4f;
                         pierceCap = 3;
                         pierce = true;
                         pierceBuilding = true;
@@ -3511,7 +3511,7 @@ public class UnitTypes{
                         trailWidth = 2.2f;
                         trailLength = 7;
                         trailChance = -1f;
-                        
+
                         collidesAir = false;
 
                         despawnEffect = Fx.none;
@@ -4318,6 +4318,23 @@ public class UnitTypes{
             createWreck = false;
             envEnabled = Env.any;
             envDisabled = Env.none;
+        }};
+
+        effectDrone = new ErekirUnitType("effect-drone"){{
+            flying = true;
+            drag = 0.08f;
+            speed = 3f;
+            drawCell = false;
+            logicControllable = playerControllable = allowedInPayloads = isCounted = false;
+            hidden = false;
+
+            engineSize = 0f;
+            float es = 2.5f, ew = 14.5f / 4f;
+
+            setEnginesMirror(
+            new UnitEngine(ew, ew, es, 45f),
+            new UnitEngine(ew, -ew, es, 315f)
+            );
         }};
 
         //endregion

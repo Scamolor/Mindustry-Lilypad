@@ -48,7 +48,7 @@ public class Blocks{
     arkyciteFloor, arkyicStone,
     redmat, bluemat,
     stoneWall, dirtWall, sporeWall, iceWall, daciteWall, sporePine, snowPine, pine, shrubs, whiteTree, whiteTreeDead, sporeCluster,
-    redweed, purbush, yellowCoral,
+    redweed, purbush, coralChunk, yellowCoral,
     rhyoliteVent, carbonVent, arkyicVent, yellowStoneVent, redStoneVent, crystallineVent,
     regolithWall, yellowStoneWall, rhyoliteWall, carbonWall, redIceWall, ferricStoneWall, beryllicStoneWall, arkyicWall, crystallineStoneWall, redStoneWall, redDiamondWall,
     ferricStone, ferricCraters, carbonStone, beryllicStone, crystallineStone, crystalFloor, yellowStonePlates,
@@ -71,7 +71,7 @@ public class Blocks{
     //crafting
     siliconSmelter, siliconCrucible, kiln, graphitePress, plastaniumCompressor, multiPress, phaseWeaver, surgeSmelter, pyratiteMixer, blastMixer, cryofluidMixer,
     melter, separator, disassembler, sporePress, pulverizer, incinerator, coalCentrifuge,
-
+    cellSynthesisChamber,
     //crafting - erekir
     siliconArcFurnace, electrolyzer, oxidationChamber, atmosphericConcentrator, electricHeater, slagHeater, phaseHeater, heatRedirector, heatRouter, slagIncinerator,
     carbideCrucible, slagCentrifuge, surgeCrucible, cyanogenSynthesizer, phaseSynthesizer, heatReactor,
@@ -142,6 +142,7 @@ public class Blocks{
     groundFactory, airFactory, navalFactory,
     additiveReconstructor, multiplicativeReconstructor, exponentialReconstructor, tetrativeReconstructor,
     repairPoint, repairTurret,
+    droneCenter
 
     //units - erekir
     tankFabricator, shipFabricator, mechFabricator,
@@ -163,8 +164,10 @@ public class Blocks{
     worldProcessor, worldCell, worldMessage,
 
     //campaign
-    launchPad, interplanetaryAccelerator
+    launchPad, interplanetaryAccelerator,
 
+    //nuclear?
+    nuclearWarhead, warheadAssembler, ballisticSilo, //TODO
     ;
 
     public static void load(){
@@ -675,6 +678,10 @@ public class Blocks{
             sclMax = 100f;
         }};
 
+        coralChunk = new StaticCoralWall("coralchunk"){{
+
+        }};
+
         boulder = new Prop("boulder"){{
             variants = 2;
             stone.asFloor().decoration = craters.asFloor().decoration = charr.asFloor().decoration = this;
@@ -1147,6 +1154,35 @@ public class Blocks{
             health = 90;
             envEnabled |= Env.space;
             consumePower(0.50f);
+        }};
+
+        cellSynthesisChamber = new LiquidConverter("cell-synthesis-chamber"){{
+            //TODO booster mechanics?
+            requirements(Category.crafting, with(Items.thorium, 100, Items.phaseFabric, 120, Items.titanium, 150, Items.surgeAlloy, 70));
+            outputLiquid = new LiquidStack(Liquids.neoplasm, 0.4f);
+            craftTime = 200f;
+            size = 3;
+            hasPower = true;
+            hasItems = true;
+            hasLiquids = true;
+            rotate = false;
+            solid = true;
+            outputsLiquid = true;
+            drawer = new DrawCells(){{
+                color = Color.valueOf("9e172c");
+                particleColorFrom = Color.valueOf("9e172c");
+                particleColorTo = Color.valueOf("f98f4a");
+                radius = 2.5f;
+                lifetime = 1400f;
+                recurrence = 2f;
+                particles = 20;
+                range = 3f;
+            }};
+            liquidCapacity = 30f;
+
+            consumes.power(2f);
+            consumes.items(with(Items.sporePod, 3, Items.phaseFabric, 1));
+            consumes.liquid(Liquids.water, 0.8f);
         }};
 
         //erekir
@@ -5689,6 +5725,14 @@ public class Blocks{
 
         //endregion
         //region payloads
+        droneCenter = new DroneCenter("drone-center"){{
+            requirements(Category.units, with(Items.graphite, 10));
+
+            size = 3;
+            consumes.power(3f);
+
+            droneType = UnitTypes.effectDrone;
+        }};
 
         payloadConveyor = new PayloadConveyor("payload-conveyor"){{
             requirements(Category.units, with(Items.graphite, 10, Items.copper, 10));
@@ -5903,6 +5947,23 @@ public class Blocks{
             consumePower(10f);
             buildCostMultiplier = 0.5f;
             scaledHealth = 80;
+        }};
+
+        nuclearWarhead = new NuclearWarhead("nuclear-warhead"){{
+            requirements(Category.crafting, BuildVisibility.shown, with(Items.thorium, 40));
+            size = 2;
+        }};
+
+        warheadAssembler = new SingleBlockProducer("warhead-assembler"){{
+            requirements(Category.crafting, BuildVisibility.shown, with(Items.thorium, 100));
+            result = nuclearWarhead;
+            size = 3;
+            buildSpeed = 0.3f;
+        }};
+
+        ballisticSilo = new BallisticSilo("ballistic-silo"){{
+            requirements(Category.crafting, BuildVisibility.shown, with(Items.thorium, 100));
+            size = 5;
         }};
 
         //endregion campaign
