@@ -4325,8 +4325,17 @@ public class UnitTypes{
             drag = 0.08f;
             speed = 3f;
             drawCell = false;
-            logicControllable = playerControllable = allowedInPayloads = isCounted = false;
             hidden = false;
+            isEnemy = false;
+            useUnitCap = false;
+            logicControllable = false;
+            playerControllable = false;
+            allowedInPayloads = false;
+            createWreck = false;
+            envEnabled = Env.any;
+            envDisabled = Env.none;
+
+            abilities.add(new RepairFieldAbility(5f, 60f * 8, 50f));
 
             engineSize = 0f;
             float es = 2.5f, ew = 14.5f / 4f;

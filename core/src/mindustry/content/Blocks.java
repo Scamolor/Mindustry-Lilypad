@@ -1154,7 +1154,7 @@ public class Blocks{
             consumePower(0.50f);
         }};
 
-        cellSynthesisChamber = new LiquidConverter("cell-synthesis-chamber"){{
+        cellSynthesisChamber = new GenericCrafter("cell-synthesis-chamber"){{
             //TODO booster mechanics?
             requirements(Category.crafting, with(Items.thorium, 100, Items.phaseFabric, 120, Items.titanium, 150, Items.surgeAlloy, 70));
             outputLiquid = new LiquidStack(Liquids.neoplasm, 0.4f);
@@ -1178,9 +1178,9 @@ public class Blocks{
             }};
             liquidCapacity = 30f;
 
-            consumes.power(2f);
-            consumes.items(with(Items.sporePod, 3, Items.phaseFabric, 1));
-            consumes.liquid(Liquids.water, 0.8f);
+            consumePower(2f);
+            consumeItems(with(Items.sporePod, 3, Items.phaseFabric, 1));
+            consumeLiquid(Liquids.water, 0.8f);
         }};
 
         //erekir
@@ -5952,11 +5952,14 @@ public class Blocks{
             size = 2;
         }};
 
-        warheadAssembler = new SingleBlockProducer("warhead-assembler"){{
+        warheadAssembler = new Constructor("warhead-assembler"){{
             requirements(Category.crafting, BuildVisibility.shown, with(Items.thorium, 100));
             result = nuclearWarhead;
             size = 3;
             buildSpeed = 0.3f;
+            hasPower = true;
+            maxBlockSize = 3;
+            minBlockSize = 2;
         }};
 
         ballisticSilo = new BallisticSilo("ballistic-silo"){{
