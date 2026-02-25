@@ -7,12 +7,12 @@ public class LegacyBlock extends Block{
 
     public LegacyBlock(String name){
         super(name);
-        inEditor = true;
-        generateIcons = true;
+        inEditor = false;
+        generateIcons = false;
     }
 
     /** Removes this block from the world, or replaces it with something else. */
-    //public void removeSelf(Tile tile){
-    //    tile.remove();
+    public void removeSelf(Tile tile){
+        tile.remove();
     }
 }
