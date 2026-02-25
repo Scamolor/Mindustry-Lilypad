@@ -1166,18 +1166,20 @@ public class Blocks{
             rotate = false;
             solid = true;
             outputsLiquid = true;
-            drawer = new DrawCells(){{
-                color = Color.valueOf("9e172c");
-                particleColorFrom = Color.valueOf("9e172c");
-                particleColorTo = Color.valueOf("f98f4a");
-                radius = 2.5f;
-                lifetime = 1400f;
-                recurrence = 2f;
-                particles = 20;
-                range = 3f;
-            }};
+            drawer = new DrawMulti(
+                new DrawRegion(),
+                new DrawCells(){{
+                    color = Color.valueOf("9e172c");
+                    particleColorFrom = Color.valueOf("9e172c");
+                    particleColorTo = Color.valueOf("f98f4a");
+                    radius = 2.5f;
+                    lifetime = 1400f;
+                    recurrence = 2f;
+                    particles = 20;
+                    range = 3f;
+                }}
+            );
             liquidCapacity = 30f;
-
             consumePower(2f);
             consumeItems(with(Items.sporePod, 3, Items.phaseFabric, 1));
             consumeLiquid(Liquids.water, 0.8f);
@@ -4574,6 +4576,83 @@ public class Blocks{
             researchCostMultiplier = 0.04f;
 
             limitRange(9f);
+        }};
+        fracture = new ItemTurret("fracture"){{
+            requirements(Category.turret, with(Items.beryllium, 150, Items.silicon, 200, Items.graphite, 200, Items.carbide, 50));
+
+            ammo(
+            Items.tungsten, new BasicBulletType(8f, 41){{
+                knockback = 4f;
+                width = 25f;
+                hitSize = 7f;
+                height = 20f;
+                shootEffect = Fx.shootBigColor;
+                smokeEffect = Fx.shootSmokeSquareSparse;
+                ammoMultiplier = 1;
+                hitColor = backColor = trailColor = Color.valueOf("ea8878");
+                frontColor = Color.valueOf("feb380");
+                trailWidth = 6f;
+                trailLength = 3;
+                hitEffect = despawnEffect = Fx.hitSquaresColor;
+                buildingDamageMultiplier = 0.2f;
+            }}
+            );
+
+            shoot = new ShootSpread(15, 2f);
+
+            coolantMultiplier = 6f;
+
+            inaccuracy = 0.2f;
+            velocityRnd = 0.17f;
+            shake = 1f;
+            ammoPerShot = 3;
+            maxAmmo = 30;
+            consumeAmmoOnce = true;
+
+            drawer = new DrawTurret("reinforced-"){{
+                parts.add(new RegionPart("-blade"){{
+                    progress = PartProgress.warmup;
+                    heatProgress = PartProgress.warmup.blend(PartProgress.recoil, 0.2f);
+                    heatColor = Color.valueOf("ff6214");
+                    mirror = true;
+                    under = true;
+                    moveX = 2f;
+                    //moveY = -1f;
+                    moveRot = -7f;
+                    moves.add(new PartMove(PartProgress.recoil, 0f, -2f, 3f));
+                }},
+                new RegionPart("-inner"){{
+                    progress = PartProgress.recoil;
+                    heatColor = Color.valueOf("ff6214");
+                    mirror = true;
+                    under = false;
+                    moveX = 2f;
+                    moveY = -8f;
+                }},
+                new RegionPart("-mid"){{
+                    heatProgress = PartProgress.warmup.blend(PartProgress.recoil, 0.2f);
+                    heatColor = Color.valueOf("ff6214");
+                    moveY = -8f;
+                    progress = PartProgress.recoil;
+                    //drawRegion = false;
+                    mirror = false;
+                    under = true;
+                }});
+            }};
+
+            shootY = 5f;
+            outlineColor = Pal.darkOutline;
+            size = 4;
+            envEnabled |= Env.space;
+            reload = 30f;
+            recoil = 2f;
+            range = 125;
+            shootCone = 40f;
+            scaledHealth = 210;
+            rotateSpeed = 3f;
+
+            coolant = consume(new ConsumeLiquid(Liquids.water, 15f / 60f));
+            limitRange();
         }};
 
         lustre = new ContinuousTurret("lustre"){{
