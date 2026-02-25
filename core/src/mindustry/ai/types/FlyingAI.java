@@ -6,11 +6,9 @@ import mindustry.gen.*;
 import mindustry.world.meta.*;
 
 import static mindustry.Vars.*;
-import static mindustry.world.meta.BlockFlag.*;
 
+//TODO very strange idle behavior sometimes
 public class FlyingAI extends AIController{
-    final static Rand rand = new Rand();
-    final static BlockFlag[] randomTargets = {core, storage, generator, launchPad, factory, repair, battery, reactor, drill};
 
     @Override
     public void updateMovement(){
@@ -18,7 +16,7 @@ public class FlyingAI extends AIController{
 
         if(target != null && unit.hasWeapons()){
             if(unit.type.circleTarget){
-                circleAttack(unit.type.circleTargetRadius);
+                circleAttack(120f);
             }else{
                 moveTo(target, unit.type.range * 0.8f);
                 unit.lookAt(target);
@@ -46,26 +44,13 @@ public class FlyingAI extends AIController{
             return core;
         }
 
-        if(state.rules.randomWaveAI){
-            //when there are no waves, it's just random based on the unit
-            rand.setSeed(unit.type.id + (state.rules.waves ? state.wave : unit.id));
-            //try a few random flags first
-            for(int attempt = 0; attempt < 5; attempt++){
-                Teamc result = targetFlagActive(x, y, randomTargets[rand.random(randomTargets.length - 1)], true);
+        for(var flag : unit.type.targetFlags){
+            if(flag == null){
+                Teamc result = target(x, y, range, air, ground);
                 if(result != null) return result;
-            }
-            //try the closest target
-            Teamc result = target(x, y, range, air, ground);
-            if(result != null) return result;
-        }else{
-            for(var flag : unit.type.targetFlags){
-                if(flag == null){
-                    Teamc result = target(x, y, range, air, ground);
-                    if(result != null) return result;
-                }else if(ground){
-                    Teamc result = targetFlagActive(x, y, flag, true);
-                    if(result != null) return result;
-                }
+            }else if(ground){
+                Teamc result = targetFlag(x, y, flag, true);
+                if(result != null) return result;
             }
         }
 

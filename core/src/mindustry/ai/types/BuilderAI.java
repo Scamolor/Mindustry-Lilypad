@@ -47,20 +47,13 @@ public class BuilderAI extends AIController{
 
         if(target != null && shouldShoot()){
             unit.lookAt(target);
-        }else if(!unit.type.flying){
-            unit.lookAt(unit.prefRotation());
         }
 
         unit.updateBuilding = true;
 
-        if(assistFollowing != null && !assistFollowing.isValid()) assistFollowing = null;
-        if(following != null && !following.isValid()) following = null;
-
         if(assistFollowing != null && assistFollowing.activelyBuilding()){
             following = assistFollowing;
         }
-
-        boolean moving = false;
 
         if(following != null){
             retreatTimer = 0f;
@@ -90,7 +83,6 @@ public class BuilderAI extends AIController{
                     var core = unit.closestCore();
                     if(core != null && !unit.within(core, retreatDst)){
                         moveTo(core, retreatDst);
-                        moving = true;
                     }
                 }
             }
@@ -121,10 +113,8 @@ public class BuilderAI extends AIController{
                         Build.validPlace(req.block, unit.team(), req.x, req.y, req.rotation)));
 
             if(valid){
-                float range = Math.min(unit.type.buildRange - unit.type.hitSize * 2f, buildRadius);
                 //move toward the plan
-                moveTo(req.tile(), range, 20f);
-                moving = !unit.within(req.tile(), range);
+                moveTo(req.tile(), unit.type.buildRange - 20f);
             }else{
                 //discard invalid plan
                 unit.plans.removeFirst();
@@ -134,7 +124,6 @@ public class BuilderAI extends AIController{
 
             if(assistFollowing != null){
                 moveTo(assistFollowing, assistFollowing.type.hitSize + unit.type.hitSize/2f + 60f);
-                moving = !unit.within(assistFollowing, assistFollowing.type.hitSize + unit.type.hitSize/2f + 65f);
             }
 
             //follow someone and help them build
@@ -164,7 +153,7 @@ public class BuilderAI extends AIController{
                     float minDst = Float.MAX_VALUE;
                     Player closest = null;
                     for(var player : Groups.player){
-                        if(!player.dead() && player.isBuilder() && player.team() == unit.team){
+                        if(player.unit().canBuild() && !player.dead() && player.team() == unit.team){
                             float dst = player.dst2(unit);
                             if(dst < minDst){
                                 closest = player;
@@ -183,12 +172,12 @@ public class BuilderAI extends AIController{
                 BlockPlan block = blocks.first();
 
                 //check if it's already been placed
-                if(world.tile(block.x, block.y) != null && world.tile(block.x, block.y).block() == block.block){
+                if(world.tile(block.x, block.y) != null && world.tile(block.x, block.y).block().id == block.block){
                     blocks.removeFirst();
-                }else if(Build.validPlace(block.block, unit.team(), block.x, block.y, block.rotation) && (!alwaysFlee || !nearEnemy(block.x, block.y))){ //it's valid
+                }else if(Build.validPlace(content.block(block.block), unit.team(), block.x, block.y, block.rotation) && (!alwaysFlee || !nearEnemy(block.x, block.y))){ //it's valid
                     lastPlan = block;
                     //add build plan
-                    unit.addBuild(new BuildPlan(block.x, block.y, block.rotation, block.block, block.config));
+                    unit.addBuild(new BuildPlan(block.x, block.y, block.rotation, content.block(block.block), block.config));
                     //shift build plan to tail so next unit builds something else
                     blocks.addLast(blocks.removeFirst());
                 }else{
@@ -196,10 +185,6 @@ public class BuilderAI extends AIController{
                     blocks.addLast(blocks.removeFirst());
                 }
             }
-        }
-
-        if(!unit.type.flying){
-            unit.updateBoosting(unit.type.boostWhenBuilding || moving || unit.floorOn().isDuct || unit.floorOn().damageTaken > 0f || unit.floorOn().isDeep());
         }
     }
 
@@ -209,23 +194,12 @@ public class BuilderAI extends AIController{
 
     @Override
     public AIController fallback(){
-        if(unit.team.isAI() && unit.team.rules().prebuildAi){
-            return new PrebuildAI();
-        }
         return unit.type.flying ? new FlyingAI() : new GroundAI();
     }
 
     @Override
     public boolean useFallback(){
-        if(unit.team.isAI() && unit.team.rules().prebuildAi){
-            return true;
-        }
         return state.rules.waves && unit.team == state.rules.waveTeam && !unit.team.rules().rtsAi;
-    }
-
-    @Override
-    public boolean shouldFire(){
-        return !(unit.controller() instanceof CommandAI ai) || ai.shouldFire();
     }
 
     @Override
