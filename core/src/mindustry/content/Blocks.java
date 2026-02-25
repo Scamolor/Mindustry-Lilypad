@@ -97,7 +97,7 @@ public class Blocks{
     //campaign only
     shieldProjector,
     largeShieldProjector,
-    shieldBreaker,
+    shieldBreaker, //my boy is BACK
 
     //transport
     conveyor, titaniumConveyor, plastaniumConveyor, armoredConveyor, distributor, junction, itemBridge, phaseConveyor, sorter, invertedSorter, router,
@@ -141,8 +141,7 @@ public class Blocks{
     //units
     groundFactory, airFactory, navalFactory,
     additiveReconstructor, multiplicativeReconstructor, exponentialReconstructor, tetrativeReconstructor,
-    repairPoint, repairTurret,
-    droneCenter
+    repairPoint, repairTurret, droneCenter,
 
     //units - erekir
     tankFabricator, shipFabricator, mechFabricator,
@@ -167,8 +166,7 @@ public class Blocks{
     launchPad, interplanetaryAccelerator,
 
     //nuclear?
-    nuclearWarhead, warheadAssembler, ballisticSilo, //TODO
-    ;
+    nuclearWarhead, warheadAssembler, ballisticSilo; //these do not do anything yet deal with it
 
     public static void load(){
         //region environment

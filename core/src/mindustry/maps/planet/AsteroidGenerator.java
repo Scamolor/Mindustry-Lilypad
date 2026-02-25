@@ -153,6 +153,8 @@ public class AsteroidGenerator extends BlankPlanetGenerator{
         state.rules.showSpawns = true;
         //TODO better wavegen, do it by hand even
         state.rules.spawns = Waves.generate(0.5f, rand, false, true, false);
+        state.rules.winWave = sector.info.winWave = 25; //idk
+        state.rules.attackMode = sector.info.attack = false;
     }
 
     @Override

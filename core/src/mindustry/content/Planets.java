@@ -132,7 +132,9 @@ public class Planets{
             allowLaunchToNumbered = true;
             defaultEnv = Env.underwater | Env.terrestrial;
             ruleSetter = r -> {
-
+                r.waveTeam = Team.crux;
+                r.placeRangeCheck = false;
+                r.showSpawns = false;
             };
         }};
 
@@ -195,7 +197,7 @@ public class Planets{
             enemyCoreSpawnReplace = true;
             allowLaunchLoadout = true;
             clipRadius = 2f;
-            defaultEnv = Env.space;
+            //defaultEnv = Env.space;
             icon = "commandRally";
             generator = new AsteroidGenerator();
             cgen.get((AsteroidGenerator)generator);
