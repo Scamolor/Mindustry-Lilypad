@@ -136,7 +136,7 @@ public class Blocks{
     duo, scatter, scorch, hail, arc, wave, lancer, swarmer, salvo, fuse, ripple, cyclone, foreshadow, spectre, meltdown, segment, parallax, tsunami,
 
     //turrets - erekir
-    breach, diffuse, sublimate, titan, disperse, afflict, lustre, scathe, smite, malign, fracture,
+    breach, diffuse, sublimate, titan, disperse, afflict, lustre, scathe, smite, malign, fracture, horde,
 
     //units
     groundFactory, airFactory, navalFactory,
@@ -3348,7 +3348,7 @@ public class Blocks{
                     drag = 0.001f;
                 }},
                 Liquids.neoplasm, new LiquidBulletType(Liquids.neoplasm){{
-                    drag = 0.1f;
+                    drag = 0.05f; //reduced drag
                 }},
                 Liquids.arkycite, new LiquidBulletType(Liquids.arkycite){{
                     drag = 0.01f;
@@ -3686,11 +3686,11 @@ public class Blocks{
                 }},
                 Liquids.neoplasm, new LiquidBulletType(Liquids.neoplasm){{
                     lifetime = 49f;
-                    speed = 2f;
+                    speed = 2.25f;
                     knockback = 1.0f;
                     puddleSize = 12f;
                     orbSize = 4f;
-                    drag = 0.1f;
+                    drag = 0.05f;
                     ammoMultiplier = 0.3f;
                     statusDuration = 60f * 4f;
                     status = StatusEffects.corroded;
@@ -4209,6 +4209,59 @@ public class Blocks{
             limitRange();
         }};
 
+        horde = new ItemTurret("horde"){{
+            requirements(Category.turret, with(Items.tungsten, 35, Items.silicon, 35));
+            ammo(
+            Items.scrap, new MissileBulletType(4.2f, 15){{
+                velocityInaccuracy = 0.2f;
+                shootEffect = Fx.colorSpark;
+                smokeEffect = Fx.shootBigSmoke;
+                ammoMultiplier = 1;
+                hitColor = backColor = trailColor = Color.valueOf("ea8878");
+                frontColor = Color.valueOf("feb380");
+                trailWidth = 2f;
+                trailLength = 12;
+
+                splashDamage = 15f;
+                splashDamageRadius = 30f;
+
+                weaveMag = 5;
+                weaveScale = 4;
+                velocityInaccuracy = 0.1f;
+                ammoMultiplier = 3f;
+
+                //TODO different effect?
+                hitEffect = despawnEffect = Fx.blastExplosion;
+            }}
+            );
+
+            acceptCoolant = false;
+            //TODO
+            consumes.liquid(Liquids.hydrogen, 1.5f / 60f);
+            shots = 9;
+            burstSpacing = 2f;
+
+            //TODO this works but looks bad
+            spread = 0f;
+            shootLength = 6.5f;
+            xRand = 13f;
+            recoilAmount = 0f;
+
+            draw = new DrawTurret("reinforced-");
+            outlineColor = Pal.darkOutline;
+            size = 3;
+            envEnabled |= Env.space;
+            reloadTime = 60f * 1.5f;
+            range = 190;
+            shootCone = 15f;
+            inaccuracy = 20f;
+            health = 300 * size * size;
+            rotateSpeed = 3f;
+
+            //???
+            limitRange();
+        }};
+
         sublimate = new ContinuousLiquidTurret("sublimate"){{
             requirements(Category.turret, with(Items.tungsten, 150, Items.silicon, 200, Items.oxide, 40, Items.beryllium, 400));
 
@@ -4327,6 +4380,36 @@ public class Blocks{
                 shrinkX = 0.2f;
                 shrinkY = 0.1f;
                 buildingDamageMultiplier = 0.3f;
+            }},
+            Items.fissileMatter, new ArtilleryBulletType(2.5f, 40, "shell"){{
+                hitEffect = new MultiEffect(Fx.titanExplosion, Fx.titanSmoke);
+                despawnEffect = Fx.none;
+                knockback = 1.5f;
+                lifetime = 140f;
+                height = 16f;
+                width = 14.2f;
+                splashDamageRadius = 60f;
+                splashDamage = 100f;
+                backColor = hitColor = trailColor = Color.valueOf("5b6b82");
+                frontColor = Color.valueOf("a0b0c8");
+                ammoMultiplier = 1f;
+
+                status = StatusEffects.blasted;
+
+                trailLength = 32;
+                trailWidth = 2.64f;
+                trailSinScl = 2.5f;
+                trailSinMag = 1f;
+                trailEffect = Fx.none;
+                trailColor = backColor;
+                despawnShake = 7f;
+
+                shootEffect = Fx.shootTitan;
+                smokeEffect = Fx.shootSmokeTitan;
+
+                trailInterp = v -> Math.max(Mathf.slope(v), 0.8f);
+                shrinkX = 0.2f;
+                shrinkY = 0.1f;
             }}
             );
 
