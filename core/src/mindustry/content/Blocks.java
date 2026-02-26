@@ -4213,13 +4213,13 @@ public class Blocks{
             requirements(Category.turret, with(Items.tungsten, 35, Items.silicon, 35));
             ammo(
             Items.scrap, new MissileBulletType(4.2f, 15){{
-                VelocityRnd = 0.2f;
+                velocityRnd = 0.2f;
                 shootEffect = Fx.colorSpark;
                 smokeEffect = Fx.shootBigSmoke;
                 hitColor = backColor = trailColor = Color.valueOf("ea8878");
                 frontColor = Color.valueOf("feb380");
                 trailWidth = 2f;
-                trailLength = 12f;
+                trailLength = 12;
 
                 splashDamage = 15f;
                 splashDamageRadius = 30f;
@@ -4241,7 +4241,6 @@ public class Blocks{
                 shotDelay = 2f; // burstSpacing is now shotDelay
             }};
 
-            shoot.velocityInaccuracy = 0.2f;
             inaccuracy = 0f; // spread is generally handled by inaccuracy at the turret level
 
             drawer = new DrawTurret("reinforced-"); // draw -> drawer
