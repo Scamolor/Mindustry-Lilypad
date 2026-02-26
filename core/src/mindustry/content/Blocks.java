@@ -4213,21 +4213,19 @@ public class Blocks{
             requirements(Category.turret, with(Items.tungsten, 35, Items.silicon, 35));
             ammo(
             Items.scrap, new MissileBulletType(4.2f, 15){{
-                velocityInaccuracy = 0.2f;
+                VelocityRnd = 0.2f;
                 shootEffect = Fx.colorSpark;
                 smokeEffect = Fx.shootBigSmoke;
-                ammoMultiplier = 1;
                 hitColor = backColor = trailColor = Color.valueOf("ea8878");
                 frontColor = Color.valueOf("feb380");
                 trailWidth = 2f;
-                trailLength = 12;
+                trailLength = 12f;
 
                 splashDamage = 15f;
                 splashDamageRadius = 30f;
 
                 weaveMag = 5;
                 weaveScale = 4;
-                velocityInaccuracy = 0.1f;
                 ammoMultiplier = 3f;
 
                 //TODO different effect?
@@ -4235,33 +4233,30 @@ public class Blocks{
             }}
             );
 
-            acceptCoolant = false;
-            //TODO
-            consumes.liquid(Liquids.hydrogen, 1.5f / 60f);
-            shots = 9;
-            burstSpacing = 2f;
+            consumeLiquid(Liquids.hydrogen, 1.5f / 60f);
+            canOverdrive = false;
 
-            //TODO this works but looks bad
-            spread = 0f;
-            shootLength = 6.5f;
-            xRand = 13f;
-            recoilAmount = 0f;
+            shoot = new ShootPattern(){{
+                shots = 9;
+                shotDelay = 2f; // burstSpacing is now shotDelay
+            }};
 
-            draw = new DrawTurret("reinforced-");
+            shoot.velocityInaccuracy = 0.2f;
+            inaccuracy = 0f; // spread is generally handled by inaccuracy at the turret level
+
+            drawer = new DrawTurret("reinforced-"); // draw -> drawer
             outlineColor = Pal.darkOutline;
             size = 3;
             envEnabled |= Env.space;
-            reloadTime = 60f * 1.5f;
+
+            reload = 60f * 1.5f; // reloadTime -> reload
             range = 190;
             shootCone = 15f;
             inaccuracy = 20f;
             health = 300 * size * size;
             rotateSpeed = 3f;
-
-            //???
-            limitRange();
+            limitRange(); // Sets bullet lifetime to (range / speed) automatically
         }};
-
         sublimate = new ContinuousLiquidTurret("sublimate"){{
             requirements(Category.turret, with(Items.tungsten, 150, Items.silicon, 200, Items.oxide, 40, Items.beryllium, 400));
 
