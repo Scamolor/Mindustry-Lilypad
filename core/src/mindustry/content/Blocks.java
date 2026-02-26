@@ -4243,7 +4243,10 @@ public class Blocks{
 
             inaccuracy = 0f; // spread is generally handled by inaccuracy at the turret level
 
-            drawer = new DrawTurret("reinforced-"); // draw -> drawer
+            drawer = new DrawTurret("reinforced-"){{
+                basePrefix = "reinforced-"; // It will look for reinforced-base.png instead of reinforced-horde-base.png
+            }};
+
             outlineColor = Pal.darkOutline;
             size = 3;
             envEnabled |= Env.space;
