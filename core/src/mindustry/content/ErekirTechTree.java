@@ -156,9 +156,10 @@ public class ErekirTechTree{
                     });
 
                     node(beamTower, Seq.with(new OnSector(peaks)), () -> {
+                        node(beamLink, Seq.with(new OnSector(crossroads)), () -> {
 
+                        });
                     });
-
 
                     node(regenProjector, Seq.with(new OnSector(peaks)), () -> {
                         //TODO more tiers of build tower or "support" structures like overdrive projectors
@@ -287,6 +288,12 @@ public class ErekirTechTree{
                             });
                         });
                     });
+
+                    node(fracture, Seq.with(new OnSector(stronghold)), () -> {
+                        node(horde, Seq.with(new OnSector(siege)), () -> {
+
+                        });
+                    });
                 });
 
 
@@ -411,7 +418,7 @@ public class ErekirTechTree{
                 nodeProduce(Items.sand, () -> {
                     nodeProduce(Items.silicon, () -> {
                         nodeProduce(Items.oxide, () -> {
-                            //nodeProduce(Items.fissileMatter, () -> {});
+                            nodeProduce(Items.fissileMatter, () -> {});
                         });
                     });
                 });
@@ -445,7 +452,7 @@ public class ErekirTechTree{
                         nodeProduce(Items.thorium, () -> {
                             nodeProduce(Items.carbide, () -> {
 
-                                //nodeProduce(Liquids.gallium, () -> {});
+                                nodeProduce(Liquids.gallium, () -> {});
                             });
 
                             nodeProduce(Items.surgeAlloy, () -> {

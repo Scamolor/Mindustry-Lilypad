@@ -261,6 +261,14 @@ public class SerpuloTechTree{
             node(duo, () -> {
                 node(copperWall, () -> {
                     node(copperWallLarge, () -> {
+                        node(scrapWall, () -> {
+                            node(scrapWallLarge, () -> {
+                                node(scrapWallHuge, () -> {
+                                    node(scrapWallGigantic);
+                                });
+                            });
+                        });
+
                         node(titaniumWall, () -> {
                             node(titaniumWallLarge);
 

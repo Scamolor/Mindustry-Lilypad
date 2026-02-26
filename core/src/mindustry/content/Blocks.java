@@ -1653,7 +1653,6 @@ public class Blocks{
             requirements(Category.defense, with(Items.scrap, 6));
             health = 60 * wallHealthMultiplier;
             variants = 5;
-            envDisabled |= Env.scorching;
         }};
 
         scrapWallLarge = new Wall("scrap-wall-large"){{
@@ -1661,7 +1660,6 @@ public class Blocks{
             health = 60 * 4 * wallHealthMultiplier;
             size = 2;
             variants = 4;
-            envDisabled |= Env.scorching;
         }};
 
         scrapWallHuge = new Wall("scrap-wall-huge"){{
@@ -1669,21 +1667,18 @@ public class Blocks{
             health = 60 * 9 * wallHealthMultiplier;
             size = 3;
             variants = 3;
-            envDisabled |= Env.scorching;
         }};
 
         scrapWallGigantic = new Wall("scrap-wall-gigantic"){{
             requirements(Category.defense, ItemStack.mult(scrapWall.requirements, 16));
             health = 60 * 16 * wallHealthMultiplier;
             size = 4;
-            envDisabled |= Env.scorching;
         }};
 
         thruster = new Thruster("thruster"){{
             requirements(Category.defense, with(Items.scrap, 96));
             health = 55 * 16 * wallHealthMultiplier;
             size = 4;
-            envDisabled |= Env.scorching;
         }};
 
         berylliumWall = new Wall("beryllium-wall"){{
@@ -2511,11 +2506,12 @@ public class Blocks{
         }};
 
         beamLink = new LongPowerNode("beam-link"){{
-            requirements(Category.power, BuildVisibility.editorOnly, with());
+            requirements(Category.power, with(Items.beryllium, 250, Items.silicon, 250, Items.oxide, 150, Items.carbide, 75, Items.surgeAlloy, 75, Items.phaseFabric, 75));
             size = 3;
             maxNodes = 1;
-            laserRange = 1000f;
+            laserRange = 500f;
             autolink = false;
+            sameBlockConnection = true;
             laserColor2 = Color.valueOf("ffd9c2");
             laserScale = 0.8f;
             scaledHealth = 130;
@@ -4407,6 +4403,155 @@ public class Blocks{
                 trailInterp = v -> Math.max(Mathf.slope(v), 0.8f);
                 shrinkX = 0.2f;
                 shrinkY = 0.1f;
+            }},
+            Items.carbide, new ArtilleryBulletType(3.25f, 700, "shell"){{
+                hitEffect = new MultiEffect(Fx.titanExplosionSmall, Fx.titanSmokeSmall);
+                despawnEffect = Fx.none;
+                knockback = 3f;
+                lifetime = 140f;
+                height = 28f;
+                width = 15f;
+                splashDamageRadius = 36f;
+                splashDamage = 750f;
+                rangeChange = 10f*8f;
+                reloadMultiplier = 0.8f;
+                scaledSplashDamage = true;
+                backColor = hitColor = trailColor = Color.valueOf("ab8ec5");
+                frontColor = Color.white;
+                ammoMultiplier = 1f;
+                hitSound = Sounds.explosionTitan;
+
+                status = StatusEffects.blasted;
+
+                trailLength = 32;
+                trailWidth = 3.35f;
+                trailSinScl = 2.5f;
+                trailSinMag = 0.5f;
+                trailEffect = Fx.disperseTrail;
+                trailInterval = 2f;
+                despawnShake = 7f;
+
+                shootEffect = Fx.shootTitan;
+                smokeEffect = Fx.shootSmokeTitan;
+                trailRotation = true;
+
+                trailInterp = v -> Math.max(Mathf.slope(v), 0.8f);
+                shrinkX = 0.2f;
+                shrinkY = 0.1f;
+                buildingDamageMultiplier = 0.2f;
+                fragLifeMin = 1.5f;
+
+                fragBullets = 12;
+                    fragBullet = new ArtilleryBulletType(0.5f, 50, "shell"){{
+                        hitEffect = new MultiEffect(Fx.titanExplosionFrag, Fx.titanLightSmall, new WaveEffect(){{
+                            lifetime = 8f;
+                            strokeFrom = 1f;
+                            sizeTo = 8f;
+                        }});
+
+                        despawnEffect = Fx.hitBulletColor;
+                        width = 8f;
+                        height = 12f;
+                        lifetime = 50f;
+                        knockback = 0.5f;
+                        splashDamageRadius = 22f;
+                        splashDamage = 50f;
+                        scaledSplashDamage = true;
+                        pierceArmor = true;
+                        backColor = frontColor = hitColor = Color.valueOf("ab8ec5");
+                        frontColor = Color.white;
+                        buildingDamageMultiplier = 0.25f;
+                        shrinkY = 0.3f;
+                    }};
+            }},
+            Items.oxide, new ArtilleryBulletType(2.5f, 300, "shell"){{
+                hitEffect = new MultiEffect(Fx.titanExplosionLarge, Fx.titanSmokeLarge, Fx.smokeAoeCloud);
+                despawnEffect = Fx.none;
+                knockback = 2f;
+                lifetime = 190f;
+                height = 19f;
+                width = 17f;
+                reloadMultiplier = 0.7f;
+                splashDamageRadius = 110f;
+                rangeChange = 8f;
+                splashDamage = 180f;
+                scaledSplashDamage = true;
+                hitColor = backColor = trailColor = Color.valueOf("a0b380");
+                frontColor = Color.valueOf("e4ffd6");
+                ammoMultiplier = 1f;
+                hitSound = Sounds.explosionTitan;
+
+                trailLength = 32;
+                trailWidth = 3.35f;
+                trailSinScl = 2.5f;
+                trailSinMag = 0.5f;
+                trailEffect = Fx.vapor;
+                trailInterval = 3f;
+                despawnShake = 7f;
+
+                shootEffect = Fx.shootTitan;
+                smokeEffect = Fx.shootSmokeTitan;
+
+                trailInterp = v -> Math.max(Mathf.slope(v), 0.8f);
+                shrinkX = 0.2f;
+                shrinkY = 0.1f;
+                buildingDamageMultiplier = 0.25f;
+                status = StatusEffects.corroded;
+                statusDuration = 60f * 8f;
+
+                fragBullets = 1;
+                fragBullet = new EmptyBulletType(){{
+                    damage = 0f;
+                    lifetime = 60f * 2.5f;
+                    bulletInterval = 20f;
+                    hitEffect = despawnEffect = Fx.none;
+                    intervalBullet = new EmptyBulletType(){{
+                        splashDamage = 15f;
+                        collidesGround = true;
+                        collidesAir = false;
+                        collides = false;
+                        hitEffect = despawnEffect = Fx.none;
+                        pierce = true;
+                        instantDisappear = true;
+                        splashDamageRadius = 90f;
+                        buildingDamageMultiplier = 0f;
+                    }};
+                }};
+            }}
+            Items.carbide, new ArtilleryBulletType(2.5f, 500, "shell"){{
+                hitEffect = new MultiEffect(Fx.titanExplosion, Fx.titanSmoke);
+                despawnEffect = Fx.none;
+                knockback = 3f;
+                lifetime = 140f;
+                height = 19f;
+                width = 17f;
+                splashDamageRadius = 55f;
+                splashDamage = 600f;
+                rangeChange = 8f*8f;
+                scaledSplashDamage = true;
+                backColor = hitColor = trailColor = Color.valueOf("ab8ec5");
+                frontColor = Color.white;
+                ammoMultiplier = 1f;
+                hitSound = Sounds.titanExplosion;
+
+                status = StatusEffects.blasted;
+
+                trailLength = 32;
+                trailWidth = 3.35f;
+                trailSinScl = 2.5f;
+                trailSinMag = 0.5f;
+                trailEffect = Fx.disperseTrail;
+                trailInterval = 2f;
+                despawnShake = 7f;
+
+                shootEffect = Fx.shootTitan;
+                smokeEffect = Fx.shootSmokeTitan;
+                trailRotation = true;
+
+                trailInterp = v -> Math.max(Mathf.slope(v), 0.8f);
+                shrinkX = 0.2f;
+                shrinkY = 0.1f;
+                buildingDamageMultiplier = 0.3f;
             }}
             );
 
