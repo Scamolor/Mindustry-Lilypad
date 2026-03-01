@@ -1421,7 +1421,7 @@ public class Blocks{
 
             outputLiquid = new LiquidStack(Liquids.gallium, 1f / 60f);
             //TODO something else?
-            //outputItem = new ItemStack(Items.scrap, 1);
+            outputItem = new ItemStack(Items.scrap, 1);
         }};
 
         surgeCrucible = new HeatCrafter("surge-crucible"){{
@@ -1882,8 +1882,6 @@ public class Blocks{
             }});
         }};
 
-        //TODO implement
-        if(false)
         barrierProjector = new DirectionalForceProjector("barrier-projector"){{
             requirements(Category.effect, with(Items.surgeAlloy, 100, Items.silicon, 125));
             size = 3;
@@ -4164,6 +4162,37 @@ public class Blocks{
                 trailLength = 3;
                 hitEffect = despawnEffect = Fx.hitSquaresColor;
                 buildingDamageMultiplier = 0.2f;
+            }},
+            Items.oxide, new BasicBulletType(8f, 90){{
+                knockback = 3f;
+                width = 25f;
+                hitSize = 7f;
+                height = 20f;
+                shootEffect = Fx.shootBigColor;
+                smokeEffect = Fx.shootSmokeSquareSparse;
+                ammoMultiplier = 2;
+                hitColor = backColor = trailColor = Color.valueOf("a0b380");
+                frontColor = Color.valueOf("e4ffd6");
+                trailWidth = 6f;
+                trailLength = 3;
+                hitEffect = despawnEffect = Fx.hitSquaresColor;
+                buildingDamageMultiplier = 0.2f;
+            }},
+            Items.silicon, new BasicBulletType(8f, 33){{
+                knockback = 2f;
+                width = 25f;
+                hitSize = 7f;
+                height = 20f;
+                homingPower = 0.045f;
+                shootEffect = Fx.shootBigColor;
+                smokeEffect = Fx.shootSmokeSquareSparse;
+                ammoMultiplier = 1;
+                hitColor = backColor = trailColor = Color.valueOf("858a9b");
+                frontColor = Color.valueOf("dae1ee");
+                trailWidth = 6f;
+                trailLength = 6;
+                hitEffect = despawnEffect = Fx.hitSquaresColor;
+                buildingDamageMultiplier = 0.2f;
             }}
             );
 
@@ -4374,14 +4403,14 @@ public class Blocks{
                 shrinkY = 0.1f;
                 buildingDamageMultiplier = 0.3f;
             }},
-            Items.fissileMatter, new ArtilleryBulletType(2.5f, 40, "shell"){{
+            Items.fissileMatter, new ArtilleryBulletType(2.5f, 400, "shell"){{
                 hitEffect = new MultiEffect(Fx.titanExplosion, Fx.titanSmoke);
                 despawnEffect = Fx.none;
                 knockback = 1.5f;
                 lifetime = 140f;
                 height = 16f;
                 width = 14.2f;
-                splashDamageRadius = 60f;
+                splashDamageRadius = 120f;
                 splashDamage = 100f;
                 backColor = hitColor = trailColor = Color.valueOf("5b6b82");
                 frontColor = Color.valueOf("a0b0c8");
@@ -4403,6 +4432,41 @@ public class Blocks{
                 trailInterp = v -> Math.max(Mathf.slope(v), 0.8f);
                 shrinkX = 0.2f;
                 shrinkY = 0.1f;
+            }},
+            Items.carbide, new ArtilleryBulletType(2.5f, 500, "shell"){{
+                hitEffect = new MultiEffect(Fx.titanExplosion, Fx.titanSmoke);
+                despawnEffect = Fx.none;
+                knockback = 3f;
+                lifetime = 140f;
+                height = 19f;
+                width = 17f;
+                splashDamageRadius = 55f;
+                splashDamage = 600f;
+                rangeChange = 8f*8f;
+                scaledSplashDamage = true;
+                backColor = hitColor = trailColor = Color.valueOf("ab8ec5");
+                frontColor = Color.white;
+                ammoMultiplier = 1f;
+                hitSound = Sounds.titanExplosion;
+
+                status = StatusEffects.blasted;
+
+                trailLength = 32;
+                trailWidth = 3.35f;
+                trailSinScl = 2.5f;
+                trailSinMag = 0.5f;
+                trailEffect = Fx.disperseTrail;
+                trailInterval = 2f;
+                despawnShake = 7f;
+
+                shootEffect = Fx.shootTitan;
+                smokeEffect = Fx.shootSmokeTitan;
+                trailRotation = true;
+
+                trailInterp = v -> Math.max(Mathf.slope(v), 0.8f);
+                shrinkX = 0.2f;
+                shrinkY = 0.1f;
+                buildingDamageMultiplier = 0.3f;
             }}
             );
 

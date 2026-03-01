@@ -230,8 +230,8 @@ public class ErekirTechTree{
                             node(slagIncinerator, Seq.with(new OnSector(basin)), () -> {
 
                                 //TODO these are unused.
-                                //node(slagCentrifuge, () -> {});
-                                //node(heatReactor, () -> {});
+                                node(slagCentrifuge, () -> {});
+                                node(heatReactor, () -> {});
                             });
                         });
                     });
@@ -291,7 +291,8 @@ public class ErekirTechTree{
 
                     node(fracture, Seq.with(new OnSector(stronghold)), () -> {
                         node(horde, Seq.with(new OnSector(siege)), () -> {
-
+                            node(ravage, Seq.with(new SectorComplete(karst)), () -> {
+                            });
                         });
                     });
                 });
