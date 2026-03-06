@@ -4465,16 +4465,20 @@ public class Blocks{
                 buildingDamageMultiplier = 0.3f;
             }},
             Items.fissileMatter, new ArtilleryBulletType(2.5f, 1000, "shell"){{
-                hitEffect = new MultiEffect(Fx.titanExplosion, Fx.titanSmoke);
-                despawnEffect = Fx.none;
+                hitEffect = despawnEffect = new ExplosionEffect() {{
+                    waveColor = Color.valueOf("5e988d");
+                    smokeColor = Pal.darkishGray;
+                    sparkColor = Pal.slagOrange;
+                    waveStroke = 4f;
+                    waveRad = 105f;
+                }};
                 reloadMultiplier = 0.4f;
-                ammoMultiplier = 0.5f; //costs 8 fissile matter to fire for balance reasons
                 knockback = 6f;
                 lifetime = 140f;
-                height = 19f;
-                width = 17f;
+                height = 21f;
+                width = 19f;
                 splashDamageRadius = 105f;
-                splashDamage = 200f;
+                splashDamage = 800f;
                 backColor = hitColor = trailColor = Color.valueOf("5b6b82");
                 frontColor = Color.valueOf("a0b0c8");
                 status = StatusEffects.blasted;
@@ -4484,7 +4488,7 @@ public class Blocks{
                 trailSinMag = 1f;
                 trailEffect = Fx.none;
                 trailColor = backColor;
-                despawnShake = 7f;
+                despawnShake = 14f;
 
                 shootEffect = Fx.shootTitan;
                 smokeEffect = Fx.shootSmokeTitan;
