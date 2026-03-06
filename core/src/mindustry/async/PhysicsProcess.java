@@ -11,10 +11,10 @@ import mindustry.gen.*;
 
 public class PhysicsProcess implements AsyncProcess{
     private static final int
-        layers = 3,
-        layerGround = 0,
-        layerLegs = 1,
-        layerFlying = 2;
+        layers = 3;
+    public static final int layerGround = 0;
+    public static final int layerLegs = 1;
+    public static final int layerFlying = 2;
 
     private PhysicsWorld physics;
     private Seq<PhysicRef> refs = new Seq<>(false);

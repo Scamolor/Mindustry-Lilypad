@@ -55,6 +55,8 @@ public class FloorRenderer{
     private IntSeq drawnLayers = new IntSeq();
     private ObjectSet<CacheLayer> used = new ObjectSet<>();
 
+    private Seq<Runnable> underwaterDraw = new Seq<>(Runnable.class);
+
     public FloorRenderer(){
         short j = 0;
         for(int i = 0; i < indices.length; i += 6, j += 4){
@@ -203,6 +205,10 @@ public class FloorRenderer{
 
             recacheSet.clear();
         }
+    }
+
+    public void drawUnderwater(Runnable run) {
+        underwaterDraw.add(run);
     }
 
     public void beginDraw(){

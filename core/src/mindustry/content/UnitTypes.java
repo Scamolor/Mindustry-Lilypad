@@ -92,6 +92,9 @@ public class UnitTypes{
 
     public static @EntityDef({Unitc.class, Crawlc.class}) UnitType latum, renale;
 
+    //experimental submarine units
+    public static @EntityDef({Unitc.class, Submarinec.class}) UnitType bowhead;
+
     //endregion
 
     public static void load(){
@@ -1482,6 +1485,10 @@ public class UnitTypes{
             accel = 0.4f;
             rotateSpeed = 3.3f;
             faceTarget = false;
+
+            trailLength = 20;
+            waveTrailX = 4f;
+            trailScl = 1.3f;
 
             armor = 2f;
 
@@ -4041,6 +4048,98 @@ public class UnitTypes{
         }};
 
         //endregion
+        //region submarine
+        bowhead = new SubmarineUnitType("bowhead"){{
+            health = 11000;
+            armor = 12f;
+            canBoost = true;
+            boostMultiplier = 1.1f;
+            speed = 0.73f;
+            drag = 0.17f;
+            hitSize = 39f;
+            accel = 0.2f;
+            rotateSpeed = 1.3f;
+            faceTarget = false;
+            ammoType = new ItemAmmoType(Items.thorium);
+            trailLength = 50;
+            waveTrailX = 18f;
+            waveTrailY = -21f;
+            trailScl = 3f;
+
+            weapons.add(new Weapon("sei-launcher"){{
+
+                x = 0f;
+                y = 0f;
+                rotate = true;
+                rotateSpeed = 4f;
+                mirror = false;
+
+                shadow = 20f;
+
+                shootY = 4.5f;
+                recoil = 4f;
+                reload = 45f;
+                velocityRnd = 0.4f;
+                inaccuracy = 7f;
+                ejectEffect = Fx.none;
+                shake = 1f;
+                shootSound = Sounds.missile;
+
+                shoot = new ShootAlternate(){{
+                    shots = 6;
+                    shotDelay = 1.5f;
+                    spread = 4f;
+                    barrels = 3;
+                }};
+
+                bullet = new MissileBulletType(4.2f, 42){{
+                    homingPower = 0.12f;
+                    width = 8f;
+                    height = 8f;
+                    shrinkX = shrinkY = 0f;
+                    drag = -0.003f;
+                    homingRange = 80f;
+                    keepVelocity = false;
+                    splashDamageRadius = 35f;
+                    splashDamage = 45f;
+                    lifetime = 62f;
+                    trailColor = Pal.bulletYellowBack;
+                    backColor = Pal.bulletYellowBack;
+                    frontColor = Pal.bulletYellow;
+                    hitEffect = Fx.blastExplosion;
+                    despawnEffect = Fx.blastExplosion;
+                    weaveScale = 8f;
+                    weaveMag = 2f;
+                }};
+            }});
+
+            weapons.add(new Weapon("large-bullet-mount"){{
+                reload = 60f;
+                cooldownTime = 90f;
+                x = 70f/4f;
+                y = -66f/4f;
+                rotateSpeed = 4f;
+                rotate = true;
+                shootY = 7f;
+                shake = 2f;
+                recoil = 3f;
+                shadow = 12f;
+                ejectEffect = Fx.casing3;
+                shootSound = Sounds.shootBig;
+
+                shoot.shots = 3;
+                shoot.shotDelay = 4f;
+
+                inaccuracy = 1f;
+                bullet = new BasicBulletType(7f, 57){{
+                    width = 13f;
+                    height = 19f;
+                    shootEffect = Fx.shootBig;
+                    lifetime = 35f;
+                }};
+            }});
+        }};
+        //endregion
         //region erekir - core
 
         float coreFleeRange = 500f;
@@ -4264,7 +4363,7 @@ public class UnitTypes{
             rotateSpeed = 360f;
             itemCapacity = 0;
             hidden = false;
-            internal = true;
+            internal = false;
         }};
 
         manifold = new ErekirUnitType("manifold"){{

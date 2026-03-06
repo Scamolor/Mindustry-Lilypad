@@ -76,7 +76,8 @@ public class ErekirTechTree{
 
                         node(unitCargoLoader, () -> {
                             node(unitCargoUnloadPoint, () -> {
-
+                                node(droneCenter, () -> {
+                                });
                             });
                         });
                     });
@@ -291,12 +292,12 @@ public class ErekirTechTree{
 
                     node(fracture, Seq.with(new OnSector(stronghold)), () -> {
                         node(horde, Seq.with(new OnSector(siege)), () -> {
-                            node(ravage, Seq.with(new SectorComplete(karst)), () -> {
+                            node(ravage, Seq.with(new SectorComplete(karst)), () -> {});
+                            node(divine, Seq.with(new SectorComplete(karst)), () -> {
                             });
                         });
                     });
                 });
-
 
                 node(radar, Seq.with(new Research(beamNode), new Research(turbineCondenser), new Research(tankFabricator), new OnSector(SectorPresets.aegis)), () -> {
 

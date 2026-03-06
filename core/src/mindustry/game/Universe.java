@@ -121,6 +121,10 @@ public class Universe{
         lastLoadout = schem;
     }
 
+    public void updateLoadout(CoreBlock block){
+        updateLoadout(block, new Schematic(Seq.with(new Schematic.Stile(block, 0, 0, null, (byte)0)), new StringMap(), block.size, block.size));
+    }
+
     public Schematic getLastLoadout(){
         if(lastLoadout == null) lastLoadout = state.rules.sector == null || state.rules.sector.planet.generator == null ? Loadouts.basicShard : state.rules.sector.planet.generator.defaultLoadout;
         return lastLoadout;

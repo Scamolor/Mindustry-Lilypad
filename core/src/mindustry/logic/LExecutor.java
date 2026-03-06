@@ -56,7 +56,7 @@ public class LExecutor{
     public @Nullable LogicBuild build;
     public IntSet linkIds = new IntSet();
     public Team team = Team.derelict;
-    public boolean privileged = false;
+    public boolean privileged = false, isFilter = false;
 
     //yes, this is a minor memory leak, but it's probably not significant enough to matter
     protected IntFloatMap unitTimeouts = new IntFloatMap();
@@ -331,8 +331,8 @@ public class LExecutor{
                         cache.found = false;
                         exec.setnum(outFound, 0);
                     }
-                    
-                    if(res != null && res.build != null && 
+
+                    if(res != null && res.build != null &&
                         (unit.within(res.build.x, res.build.y, Math.max(unit.range(), buildingRange)) || res.build.team == exec.team)){
                         cache.build = res.build;
                         exec.setobj(outBuild, res.build);
@@ -1344,7 +1344,7 @@ public class LExecutor{
                             if(t == null) t = Team.derelict;
 
                             if(tile.block() != b || tile.team() != t){
-                                tile.setNet(b, t, Mathf.clamp(exec.numi(rotation), 0, 3));
+                                tile.setBlock(b, t, Mathf.clamp(exec.numi(rotation), 0, 3));
                             }
                         }
                     }

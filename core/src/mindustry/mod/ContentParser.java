@@ -112,8 +112,8 @@ public class ContentParser{
         });
         put(UnitCommand.class, (type, data) -> {
             if(data.isString()){
-               var cmd = UnitCommand.all.find(u -> u.name.equals(data.asString()));
-               if(cmd != null){
+                var cmd = content.getByName(ContentType.unitCommand, data.asString());
+                if(cmd != null){
                    return cmd;
                }else{
                    throw new IllegalArgumentException("Unknown unit command name: " + data.asString());

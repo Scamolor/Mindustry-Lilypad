@@ -6,16 +6,17 @@ import mindustry.entities.bullet.*;
 /**
  * Class for holding special internal bullets.
  * Formerly used to define preset bullets for turrets; as of v7, these have been inlined at the source.
- * */
-public class Bullets{
+ *
+ */
+public class Bullets {
     public static BulletType
 
-    placeholder, spaceLiquid, damageLightning, damageLightningGround, fireball;
+            placeholder, spaceLiquid, damageLightning, damageLightningGround, damageLightningAir, fireball;
 
-    public static void load(){
+    public static void load() {
 
         //not allowed in weapons - used only to prevent NullPointerExceptions
-        placeholder = new BasicBulletType(2.5f, 9, "ohno"){{
+        placeholder = new BasicBulletType(2.5f, 9, "ohno") {{
             width = 7f;
             height = 9f;
             lifetime = 60f;
@@ -23,7 +24,7 @@ public class Bullets{
         }};
 
         //lightning bullets need to be initialized first.
-        damageLightning = new BulletType(0.0001f, 0f){{
+        damageLightning = new BulletType(0.0001f, 0f) {{
             lifetime = Fx.lightning.lifetime;
             hitEffect = Fx.hitLancer;
             despawnEffect = Fx.none;
@@ -37,9 +38,15 @@ public class Bullets{
         damageLightningGround = damageLightning.copy();
         damageLightningGround.collidesAir = false;
 
-        fireball = new FireBulletType(1f, 4);
+        damageLightningAir = damageLightning.copy();
+        damageLightningAir.collidesGround = false;
+        damageLightningAir.collidesTiles = false;
 
-        spaceLiquid = new SpaceLiquidBulletType(){{
+        fireball = new FireBulletType(1f, 4) {{
+            hittable = false;
+        }};
+
+        spaceLiquid = new SpaceLiquidBulletType() {{
             knockback = 0.7f;
             drag = 0.01f;
         }};

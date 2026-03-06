@@ -142,12 +142,16 @@ public class Planet extends UnlockableContent{
     public @Nullable TechNode techTree;
     /** TODO remove? Planets that can be launched to from this one. Made mutual in init(). */
     public Seq<Planet> launchCandidates = new Seq<>();
+    /** Whether interplanetary accelerators can launch to 'any' procedural sector on this planet's surface. */
+    public boolean allowSelfSectorLaunch;
+    /** If true, all content in this planet's tech tree will be assigned this planet in their shownPlanets. */
+    public boolean autoAssignPlanet = true;
+    /** Content (usually planet-specific) that is unlocked upon landing here. */
+    public static Seq<UnlockableContent> unlockedOnLand = new Seq<>();
     /** Items not available on this planet. Left out for backwards compatibility. */
     public Seq<Item> hiddenItems = new Seq<>();
     /** The only items available on this planet, if defined. */
     public Seq<Item> itemWhitelist = new Seq<>();
-    /** Content (usually planet-specific) that is unlocked upon landing here. */
-    public Seq<UnlockableContent> unlockedOnLand = new Seq<>();
     /** Loads the mesh. Clientside only. Defaults to a boring sphere mesh. */
     public Prov<GenericMesh> meshLoader = () -> new ShaderSphereMesh(this, Shaders.unlit, 2), cloudMeshLoader = () -> null;
     /** Loads the planet grid outline mesh. Clientside only. */

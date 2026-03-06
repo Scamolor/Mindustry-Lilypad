@@ -22,7 +22,9 @@ public enum ContentType{
     error(null),
     planet(Planet.class),
     ammo_UNUSED(null),
-    team(TeamEntry.class);
+    team(TeamEntry.class),
+    unitCommand(null),
+    unitStance(null);
 
     public static final ContentType[] all = values();
 

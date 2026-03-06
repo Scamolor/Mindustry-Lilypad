@@ -186,6 +186,9 @@ public class BulletType extends Content implements Cloneable{
     /** Use a negative value to disable interval bullet delay. */
     public float intervalDelay = -1f;
 
+    /** If true, this bullet is rendered underwater. Highly experimental! **/
+    public boolean underwater = false;
+
     /** Color used for hit/despawn effects. */
     public Color hitColor = Color.white;
     /** Color used for block heal effects. */
@@ -255,6 +258,8 @@ public class BulletType extends Content implements Cloneable{
     public float suppressionDuration = 60f * 8f;
     /** Chance of suppression effect occurring on block, scaled down by number of blocks. */
     public float suppressionEffectChance = 50f;
+    /** Color used for the regenSuppressSeek effect. */
+    public Color suppressColor = Pal.sapBullet;
 
     /** Color of lightning created by bullet. */
     public Color lightningColor = Pal.surge;

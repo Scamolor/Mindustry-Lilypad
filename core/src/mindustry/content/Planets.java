@@ -27,6 +27,7 @@ public class Planets{
 
     public static void load(){
         sun = new Planet("sun", null, 4f){{
+            generator = new ErekirPlanetGenerator(); //just so we can land here
             bloom = true;
             accessible = true; //hehehe
             alwaysUnlocked = true;
@@ -38,6 +39,16 @@ public class Planets{
             enemyCoreSpawnReplace = true;
             allowLaunchLoadout = true;
             visible = true;
+            defaultEnv = Env.scorching | Env.terrestrial;
+            startSector = 10;
+            defaultCore = Blocks.coreBastion;
+            iconColor = Color.valueOf("ff9638");
+            icon = "commandRally";
+            ruleSetter = r -> {
+                r.waveTeam = Team.crux;
+                r.placeRangeCheck = false;
+                r.showSpawns = false;
+            };
             meshLoader = () -> new SunMesh(
                 this, 4,
                 5, 0.3, 1.7, 1.2, 1,

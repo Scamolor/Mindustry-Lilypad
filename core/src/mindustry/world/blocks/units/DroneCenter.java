@@ -15,7 +15,6 @@ import mindustry.world.*;
 
 import static mindustry.Vars.*;
 
-//TODO remove
 public class DroneCenter extends Block{
     public int unitsSpawned = 4;
     public UnitType droneType;

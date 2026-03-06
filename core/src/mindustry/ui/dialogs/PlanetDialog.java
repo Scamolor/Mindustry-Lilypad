@@ -60,6 +60,7 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
     public PlanetParams state = new PlanetParams();
     public float zoom = 1f;
     public @Nullable Sector selected, hovered, launchSector;
+    public @Nullable Seq<Planet> launchCandidates;
     public Mode mode = look;
     public boolean launching;
     public Cons<Sector> listener = s -> {};
@@ -317,28 +318,27 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
     }
 
     //TODO not fully implemented, cutscene needed
-    public void showPlanetLaunch(Sector sector, Cons<Sector> listener){
+    public void showPlanetLaunch(Sector sector, Seq<Planet> launchCandidates, Cons<Sector> listener) {
         selected = null;
         hovered = null;
         launching = false;
         this.listener = listener;
+        this.launchCandidates = (launchCandidates == null ? sector.planet.launchCandidates : launchCandidates);
         launchSector = sector;
 
         //automatically select next planets;
-        if(sector.planet.launchCandidates.size == 1){
-            state.planet = sector.planet.launchCandidates.first();
+        if (this.launchCandidates.size == 1) {
+            state.planet = this.launchCandidates.first();
             state.otherCamPos = sector.planet.position;
             state.otherCamAlpha = 0f;
 
             //unlock and highlight sector
             var destSec = state.planet.sectors.get(state.planet.startSector);
             var preset = destSec.preset;
-            if(preset != null){
+            if (preset != null) {
                 preset.unlock();
             }
             selected = destSec;
-            updateSelected();
-            rebuildExpand();
         }
 
         //TODO pan over to correct planet
