@@ -27,6 +27,7 @@ public class SuppressionFieldAbility extends Ability{
     public boolean active = true;
     public Interp particleInterp = f -> Interp.circleOut.apply(Interp.slope.apply(f));
     public Color particleColor = Pal.sap.cpy();
+    public Color effectColor = Pal.sapBullet;
 
     public float applyParticleChance = 13f;
 

@@ -26,7 +26,7 @@ public class Planets{
     verilus;
 
     public static void load(){
-        sun = new Planet("sun", null, 4f){{
+        sun = new Planet("sun", null, 4f, 5){{
             generator = new ErekirPlanetGenerator(); //just so we can land here
             bloom = true;
             accessible = true; //hehehe

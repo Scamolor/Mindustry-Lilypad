@@ -90,6 +90,7 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
 
     transient float healSuppressionTime = -1f;
     transient float lastHealTime = -120f * 10f;
+    transient Color suppressColor = Pal.sapBullet;
 
     private transient float lastDamageTime = -recentDamageTime;
     private transient float timeScale = 1f, timeScaleDuration;

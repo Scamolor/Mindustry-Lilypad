@@ -14,6 +14,8 @@ public enum BlockFlag{
     factory,
     /** Repair point. */
     repair,
+    /** Block used for resupply. */
+    resupply,
     /** Block that stored power for resupply. */
     battery,
     /** Any reactor block. */
@@ -32,5 +34,5 @@ public enum BlockFlag{
     public final static BlockFlag[] all = values();
 
     /** Values for logic only. Filters out some internal flags. */
-    public final static BlockFlag[] allLogic = {core, storage, generator, turret, factory, repair, battery, reactor};
+    public final static BlockFlag[] allLogic = {core, storage, generator, turret, factory, repair, resupply, battery, reactor, launchPad, unitCargoUnloadPoint, unitAssembler, hasFogRadius};
 }

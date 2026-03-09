@@ -370,6 +370,8 @@ public class UnitType extends UnlockableContent implements Senseable{
     public boolean legContinuousMove;
     /** TODO neither of these appear to do much */
     public boolean flipBackLegs = true, flipLegSide = false;
+    public int ammoResupplyAmount = 10;
+    public float ammoResupplyRange = 100f;
 
     //MECH UNITS
 

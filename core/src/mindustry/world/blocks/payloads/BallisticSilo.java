@@ -1,14 +1,29 @@
 package mindustry.world.blocks.payloads;
 
-import mindustry.world.blocks.payloads.PayloadBlock;
+import mindustry.gen.*;
+import mindustry.world.blocks.payloads.NuclearWarhead.*;
 
 public class BallisticSilo extends PayloadBlock{
+
     public BallisticSilo(String name){
         super(name);
-        // placeholder; add launch logic in build class later
     }
 
-    public class BallisticSiloBuild extends PayloadBlockBuild{
-        // later: store one payload, launch, etc.
+    public class BallisticSiloBuild extends PayloadBlockBuild<BuildPayload>{
+        @Override
+        public boolean acceptPayload(Building source, Payload payload){
+            return this.payload == null && payload instanceof BuildPayload b && b.build instanceof NuclearWarheadBuild;
+        }
+
+        @Override
+        public void updateTile(){
+            moveInPayload();
+        }
+
+        @Override
+        public void draw(){
+            super.draw();
+            drawPayload();
+        }
     }
 }
