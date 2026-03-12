@@ -22,7 +22,7 @@ public class PlanetRenderer implements Disposable{
     /** Camera used for rendering. */
     public final Camera3D cam = new Camera3D();
     /** Raw vertex batch. */
-    public final VertexBatch3D batch = new VertexBatch3D(20000, false, true, 0);
+    public final VertexBatch3D batch = new VertexBatch3D(32766, false, true, 0); //changing 20000 to 32766 gives us a lot more room for rendering
 
     public final PlaneBatch3D projector = new PlaneBatch3D();
     public final Mat3D mat = new Mat3D();

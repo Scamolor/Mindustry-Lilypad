@@ -138,7 +138,7 @@ public class Blocks{
     duo, scatter, scorch, hail, arc, wave, lancer, swarmer, salvo, fuse, ripple, cyclone, foreshadow, spectre, meltdown, segment, parallax, tsunami,
 
     //turrets - erekir
-    breach, diffuse, sublimate, titan, disperse, afflict, lustre, scathe, smite, malign, fracture, divine, horde, ravage,
+    breach, diffuse, sublimate, titan, disperse, afflict, lustre, scathe, canopus, smite, malign, fracture, divine, horde, ravage,
 
     //units
     groundFactory, airFactory, navalFactory,
@@ -1933,7 +1933,7 @@ public class Blocks{
 
         //TODO 5x5??
         shieldProjector = new BaseShield("shield-projector"){{
-            requirements(Category.effect, BuildVisibility.editorOnly, with());
+            requirements(Category.effect, BuildVisibility.sandboxOnly, with());
 
             size = 3;
 
@@ -1941,7 +1941,7 @@ public class Blocks{
         }};
 
         largeShieldProjector = new BaseShield("large-shield-projector"){{
-            requirements(Category.effect, BuildVisibility.editorOnly, with());
+            requirements(Category.effect, BuildVisibility.sandboxOnly, with());
 
             size = 4;
             radius = 400f;
@@ -1950,7 +1950,7 @@ public class Blocks{
         }};
 
         shieldBreaker = new ShieldBreaker("shield-breaker"){{
-            requirements(Category.effect, BuildVisibility.editorOnly, with());
+            requirements(Category.effect, BuildVisibility.sandboxOnly, with());
 
             size = 5;
             toDestroy = new Block[]{Blocks.shieldProjector, Blocks.largeShieldProjector};
@@ -4886,7 +4886,7 @@ public class Blocks{
         }};
 
         divine = new PowerTurret("divine") {{
-            requirements(Category.turret, with(Items.beryllium, 225, Items.silicon, 275, Items.graphite, 300, Items.phaseFabric, 325));
+            requirements(Category.turret, with(Items.beryllium, 525, Items.silicon, 275, Items.carbide, 250, Items.phaseFabric, 325));
 
             shootType = new EmpBulletType() {{
                 float rad = 125f;
@@ -4977,26 +4977,52 @@ public class Blocks{
 
         fracture = new ItemTurret("fracture"){{
             requirements(Category.turret, with(Items.beryllium, 150, Items.silicon, 200, Items.graphite, 200, Items.carbide, 50));
-
+            shootY = 5f;
+            outlineColor = Pal.darkOutline;
+            size = 4;
+            envEnabled |= Env.space;
+            reload = 22.5f;
+            recoil = 2f;
+            range = 250;
+            shootCone = 40f;
+            scaledHealth = 210;
+            rotateSpeed = 3f;
+            float brange = range + 10f;
             ammo(
-            Items.tungsten, new BasicBulletType(8.5f, 45){{
+            Items.tungsten, new ShrapnelBulletType(){{
+                damage = 47.5f;
                 knockback = 4.5f;
                 width = 26.25f;
                 hitSize = 7f;
-                height = 21.25f;
+                length = brange;
                 shootEffect = Fx.shootBigColor;
                 smokeEffect = Fx.shootSmokeSquareSparse;
                 ammoMultiplier = 2;
-                hitColor = backColor = trailColor = Color.valueOf("ea8878");
-                frontColor = Color.valueOf("feb380");
-                trailWidth = 6f;
-                trailLength = 3;
+                fromColor = Color.white;
+                hitColor = toColor = Pal.tungstenShot;
                 hitEffect = despawnEffect = Fx.hitSquaresColor;
                 buildingDamageMultiplier = 0.2f;
+                lifetime = 5f;
+                despawnHit = true;
+            }},
+            Items.thorium, new ShrapnelBulletType() {{
+                damage = 52.5f;
+                knockback = 4.5f;
+                width = 26.25f;
+                hitSize = 7f;
+                length = brange;
+                shootEffect = Fx.shootBigColor;
+                smokeEffect = Fx.shootSmokeSquareSparse;
+                ammoMultiplier = 2;
+                fromColor = Color.white;
+                hitColor = toColor = Pal.thoriumPink;
+                hitEffect = despawnEffect = Fx.hitSquaresColor;
+                buildingDamageMultiplier = 0.2f;
+                lifetime = 5f;
+                despawnHit = true;
             }}
             );
-
-            shoot = new ShootSpread(21, 5f);
+            shoot = new ShootSpread(2, 2.5f);
 
             coolantMultiplier = 6f;
 
@@ -5037,20 +5063,7 @@ public class Blocks{
                     under = true;
                 }});
             }};
-
-            shootY = 5f;
-            outlineColor = Pal.darkOutline;
-            size = 4;
-            envEnabled |= Env.space;
-            reload = 22.5f;
-            recoil = 2f;
-            range = 250;
-            shootCone = 40f;
-            scaledHealth = 210;
-            rotateSpeed = 3f;
-
             coolant = consume(new ConsumeLiquid(Liquids.water, 15f / 60f));
-            limitRange();
         }};
 
         lustre = new ContinuousTurret("lustre"){{
@@ -5552,7 +5565,7 @@ public class Blocks{
 
             ammo(
             //this is really lazy
-            reinforcedSurgeWallLarge, new BasicBulletType(7f, 250) {{
+            reinforcedSurgeWallLarge, new ArtilleryBulletType(10f, 800) {{
                 sprite = "large-orb";
                 width = 17f;
                 height = 21f;
@@ -5612,7 +5625,7 @@ public class Blocks{
 
                 bulletInterval = 3f;
                 }},
-                berylliumWallLarge, new BasicBulletType(7.5f, 85) {{
+                berylliumWallLarge, new ArtilleryBulletType(7.5f, 400) {{
                     width = 12f;
                     hitSize = 7f;
                     height = 20f;
@@ -5817,9 +5830,9 @@ public class Blocks{
             outlineColor = Pal.darkOutline;
             size = 5;
             envEnabled |= Env.space;
-            reload = 100f;
-            recoil = 2f;
-            range = 300;
+            reload = 200f;
+            recoil = 4f;
+            range = 340;
             shootCone = 7f;
             scaledHealth = 350;
             rotateSpeed = 1.5f;
@@ -6503,7 +6516,7 @@ public class Blocks{
         //endregion
         //region payloads
         droneCenter = new DroneCenter("drone-center"){{
-            requirements(Category.units, with(Items.graphite, 10));
+            requirements(Category.units, with(Items.beryllium, 200, Items.graphite, 100));
 
             size = 3;
             consumePower(3f);
@@ -6726,11 +6739,12 @@ public class Blocks{
         }};
 
         coreSilo = new LaunchPad("core-silo") {{
-            requirements(Category.effect, BuildVisibility.campaignOnly, ItemStack.with(Items.copper, 350, Items.silicon, 140, Items.lead, 200, Items.titanium, 150));
+            requirements(Category.effect, BuildVisibility.campaignOnly, ItemStack.with(Items.titanium, 700, Items.silicon, 420, Items.plastanium, 500, Items.phaseFabric, 250));
             size = 5;
             itemCapacity = 1000;
+            launchTime = 60f * 105;
             hasPower = true;
-            consumePower(4f);
+            consumePower(8f);
         }};
 
         interplanetaryAccelerator = new Accelerator("interplanetary-accelerator"){{
@@ -6744,12 +6758,12 @@ public class Blocks{
         }};
 
         nuclearWarhead = new NuclearWarhead("nuclear-warhead"){{
-            requirements(Category.crafting, BuildVisibility.shown, with(Items.thorium, 40));
+            requirements(Category.crafting, BuildVisibility.shown, with(Items.thorium, 75, Items.fissileMatter, 50, Items.carbide, 300));
             size = 2;
         }};
 
         warheadAssembler = new Constructor("warhead-assembler"){{
-            requirements(Category.crafting, BuildVisibility.shown, with(Items.thorium, 100));
+            requirements(Category.crafting, BuildVisibility.shown, with(Items.phaseFabric, 300, Items.silicon, 1500));
             size = 3;
             buildSpeed = 0.3f;
             hasPower = true;
@@ -6758,7 +6772,7 @@ public class Blocks{
         }};
 
         ballisticSilo = new BallisticSilo("ballistic-silo"){{
-            requirements(Category.crafting, BuildVisibility.shown, with(Items.thorium, 100));
+            requirements(Category.crafting, BuildVisibility.shown, with(Items.carbide, 400, Items.tungsten, 600, Items.beryllium, 1600));
             size = 5;
         }};
 

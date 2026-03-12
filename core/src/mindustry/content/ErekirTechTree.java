@@ -64,7 +64,11 @@ public class ErekirTechTree{
 
         Planets.erekir.techTree = nodeRoot("erekir", coreBastion, true, () -> {
             context().researchCostMultipliers = costMultipliers;
-
+            node(warheadAssembler, Seq.with(new Research(Items.fissileMatter), new Research(Items.carbide), new Research(heatReactor), new Research(scathe), new SectorComplete(basin)), () -> {
+                        node(nuclearWarhead, () -> {
+                            node(ballisticSilo);
+                        });
+                    });
             node(duct, erekirSector, () -> {
                 node(ductRouter, () -> {
                     node(ductBridge, () -> {
