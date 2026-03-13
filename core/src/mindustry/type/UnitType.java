@@ -209,6 +209,8 @@ public class UnitType extends UnlockableContent implements Senseable{
     hidden = false,
     /** if true, this unit is for internal use only and does not have a sprite generated. */
     internal = false,
+    /** For certain units, generating sprites is still necessary, despite being internal. */
+    internalGenerateSprites = false,
     /** If false, this unit is not pushed away from map edges. */
     bounded = true,
     /** if true, this unit is detected as naval - do NOT assign this manually! Initialized in init() */
@@ -222,6 +224,8 @@ public class UnitType extends UnlockableContent implements Senseable{
     hoverable = true,
     /** if true, this modded unit always has a -outline region generated for its base. Normally, outlines are ignored if there are no top = false weapons. */
     alwaysCreateOutline = false,
+    /** for vanilla content only - if false, skips the full icon generation step. */
+    generateFullIcon = true,
     /** if true, this unit has a square shadow. */
     squareShape = false,
     /** if true, this unit will draw its building beam towards blocks. */

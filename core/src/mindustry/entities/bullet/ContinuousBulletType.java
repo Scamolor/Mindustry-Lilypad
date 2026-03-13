@@ -11,7 +11,7 @@ public class ContinuousBulletType extends BulletType{
     public float damageInterval = 5f;
     public boolean largeHit = false;
     public boolean continuous = true;
-
+    public boolean timescaleDamage = false;
     {
         removeAfterPierce = false;
         pierceCap = -1;
@@ -78,8 +78,13 @@ public class ContinuousBulletType extends BulletType{
         updateBulletInterval(b);
     }
 
-    public void applyDamage(Bullet b){
+    public void applyDamage(Bullet b) {
+        float damage = b.damage;
+        if (timescaleDamage && b.owner instanceof Building build) {
+            b.damage *= build.timeScale();
+        }
         Damage.collideLine(b, b.team, hitEffect, b.x, b.y, b.rotation(), currentLength(b), largeHit, laserAbsorb, pierceCap);
+        b.damage = damage;
     }
 
     public float currentLength(Bullet b){

@@ -374,16 +374,20 @@ public class DesktopInput extends InputHandler{
 
         Tile cursor = tileAt(Core.input.mouseX(), Core.input.mouseY());
 
-        if(cursor != null){
-            if(cursor.build != null){
+        if (cursor != null) {
+            if (cursor.build != null && cursor.build.interactable(player.team())) {
                 cursorType = cursor.build.getCursor();
             }
 
-            if((isPlacing() && player.isBuilder()) || !selectPlans.isEmpty()){
+            if (cursor.build != null && cursor.build.team == Team.derelict && Build.validPlace(cursor.block(), player.team(), cursor.build.tileX(), cursor.build.tileY(), cursor.build.rotation)) {
+                cursorType = ui.repairCursor;
+            }
+
+            if ((isPlacing() && player.isBuilder()) || !selectPlans.isEmpty()) {
                 cursorType = SystemCursor.hand;
             }
 
-            if(!isPlacing() && canMine(cursor)){
+            if (!isPlacing() && canMine(cursor)) {
                 cursorType = ui.drillCursor;
             }
 

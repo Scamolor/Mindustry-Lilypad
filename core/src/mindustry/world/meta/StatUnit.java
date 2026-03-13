@@ -6,9 +6,7 @@ import mindustry.gen.*;
 
 import java.util.*;
 
-/**
- * Defines a unit of measurement for block stats.
- */
+/** Defines a unit of measurement for block stats. */
 public class StatUnit{
     public static final StatUnit
 
@@ -20,14 +18,19 @@ public class StatUnit{
     itemsSecond = new StatUnit("itemsSecond"),
     liquidUnits = new StatUnit("liquidUnits", "[sky]" + Iconc.liquid + "[]"),
     powerUnits = new StatUnit("powerUnits", "[accent]" + Iconc.power + "[]"),
+    powerEquilibrium = new StatUnit("powerEquilibrium"),
     heatUnits = new StatUnit("heatUnits", "[red]" + Iconc.waves + "[]"),
     degrees = new StatUnit("degrees"),
     seconds = new StatUnit("seconds"),
     minutes = new StatUnit("minutes"),
+    shots = new StatUnit("shots"),
     perSecond = new StatUnit("perSecond", false),
     perMinute = new StatUnit("perMinute", false),
     perShot = new StatUnit("perShot", false),
+    perLeg = new StatUnit("perLeg"),
+    perSide = new StatUnit("perSide"),
     timesSpeed = new StatUnit("timesSpeed", false),
+    multiplier = new StatUnit("multiplier", false),
     percent = new StatUnit("percent", false),
     shieldHealth = new StatUnit("shieldHealth"),
     none = new StatUnit("none"),

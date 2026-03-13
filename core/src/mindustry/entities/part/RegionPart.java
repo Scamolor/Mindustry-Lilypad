@@ -23,6 +23,8 @@ public class RegionPart extends DrawPart{
     public boolean mirror = false;
     /** If true, an outline is drawn under the part. */
     public boolean outline = true;
+    /** If true, this part has an outline created 'in-place'. Currently vanilla only, do not use this! */
+    public boolean replaceOutline = false;
     /** If true, the base + outline regions are drawn. Set to false for heat-only regions. */
     public boolean drawRegion = true;
     /** If true, the heat region produces light. */
