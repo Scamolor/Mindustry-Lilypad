@@ -15,6 +15,7 @@ import mindustry.graphics.*;
 import mindustry.graphics.MultiPacker.*;
 import mindustry.type.*;
 import mindustry.world.*;
+import mindustry.world.blocks.TileBitmask;
 
 import java.util.*;
 
@@ -75,7 +76,14 @@ public class Floor extends Block{
     public boolean wallOre = false;
     /** Actual ID used for blend groups. Internal. */
     public int blendId = -1;
+    /** If >0, this floor is drawn as parts of a large texture. */
+    public int tilingVariants = 0;
+    /** If true, this floor uses autotiling; variants are not supported. See https://github.com/GglLfr/tile-gen*/
+    public boolean autotile = false;
 
+    protected TextureRegion[][][] tilingRegions;
+    protected TextureRegion[] autotileRegions;
+    protected int tilingSize;
     protected TextureRegion[][] edges;
     protected Seq<Block> blenders = new Seq<>();
     protected Bits blended = new Bits(256);
@@ -83,18 +91,44 @@ public class Floor extends Block{
     protected TextureRegion edgeRegion;
 
     public Floor(String name){
-        super(name);
-        variants = 3;
+        this(name, 3);
     }
 
-    public Floor(String name, int variants){
+    public Floor(String name, int variants) {
         super(name);
         this.variants = variants;
+        placeableLiquid = true;
+        allowRectanglePlacement = true;
+        instantBuild = true;
+        ignoreBuildDarkness = true;
+        placeEffect = Fx.rotateBlock;
     }
 
     @Override
     public void load(){
         super.load();
+
+        if(autotile){
+            variants = 0;
+        }
+
+        int tsize = (int)(tilesize / Draw.scl);
+
+        if(tilingVariants > 0 && !headless){
+            tilingRegions = new TextureRegion[tilingVariants][][];
+            for(int i = 0; i < tilingVariants; i++){
+                TextureRegion tile = Core.atlas.find(name + "-tile" + (i + 1));
+                tilingRegions[i] = tile.split(tsize, tsize);
+                tilingSize = tilingRegions[i].length;
+            }
+
+            for(int i = 0; i < tilingVariants; i++){
+                if(tilingRegions[i].length != tilingSize || tilingRegions[i][0].length != tilingSize){
+                    Log.warn("Block: @: In order to prevent crashes, tiling regions must all be valid regions with the same size. Tiling has been disabled. Sprite '@' has a width or height inconsistent with other tiles.", name, name + "-tile" + (i + 1));
+                    tilingVariants = 0;
+                }
+            }
+        }
 
         //load variant regions for drawing
         if(variants > 0){
@@ -106,9 +140,16 @@ public class Floor extends Block{
             variantRegions = new TextureRegion[1];
             variantRegions[0] = Core.atlas.find(name);
         }
-        int size = (int)(tilesize / Draw.scl);
+
+        if (autotile) {
+            autotileRegions = new TextureRegion[47];
+            for (int i = 0; i < 47; i++) {
+                autotileRegions[i] = Core.atlas.find(name + "-" + i);
+            }
+        }
+
         if(Core.atlas.has(name + "-edge")){
-            edges = Core.atlas.find(name + "-edge").split(size, size);
+            edges = Core.atlas.find(name + "-edge").split(tsize, tsize);
         }
         region = variantRegions[0];
         edgeRegion = Core.atlas.find("edge");
@@ -178,12 +219,32 @@ public class Floor extends Block{
 
     @Override
     public void drawBase(Tile tile){
-        Mathf.rand.setSeed(tile.pos());
-        Draw.rect(variantRegions[Mathf.randomSeed(tile.pos(), 0, Math.max(0, variantRegions.length - 1))], tile.worldx(), tile.worldy());
+        if(tilingVariants > 0){
+            int index = Mathf.randomSeed(Point2.pack(tile.x / tilingSize, tile.y / tilingSize), 0, tilingVariants - 1);
+            TextureRegion[][] regions = tilingRegions[index];
+            Draw.rect(regions[tile.x % tilingSize][tilingSize - 1 - tile.y % tilingSize], tile.worldx(), tile.worldy());
+        } else if (autotile) {
+            int bits = 0;
+
+            for (int i = 0; i < 8; i++) {
+                Tile other = tile.nearby(Geometry.d8[i]);
+                if (other != null && other.floor().blendGroup == blendGroup) {
+                    bits |= (1 << i);
+                }
+            }
+
+            Draw.rect(autotileRegions[TileBitmask.values[bits]], tile.worldx(), tile.worldy());
+        } else {
+            Draw.rect(variantRegions[variant(tile.x, tile.y)], tile.worldx(), tile.worldy());
+        }
 
         Draw.alpha(1f);
         drawEdges(tile);
         drawOverlay(tile);
+    }
+
+    public int variant(int x, int y) {
+        return Mathf.randomSeed(Point2.pack(x, y), 0, Math.max(0, variantRegions.length - 1));
     }
 
     public void drawOverlay(Tile tile){

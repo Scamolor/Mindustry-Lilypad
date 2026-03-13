@@ -84,7 +84,7 @@ public class Vars implements Loadable{
     /** maximum distance between mine and core that supports automatic transferring */
     public static final float mineTransferRange = 220f;
     /** max chat message length */
-    public static final int maxTextLength = 150;
+    public static final int maxTextLength = 600;
     /** max player name length in bytes */
     public static final int maxNameLength = 40;
     /** displayed item size when ingame. */
@@ -242,6 +242,7 @@ public class Vars implements Loadable{
     public static WaveSpawner spawner;
     public static BlockIndexer indexer;
     public static Pathfinder pathfinder;
+    public static HierarchyPathFinder hpath;
     public static ControlPathfinder controlPath;
     public static FogControl fogControl;
 
@@ -314,6 +315,7 @@ public class Vars implements Loadable{
         spawner = new WaveSpawner();
         indexer = new BlockIndexer();
         pathfinder = new Pathfinder();
+        hpath = new HierarchyPathFinder();
         controlPath = new ControlPathfinder();
         fogControl = new FogControl();
         bases = new BaseRegistry();

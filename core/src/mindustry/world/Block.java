@@ -78,6 +78,8 @@ public class Block extends UnlockableContent implements Senseable{
     public boolean displayFlow = true;
     /** whether this block is visible in the editor */
     public boolean inEditor = true;
+    /** if true, a color picker will be shown for the lastConfig field in the in-game-editor, and will be assigned as an integer. */
+    public boolean showColorEdit;
     /** the last configuration value applied to this block. */
     public @Nullable Object lastConfig;
     /** whether to save the last config and apply it to newly placed blocks */
@@ -122,6 +124,8 @@ public class Block extends UnlockableContent implements Senseable{
     public boolean saveData;
     /** whether you can break this with rightclick */
     public boolean breakable;
+    /** if true, this block will be broken by certain units stepping/moving over it */
+    public boolean unitMoveBreakable;
     /** whether to add this block to brokenblocks */
     public boolean rebuildable = true;
     /** if true, this logic-related block can only be used with privileged processors (or is one itself) */
@@ -152,6 +156,8 @@ public class Block extends UnlockableContent implements Senseable{
     public boolean updateInUnits = true;
     /** if true, this block updates in payloads in units regardless of the experimental game rule */
     public boolean alwaysUpdateInUnits = false;
+    /** if false, only incinerable liquids are dropped when deconstructing; otherwise, all liquids are dropped. */
+    public boolean deconstructDropAllLiquid = false;
     /** Whether to use this block's color in the minimap. Only used for overlays. */
     public boolean useColor = true;
     /** item that drops from this block, used for drills */
@@ -291,6 +297,8 @@ public class Block extends UnlockableContent implements Senseable{
      * Whether this environmental block passively emits light.
      * Does not change behavior for non-environmental blocks, but still updates clipSize. */
     public boolean emitLight = false;
+    /** If true, this block obstructs light emitted by other blocks. */
+    public boolean obstructsLight = true;
     /** Radius of the light emitted by this block. */
     public float lightRadius = 60f;
 
@@ -341,6 +349,8 @@ public class Block extends UnlockableContent implements Senseable{
     public boolean instantTransfer = false;
     /** Whether you can rotate this block after it is placed. */
     public boolean quickRotate = true;
+    /** If true, this derelict block can be repair by clicking it. */
+    public boolean allowDerelictRepair = true;
     /** Main subclass. Non-anonymous. */
     public @Nullable Class<?> subclass;
     /** Scroll position for certain blocks. */
@@ -520,6 +530,11 @@ public class Block extends UnlockableContent implements Senseable{
 
     public boolean checkForceDark(Tile tile){
         return forceDark;
+    }
+
+    /** If true, the 'map edge' darkness will be applied to this block. */
+    public boolean isDarkened(Tile tile) {
+        return solid && ((!synthetic() && fillsTile) || checkForceDark(tile));
     }
 
     @Override
@@ -813,12 +828,12 @@ public class Block extends UnlockableContent implements Senseable{
         }
     }
 
-    /** Never use outside of the editor! */
+    /** Never use outside the editor! */
     public TextureRegion editorIcon(){
         return editorIcon == null ? (editorIcon = Core.atlas.find(name + "-icon-editor")) : editorIcon;
     }
 
-    /** Never use outside of the editor! */
+    /** Never use outside the editor! */
     public TextureRegion[] editorVariantRegions(){
         if(editorVariantRegions == null){
             variantRegions();
