@@ -14,8 +14,6 @@ import static mindustry.Vars.*;
 import static mindustry.ai.Pathfinder.*;
 
 public class HierarchyPathFinder {
-    static final boolean debug = true;
-
     static final int[] offsets = {
             1, 0, //right: bottom to top
             0, 1, //top: left to right
@@ -46,69 +44,20 @@ public class HierarchyPathFinder {
     public HierarchyPathFinder() {
 
         Events.on(WorldLoadEvent.class, event -> {
-            //TODO 5 path costs, arbitrary number
-            clusters = new Cluster[5][];
-            clusterSize = 12; //TODO arbitrary
-            cwidth = Mathf.ceil((float) world.width() / clusterSize);
-            cheight = Mathf.ceil((float) world.height() / clusterSize);
+            if(state.rules.enableHierarchyPathFinder) {
+                //TODO 5 path costs, arbitrary number
+                clusters = new Cluster[5][];
+                clusterSize = 12; //TODO arbitrary
+                cwidth = Mathf.ceil((float) world.width() / clusterSize);
+                cheight = Mathf.ceil((float) world.height() / clusterSize);
 
-            for (int cx = 0; cx < cwidth; cx++) {
-                for (int cy = 0; cy < cheight; cy++) {
-                    createCluster(Team.sharded.id, costGround, cx, cy);
+                for (int cx = 0; cx < cwidth; cx++) {
+                    for (int cy = 0; cy < cheight; cy++) {
+                        createCluster(Team.sharded.id, costGround, cx, cy);
+                    }
                 }
             }
         });
-
-        //TODO very inefficient, this is only for debugging
-        Events.on(TileChangeEvent.class, e -> {
-            createCluster(Team.sharded.id, costGround, e.tile.x / clusterSize, e.tile.y / clusterSize);
-        });
-
-        if (debug) {
-            Events.run(Trigger.draw, () -> {
-                int team = Team.sharded.id;
-                int cost = costGround;
-
-                if (clusters == null || clusters[cost] == null) return;
-
-                Draw.draw(Layer.overlayUI, () -> {
-                    Lines.stroke(1f);
-                    for (int cx = 0; cx < cwidth; cx++) {
-                        for (int cy = 0; cy < cheight; cy++) {
-                            var cluster = clusters[cost][cy * cwidth + cx];
-                            if (cluster != null) {
-                                Draw.color(Color.green);
-
-                                Lines.rect(cx * clusterSize * tilesize - tilesize / 2f, cy * clusterSize * tilesize - tilesize / 2f, clusterSize * tilesize, clusterSize * tilesize);
-                                Draw.color(Color.blue);
-
-                                for (int d = 0; d < 4; d++) {
-                                    IntSeq portals = cluster.portals[d];
-                                    if (portals != null) {
-                                        int addX = moveDirs[d * 2], addY = moveDirs[d * 2 + 1];
-
-                                        for (int i = 0; i < portals.size; i++) {
-                                            int pos = portals.items[i];
-                                            int from = Point2.x(pos), to = Point2.y(pos);
-                                            float width = tilesize * (Math.abs(from - to) + 1), height = tilesize;
-
-                                            float average = (from + to) / 2f;
-
-                                            float
-                                                    x = (addX * average + cx * clusterSize + offsets[d * 2] * (clusterSize - 1) + nextOffsets[d * 2] / 2f) * tilesize,
-                                                    y = (addY * average + cy * clusterSize + offsets[d * 2 + 1] * (clusterSize - 1) + nextOffsets[d * 2 + 1] / 2f) * tilesize;
-
-                                            Lines.ellipse(30, x, y, width / 2f, height / 2f, d * 90f - 90f);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    Draw.reset();
-                });
-            });
-        }
     }
 
     void createCluster(int team, int pathCost, int cx, int cy) {

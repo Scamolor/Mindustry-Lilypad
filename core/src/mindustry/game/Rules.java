@@ -109,6 +109,8 @@ public class Rules{
     public boolean blockWhitelist = false;
     /** If true, bannedUnits becomes a whitelist. */
     public boolean unitWhitelist = false;
+    /** If true, enables hierarchy pathfinder (warning, laggy!). */
+    public boolean enableHierarchyPathFinder = false;
     /** Radius around enemy wave drop zones.*/
     public float dropZoneRadius = 300f;
     /** Time between waves in ticks. */
