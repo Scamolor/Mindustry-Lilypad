@@ -445,7 +445,7 @@ public class BulletType extends Content implements Cloneable{
 
         if(suppressionRange > 0){
             //bullets are pooled, require separate Vec2 instance
-            Damage.applySuppression(b.team, b.x, b.y, suppressionRange, suppressionDuration, 0f, suppressionEffectChance, new Vec2(b.x, b.y));
+            Damage.applySuppression(b.team, b.x, b.y, suppressionRange, suppressionDuration, 0f, suppressionEffectChance, new Vec2(b.x, b.y), suppressColor);
         }
 
         createSplashDamage(b, x, y);

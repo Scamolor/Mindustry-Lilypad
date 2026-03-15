@@ -2365,6 +2365,14 @@ public class UnitTypes{
                 //TODO better sound
                 shootSound = Sounds.laser;
 
+                abilities.add(new SuppressionFieldAbility(){{
+                    orbRadius = 5;
+                    particleSize = 3;
+                    y = -10f;
+                    particles = 10;
+                    color = particleColor = effectColor = Pal.heal;
+                }});
+
                 bullet = new EmpBulletType(){{
                     float rad = 100f;
 
