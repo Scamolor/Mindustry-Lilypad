@@ -39,7 +39,7 @@ public class SuppressionFieldAbility extends Ability{
 
         if((timer += Time.delta) >= reload){
             Tmp.v1.set(x, y).rotate(unit.rotation - 90f).add(unit);
-            Damage.applySuppression(unit.team, Tmp.v1.x, Tmp.v1.y, range, reload, reload, applyParticleChance, unit);
+            Damage.applySuppression(unit.team, Tmp.v1.x, Tmp.v1.y, range, reload, reload, applyParticleChance, unit, effectColor);
             timer = 0f;
         }
     }

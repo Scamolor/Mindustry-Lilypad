@@ -433,7 +433,12 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
     }
 
     public void applyHealSuppression(float amount){
+        applyHealSuppression(amount, Pal.sapBullet);
+    }
+
+    public void applyHealSuppression(float amount, Color suppressColor){
         healSuppressionTime = Math.max(healSuppressionTime, Time.time + amount);
+        this.suppressColor = suppressColor;
     }
 
     public boolean isHealSuppressed(){
@@ -1237,7 +1242,7 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
     public boolean checkSuppression(){
         if(isHealSuppressed()){
             if(Mathf.chanceDelta(0.03)){
-                Fx.regenSuppressParticle.at(x + Mathf.range(block.size * tilesize/2f - 1f), y + Mathf.range(block.size * tilesize/2f - 1f));
+                Fx.regenSuppressParticle.at(x + Mathf.range(block.size * tilesize/2f - 1f), y + Mathf.range(block.size * tilesize/2f - 1f), suppressColor);
             }
 
             return true;
