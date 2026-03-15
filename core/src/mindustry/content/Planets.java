@@ -26,7 +26,7 @@ public class Planets{
     verilus;
 
     public static void load(){
-        sun = new Planet("sun", null, 4f, 7){{
+        sun = new Planet("sun", null, 4f, 3){{
             generator = new ErekirPlanetGenerator(); //just so we can land here
             bloom = true;
             accessible = true; //hehehe
@@ -49,7 +49,7 @@ public class Planets{
                 r.placeRangeCheck = false;
                 r.showSpawns = false;
             };
-            defaultAttributes.set(Attribute.heat, 4.0f); //of course the sun is hot
+            defaultAttributes.set(Attribute.heat, 64.0f); //what did you expect
             meshLoader = () -> new SunMesh(
                 this, 4,
                 5, 0.3, 1.7, 1.2, 1,

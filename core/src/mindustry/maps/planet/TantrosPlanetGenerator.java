@@ -29,8 +29,12 @@ public class TantrosPlanetGenerator extends PlanetGenerator{
         baseSeed = 1;
     }
 
+    ObjectMap<Block, Block> tars = ObjectMap.of(
+        Blocks.sand, Blocks.shale,
+        Blocks.darksand, Blocks.shale
+    );
     @Override
-    public void generateSector(Sector sector){
+    public void generateSector(Sector sector){ //currently reusing serpulo base generation logic
 
         //these always have bases
         if(sector.id == 154 || sector.id == 0){
@@ -116,7 +120,7 @@ public class TantrosPlanetGenerator extends PlanetGenerator{
             }
 
             if(noise(x, y, 40f, 1f) > 0.9){
-                //block = Blocks.coralChunk;
+                block = Blocks.coralChunk;
             }
         });
 
@@ -180,8 +184,13 @@ public class TantrosPlanetGenerator extends PlanetGenerator{
         height *= 1.2f;
         height = Mathf.clamp(height);
 
-        //float tar = (float)noise.octaveNoise3D(4, 0.55f, 1f/2f, position.x, position.y + 999f, position.z) * 0.3f + Tmp.v31.dst(0, 0, 1f) * 0.2f;
+        float tar = Simplex.noise3d(seed, 4, 0.55f, 1f/2f, position.x, position.y + 999f, position.z) * 0.3f + Tmp.v31.dst(0, 0, 1f) * 0.2f;
 
-        return arr[Mathf.clamp((int)(temp * arr.length), 0, arr[0].length - 1)][Mathf.clamp((int)(height * arr[0].length), 0, arr[0].length - 1)];
+        Block res = arr[Mathf.clamp((int)(temp * arr.length), 0, arr[0].length - 1)][Mathf.clamp((int)(height * arr[0].length), 0, arr[0].length - 1)];
+        if(tar > 0.5f){
+            return tars.get(res, res);
+        }else{
+            return res;
+        }
     }
 }

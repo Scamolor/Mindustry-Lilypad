@@ -143,6 +143,8 @@ public class UnitType extends UnlockableContent implements Senseable{
     public boolean isEnemy = true,
     /** If true, the unit is always at elevation 1. */
     flying = false,
+    /** whether this flying unit should wobble around */
+    wobble = true,
     /** whether this unit tries to attack air units */
     targetAir = true,
     /** whether this unit tries to attack ground units */
@@ -153,6 +155,10 @@ public class UnitType extends UnlockableContent implements Senseable{
     circleTarget = false,
     /** if true, this unit can boost into the air if a player/processors controls it*/
     canBoost = false,
+    /** if true, this unit will always boost when using builder AI */
+    boostWhenBuilding = true,
+    /** if true, this unit will always boost when using miner AI */
+    boostWhenMining = true,
     /** if false, logic processors cannot control this unit */
     logicControllable = true,
     /** if false, players cannot control this unit */
@@ -217,6 +223,8 @@ public class UnitType extends UnlockableContent implements Senseable{
     naval = false,
     /** if false, RTS AI controlled units do not automatically attack things while moving. This is automatically assigned. */
     autoFindTarget = true,
+    /** If false, 'under' blocks like conveyors are not targeted. */
+    targetUnderBlocks = true,
     /** if true, this unit will always shoot while moving regardless of slowdown */
     alwaysShootWhenMoving = false,
 

@@ -19,8 +19,8 @@ public class MirrorFilter extends GenerateFilter{
     @Override
     public FilterOption[] options(){
         return new FilterOption[]{
-            new SliderOption("angle", () -> angle, f -> angle = (int)f, 0, 360, 15),
-            new ToggleOption("rotate", () -> rotate, f -> rotate = f)
+                new SliderOption("angle", () -> angle, f -> angle = (int)f, 0, 360, 15),
+                new ToggleOption("rotate", () -> rotate, f -> rotate = f)
         };
     }
 

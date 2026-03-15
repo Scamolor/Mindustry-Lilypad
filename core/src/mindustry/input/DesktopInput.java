@@ -379,7 +379,7 @@ public class DesktopInput extends InputHandler{
                 cursorType = cursor.build.getCursor();
             }
 
-            if (cursor.build != null && cursor.build.team == Team.derelict && Build.validPlace(cursor.block(), player.team(), cursor.build.tileX(), cursor.build.tileY(), cursor.build.rotation)) {
+            if(canRepairDerelict(cursor)){
                 cursorType = ui.repairCursor;
             }
 

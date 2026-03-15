@@ -43,8 +43,9 @@ public class MinerAI extends AIController{
             //if inventory is full, drop it off.
             if(unit.stack.amount >= unit.type.itemCapacity || (targetItem != null && !unit.acceptsItem(targetItem))){
                 mining = false;
-            }else{
-                if(timer.get(timerTarget3, 60) && targetItem != null){
+                ore = null;
+            } else {
+                if((ore == null || timer.get(timerTarget3, 60f)) && targetItem != null){
                     ore = indexer.findClosestOre(unit, targetItem);
                 }
 
@@ -54,9 +55,9 @@ public class MinerAI extends AIController{
                     if(ore.block() == Blocks.air && unit.within(ore, unit.type.mineRange)){
                         unit.mineTile = ore;
                     }
-
                     if(ore.block() != Blocks.air){
                         mining = false;
+                        ore = null;
                     }
                 }
             }
