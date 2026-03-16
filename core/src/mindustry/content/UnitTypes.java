@@ -1380,6 +1380,7 @@ public class UnitTypes{
             lowAltitude = true;
 
             ammoType = new PowerAmmoType(900);
+            stances = new UnitStance[]{UnitStance.stop, UnitStance.shoot, UnitStance.holdFire, UnitStance.patrol};
 
             mineTier = 2;
             mineSpeed = 3.5f;
@@ -1439,6 +1440,7 @@ public class UnitTypes{
             isEnemy = false;
 
             ammoType = new PowerAmmoType(1100);
+            stances = new UnitStance[]{UnitStance.stop, UnitStance.shoot, UnitStance.holdFire, UnitStance.patrol};
 
             weapons.add(
             new Weapon("heal-weapon-mount"){{
@@ -2364,14 +2366,6 @@ public class UnitTypes{
                 cooldownTime = reload - 10f;
                 //TODO better sound
                 shootSound = Sounds.laser;
-
-                abilities.add(new SuppressionFieldAbility(){{
-                    orbRadius = 5;
-                    particleSize = 3;
-                    y = -10f;
-                    particles = 10;
-                    color = particleColor = effectColor = Pal.heal;
-                }});
 
                 bullet = new EmpBulletType(){{
                     float rad = 100f;

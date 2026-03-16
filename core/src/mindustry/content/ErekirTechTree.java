@@ -57,9 +57,11 @@ public class ErekirTechTree{
         for(var item : content.items()) costMultipliers.put(item, 0.9f);
 
         //these are hard to make
-        costMultipliers.put(Items.oxide, 0.5f);
         costMultipliers.put(Items.surgeAlloy, 0.7f);
+        costMultipliers.put(Items.oxide, 0.5f);
         costMultipliers.put(Items.carbide, 0.3f);
+        costMultipliers.put(Items.fissileMatter, 0.3f);
+        costMultipliers.put(Items.dormantCyst, 0.25f);
         costMultipliers.put(Items.phaseFabric, 0.2f);
 
         Planets.erekir.techTree = nodeRoot("erekir", coreBastion, true, () -> {
@@ -460,11 +462,11 @@ public class ErekirTechTree{
 
                                 nodeProduce(Liquids.gallium, () -> {});
                             });
+                        });
 
-                            nodeProduce(Items.surgeAlloy, () -> {
-                                nodeProduce(Items.phaseFabric, () -> {
+                        nodeProduce(Items.surgeAlloy, () -> {
+                            nodeProduce(Items.phaseFabric, () -> {
 
-                                });
                             });
                         });
                     });

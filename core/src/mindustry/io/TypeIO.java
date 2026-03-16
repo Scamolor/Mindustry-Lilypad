@@ -311,7 +311,17 @@ public class TypeIO{
 
     public static @Nullable UnitCommand readCommand(Reads read){
         int val = read.ub();
-        return val == 255 ? null : UnitCommand.all.get(val);
+        return val == 255 || val >= UnitCommand.all.size ? null : UnitCommand.all.get(val);
+    }
+
+    public static void writeStance(Writes write, @Nullable UnitStance stance){
+        write.b(stance == null ? 255 : stance.id);
+    }
+
+    public static UnitStance readStance(Reads read){
+        int val = read.ub();
+        //never returns null
+        return val == 255 || val >= UnitStance.all.size ? UnitStance.shoot : UnitStance.all.get(val);
     }
 
     public static void writeEntity(Writes write, Entityc entity){
@@ -631,12 +641,57 @@ public class TypeIO{
     }
 
     public static void writeStatus(Writes write, StatusEntry entry){
-        write.s(entry.effect.id);
+        write.s(entry.effect.id | (entry.effect.dynamic ? 1 << 15 : 0));
         write.f(entry.time);
+
+        //write dynamic fields
+        if(entry.effect.dynamic){
+            //write a byte with bits set based on which field is actually used
+            write.b(
+            (entry.damageMultiplier != 1f ?     (1 << 0) : 0) |
+            (entry.healthMultiplier != 1f ?     (1 << 1) : 0) |
+            (entry.speedMultiplier != 1f ?      (1 << 2) : 0) |
+            (entry.reloadMultiplier != 1f ?     (1 << 3) : 0) |
+            (entry.buildSpeedMultiplier != 1f ? (1 << 4) : 0) |
+            (entry.dragMultiplier != 1f ?       (1 << 5) : 0) |
+            (entry.armorOverride >= 0f ?      (1 << 6) : 0)
+            );
+
+            if(entry.damageMultiplier != 1f) write.f(entry.damageMultiplier);
+            if(entry.healthMultiplier != 1f) write.f(entry.healthMultiplier);
+            if(entry.speedMultiplier != 1f) write.f(entry.speedMultiplier);
+            if(entry.reloadMultiplier != 1f) write.f(entry.reloadMultiplier);
+            if(entry.buildSpeedMultiplier != 1f) write.f(entry.buildSpeedMultiplier);
+            if(entry.dragMultiplier != 1f) write.f(entry.dragMultiplier);
+            if(entry.armorOverride >= 0f) write.f(entry.armorOverride);
+        }
     }
 
     public static StatusEntry readStatus(Reads read){
-        return new StatusEntry().set(content.getByID(ContentType.status, read.s()), read.f());
+        short id = read.s();
+        float time = read.f();
+
+        StatusEntry result = new StatusEntry();
+
+        if((id & (1 << 15)) != 0){
+            //it's a dynamic effect
+            id ^= (1 << 15);
+
+            //read flags that store which fields are set
+            int flags = read.ub();
+
+            if((flags & (1 << 0)) != 0) result.damageMultiplier = read.f();
+            if((flags & (1 << 1)) != 0) result.healthMultiplier = read.f();
+            if((flags & (1 << 2)) != 0) result.speedMultiplier = read.f();
+            if((flags & (1 << 3)) != 0) result.reloadMultiplier = read.f();
+            if((flags & (1 << 4)) != 0) result.buildSpeedMultiplier = read.f();
+            if((flags & (1 << 5)) != 0) result.dragMultiplier = read.f();
+            if((flags & (1 << 6)) != 0) result.armorOverride = read.f();
+        }
+
+        result.set(content.getByID(ContentType.status, id), time);
+
+        return result;
     }
 
     public static void writeItems(Writes write, ItemStack stack){

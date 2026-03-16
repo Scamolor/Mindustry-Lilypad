@@ -34,8 +34,8 @@ public class StaticWall extends Prop {
         variants = 2;
         cacheLayer = CacheLayer.walls;
         allowRectanglePlacement = true;
-        placeEffect = Fx.rotateBlock;
         instantBuild = true;
+        placeEffect = Fx.rotateBlock;
         ignoreBuildDarkness = true;
         placeableLiquid = true;
     }

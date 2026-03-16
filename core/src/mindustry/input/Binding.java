@@ -38,6 +38,27 @@ public enum Binding implements KeyBind{
     schematic_flip_y(KeyCode.x),
     schematic_menu(KeyCode.t),
 
+
+    command_queue(KeyCode.mouseMiddle),
+    create_control_group(KeyCode.controlLeft),
+    cancel_orders(KeyCode.unset),
+
+    unit_stance_shoot(KeyCode.unset),
+    unit_stance_hold_fire(KeyCode.unset),
+    unit_stance_pursue_target(KeyCode.unset),
+    unit_stance_patrol(KeyCode.unset),
+    unit_stance_ram(KeyCode.unset),
+
+    unit_command_move(KeyCode.unset),
+    unit_command_repair(KeyCode.unset),
+    unit_command_rebuild(KeyCode.unset),
+    unit_command_assist(KeyCode.unset),
+    unit_command_mine(KeyCode.unset),
+    unit_command_boost(KeyCode.unset),
+    unit_command_load_units(KeyCode.unset),
+    unit_command_load_blocks(KeyCode.unset),
+    unit_command_unload_payload(KeyCode.unset),
+
     category_prev(KeyCode.comma, "blocks"),
     category_next(KeyCode.period),
 

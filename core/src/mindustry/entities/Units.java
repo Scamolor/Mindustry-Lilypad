@@ -112,7 +112,7 @@ public class Units{
 
     /** @return whether this player can interact with a specific tile. if either of these are null, returns true.*/
     public static boolean canInteract(Player player, Building tile){
-        return player == null || tile == null || tile.interactable(player.team());
+        return player == null || tile == null || tile.interactable(player.team()) || state.rules.editor;
     }
 
     /**
@@ -333,7 +333,7 @@ public class Units{
         cdist = 0f;
 
         nearby(team, x, y, range, e -> {
-            if(!predicate.get(e)) return;
+            if(!e.isValid() || !predicate.get(e)) return;
 
             float dist = e.dst2(x, y);
             if(result == null || dist < cdist){
@@ -351,7 +351,7 @@ public class Units{
         cdist = 0f;
 
         nearby(team, x, y, range, e -> {
-            if(!predicate.get(e)) return;
+            if(!e.isValid() || !predicate.get(e)) return;
 
             float dist = sort.cost(e, x, y);
             if(result == null || dist < cdist){
@@ -370,7 +370,7 @@ public class Units{
         cdist = 0f;
 
         nearby(team, x - range, y - range, range*2f, range*2f, e -> {
-            if(!predicate.get(e)) return;
+            if(!e.isValid() || !predicate.get(e)) return;
 
             float dist = e.dst2(x, y);
             if(result == null || dist < cdist){

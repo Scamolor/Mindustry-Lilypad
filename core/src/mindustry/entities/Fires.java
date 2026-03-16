@@ -35,8 +35,16 @@ public class Fires{
         }
     }
 
-    public static Fire get(int x, int y){
-        return map.get(Point2.pack(x, y));
+    public static @Nullable Fire get(Tile tile){
+        return tile == null ? null : world.tiles.getFire(tile.array());
+    }
+
+    public static @Nullable Fire get(int x, int y){
+        return Structs.inBounds(x, y, world.width(), world.height()) ? world.tiles.getFire(world.packArray(x, y)) : null;
+    }
+
+    private static void set(Tile tile, Fire fire){
+        world.tiles.setFire(tile.array(), fire);
     }
 
     public static boolean has(int x, int y){

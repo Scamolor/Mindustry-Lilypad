@@ -36,8 +36,9 @@ import mindustry.world.blocks.units.*;
 import mindustry.world.consumers.*;
 import mindustry.world.draw.*;
 import mindustry.world.meta.*;
-import static arc.graphics.g2d.Draw.*;
-import static arc.graphics.g2d.Lines.*;
+
+import static arc.graphics.g2d.Draw.color;
+import static arc.graphics.g2d.Lines.stroke;
 import static mindustry.Vars.*;
 import static mindustry.type.ItemStack.*;
 
@@ -2476,7 +2477,7 @@ public class Blocks{
         largeSolarPanel = new SolarGenerator("solar-panel-large"){{
             requirements(Category.power, with(Items.lead, 80, Items.silicon, 110, Items.phaseFabric, 15));
             size = 3;
-            powerProduction = 1.3f;
+            powerProduction = 1.6f;
         }};
 
         thoriumReactor = new NuclearReactor("thorium-reactor"){{
@@ -2501,6 +2502,7 @@ public class Blocks{
             itemDuration = 140f;
             ambientSound = Sounds.pulse;
             ambientSoundVolume = 0.07f;
+            liquidCapacity = 60f;
 
             consumePower(25f);
             consumeItem(Items.blastCompound);
@@ -4030,16 +4032,19 @@ public class Blocks{
 
             requirements(Category.turret, with(Items.copper, 1000, Items.metaglass, 600, Items.surgeAlloy, 300, Items.plastanium, 200, Items.silicon, 600));
             ammo(
-                Items.surgeAlloy, new PointBulletType(){{
+                Items.surgeAlloy, new RailBulletType(){{
                     shootEffect = Fx.instShoot;
                     hitEffect = Fx.instHit;
+                    pierceEffect = Fx.railHit;
                     smokeEffect = Fx.smokeCloud;
-                    trailEffect = Fx.instTrail;
+                    pointEffect = Fx.instTrail;
                     despawnEffect = Fx.instBomb;
-                    trailSpacing = 20f;
+                    pointEffectSpace = 20f;
                     damage = 1350;
                     buildingDamageMultiplier = 0.2f;
-                    speed = brange;
+                    maxDamageFraction = 0.6f;
+                    pierceDamageFactor = 1f;
+                    length = brange;
                     hitShake = 6f;
                     ammoMultiplier = 1f;
                 }}
@@ -6905,7 +6910,7 @@ public class Blocks{
             forceDark = true;
             privileged = true;
             size = 1;
-            maxInstructionsPerTick = 500;
+            maxInstructionsPerTick = 1000;
             range = Float.MAX_VALUE;
         }};
 
@@ -6925,7 +6930,7 @@ public class Blocks{
             privileged = true;
         }};
 
-        worldSwitch = new SwitchBlock("world-switch") {{
+        worldSwitch = new SwitchBlock("world-switch"){{
             requirements(Category.logic, BuildVisibility.editorOnly, with());
 
             targetable = false;

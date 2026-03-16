@@ -4,6 +4,7 @@ import arc.func.*;
 import arc.math.*;
 import arc.math.geom.*;
 import arc.util.*;
+import mindustry.gen.*;
 
 import java.util.*;
 
@@ -12,11 +13,23 @@ public class Tiles implements Iterable<Tile>{
     public final int width, height;
 
     final Tile[] array;
+    final Puddle[] puddles;
+    final Fire[] fires;
 
     public Tiles(int width, int height){
         this.array = new Tile[width * height];
         this.width = width;
         this.height = height;
+        this.puddles = new Puddle[width * height];
+        this.fires = new Fire[width * height];
+    }
+
+    public Puddle puddle(int pos){
+        return puddles[pos];
+    }
+
+    public void setPuddle(int pos, Puddle p){
+        puddles[pos] = p;
     }
 
     public void each(Intc2 cons){
@@ -88,6 +101,18 @@ public class Tiles implements Iterable<Tile>{
     public Iterator<Tile> iterator(){
         //iterating through the entire map is expensive anyway, so a new allocation doesn't make much of a difference
         return new TileIterator();
+    }
+
+    public Puddle getPuddle(int pos){
+        return puddles[pos];
+    }
+
+    public @Nullable Fire getFire(int pos){
+        return fires[pos];
+    }
+
+    public void setFire(int pos, Fire f){
+        fires[pos] = f;
     }
 
     private class TileIterator implements Iterator<Tile>{
