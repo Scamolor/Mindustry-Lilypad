@@ -12,14 +12,14 @@ buildscript{
         mavenCentral()
         google()
         maven{ url "https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository" }
+        maven { url 'https://raw.githubusercontent.com/Anuken/MindustryMaven/master/repository' }
         maven{ url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven{ url 'https://jitpack.io' }
-        maven { url 'https://raw.githubusercontent.com/Anuken/MindustryMaven/master/repository' }
     }
 
     dependencies{
-        classpath "com.github.Anuken.Arc:packer:v146"
-        classpath "com.github.Anuken.Arc:arc-core:v146"
+        classpath "com.github.Anuken.Arc:packer:$arcHash"
+        classpath "com.github.Anuken.Arc:arc-core:$arcHash"
     }
 }
 
@@ -184,6 +184,8 @@ allprojects{
         mavenCentral()
         maven{ url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven{ url "https://oss.sonatype.org/content/repositories/releases/" }
+        maven{ url "https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository" }
+        maven { url 'https://raw.githubusercontent.com/Anuken/MindustryMaven/master/repository' }
         maven{ url 'https://jitpack.io' }
     }
 
