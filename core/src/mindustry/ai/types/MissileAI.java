@@ -10,6 +10,10 @@ import mindustry.gen.*;
 public class MissileAI extends AIController{
     public @Nullable Unit shooter;
 
+    protected void resetTimers(){
+        timer.reset(timerTarget, 5f);
+    }
+
     @Override
     public void updateMovement(){
         unloadPayloads();

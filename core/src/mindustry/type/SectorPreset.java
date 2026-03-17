@@ -1,6 +1,8 @@
 package mindustry.type;
 
+import arc.*;
 import arc.func.*;
+import arc.util.*;
 import mindustry.ctype.*;
 import mindustry.game.*;
 import mindustry.gen.*;
@@ -21,6 +23,8 @@ public class SectorPreset extends UnlockableContent{
     public boolean noLighting = false;
     /** If true, this is the last sector in its planetary campaign. */
     public boolean isLastSector;
+    /** If true, this sector must be unlocked before landing is permitted. */
+    public boolean requireUnlock = true;
     public boolean showSectorLandInfo = true;
     /** If true, uses this sector's launch fields instead */
     public boolean overrideLaunchDefaults = false;
@@ -30,6 +34,8 @@ public class SectorPreset extends UnlockableContent{
     public boolean allowLaunchLoadout = false;
     /** If true, switches to attack mode after waves end. */
     public boolean attackAfterWaves = false;
+    /** The original position of this sector; used for migration. Internal use for vanilla campaign only! */
+    public int originalPosition;
 
     public SectorPreset(String name, Planet planet, int sector){
         this(name);

@@ -11,9 +11,7 @@ import mindustry.*;
 import mindustry.content.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
-import mindustry.type.*;
 import mindustry.ui.*;
-import mindustry.world.meta.*;
 
 public class ShieldArcAbility extends Ability{
     private static Unit paramUnit;
@@ -69,12 +67,12 @@ public class ShieldArcAbility extends Ability{
 
     @Override
     public void addStats(Table t){
-        t.add("[lightgray]" + Stat.health.localized() + ": [white]" + Math.round(max));
+        super.addStats(t);
+        t.add(abilityStat("shield", Strings.autoFixed(max, 2)));
         t.row();
-        t.add("[lightgray]" + Stat.repairSpeed.localized() + ": [white]" + Strings.autoFixed(regen * 60f, 2) + StatUnit.perSecond.localized());
+        t.add(abilityStat("repairspeed", Strings.autoFixed(regen * 60f, 2)));
         t.row();
-        t.add("[lightgray]" + Stat.cooldownTime.localized() + ": [white]" + Strings.autoFixed(cooldown / 60f, 2) + " " + StatUnit.seconds.localized());
-        t.row();
+        t.add(abilityStat("cooldown", Strings.autoFixed(cooldown / 60f, 2)));
     }
 
     @Override
@@ -100,7 +98,7 @@ public class ShieldArcAbility extends Ability{
     }
 
     @Override
-    public void init(UnitType type){
+    public void created(Unit unit){
         data = max;
     }
 

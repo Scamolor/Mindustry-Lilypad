@@ -144,6 +144,10 @@ public class ErekirTechTree{
                         node(eruptionDrill, Seq.with(new OnSector(stronghold)), () -> {
 
                         });
+
+                        node(largeCliffCrusher, Seq.with(new OnSector(stronghold)), () -> {
+
+                        });
                     });
                 });
             });

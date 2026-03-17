@@ -3,6 +3,7 @@ package mindustry.content;
 import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
+import arc.math.Interp.*;
 import arc.struct.*;
 import mindustry.*;
 import mindustry.entities.*;
@@ -60,7 +61,9 @@ public class Blocks{
     //boulders
     shaleBoulder, sandBoulder, daciteBoulder, boulder, snowBoulder, basaltBoulder, carbonBoulder, ferricBoulder, beryllicBoulder, yellowStoneBoulder,
     arkyicBoulder, crystalCluster, vibrantCrystalCluster, crystalBlocks, crystalOrbs, crystallineBoulder, redIceBoulder, rhyoliteBoulder, redStoneBoulder,
+
     metalFloor, metalFloorDamaged, metalFloor2, metalFloor3, metalFloor4, metalFloor5, basalt, magmarock, hotrock, snowWall, saltWall,
+    //old metal floors
     darkPanel1, darkPanel2, darkPanel3, darkPanel4, darkPanel5, darkPanel6, darkMetal,
     pebbles, tendrils,
 
@@ -139,7 +142,7 @@ public class Blocks{
     duo, scatter, scorch, hail, arc, wave, lancer, swarmer, salvo, fuse, ripple, cyclone, foreshadow, spectre, meltdown, segment, parallax, tsunami,
 
     //turrets - erekir
-    breach, diffuse, sublimate, titan, disperse, afflict, lustre, scathe, smite, malign, fracture, divine, horde, ravage,
+    breach, splinter, diffuse, sublimate, titan, disperse, afflict, lustre, scathe, smite, malign, fracture, divine, horde, ravage,
 
     //units
     groundFactory, airFactory, navalFactory,
@@ -3297,11 +3300,12 @@ public class Blocks{
                     pierce = true;
                     collidesAir = true;
                     statusDuration = 60f * 6;
-                    shootEffect = Fx.sapExplosion;
+                    shootEffect = Fx.shootSmallFlame;
                     hitEffect = Fx.hitFlameSmall;
-                    despawnEffect = Fx.none;
+                    despawnEffect = Fx.sapped;
                     status = StatusEffects.sporeSlowed;
                     hittable = false;
+                    lightColor = hitColor = Pal.sap;
                 }}
             );
             recoil = 0f;
@@ -4229,6 +4233,57 @@ public class Blocks{
 
             coolant = consume(new ConsumeLiquid(Liquids.water, 15f / 60f));
             limitRange();
+        }};
+
+        //TODO 3x3, different mechanics - not a fuse clone
+        splinter = new ItemTurret("splinter"){{
+            requirements(Category.turret, with(Items.beryllium, 10, Items.graphite, 30, Items.silicon, 35));
+            ammo(
+            Items.graphite, new ContinuousFlameBulletType(65f){{
+                length = 105f;
+                shootEffect = Fx.randLifeSpark;
+                width = 4.5f;
+                colors = new Color[]{Color.valueOf("e8e6ff").a(0.55f), Color.valueOf("819aeb").a(0.7f), Color.valueOf("786bed").a(0.8f), Color.valueOf("c3cdfa"), Color.white};
+                smokeEffect = Fx.shootBigSmoke;
+                continuous = false;
+                ammoMultiplier = 4;
+                pierce = true;
+                knockback = 4f;
+                status = StatusEffects.slow;
+                hitColor = Items.tungsten.color;
+                lifetime = 19f;
+                despawnEffect = Fx.none;
+                drawFlare = true;
+                collidesAir = true;
+                //Interp in = new PowIn(1.6f);
+                //lengthInterp = f -> in.apply(1f - f);
+                hitEffect = Fx.hitBulletColor;
+            }}
+            );
+
+            drawer = new DrawTurret("reinforced-"){{
+                parts.addAll(new RegionPart("-glow"){{
+                    drawRegion = false;
+                    heatColor = Color.valueOf("768a9a");
+                    //useReload = false;
+                    //useProgressHeat = true;
+                }});
+            }};
+            shake = 1f;
+            maxAmmo = 30;
+            //shootLength = 4f;
+            outlineColor = Pal.darkOutline;
+            size = 2;
+            envEnabled |= Env.space;
+            reload = 25f;
+            recoilTime = 0.1f;
+            cooldownTime = 0.04f;
+            recoil = 2.5f;
+            range = 90;
+            shootCone = 15f;
+            inaccuracy = 0f;
+            health = 420 * size * size;
+            rotateSpeed = 3f;
         }};
 
         diffuse = new ItemTurret("diffuse"){{
