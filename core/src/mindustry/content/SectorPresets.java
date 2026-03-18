@@ -7,10 +7,12 @@ import static mindustry.content.Planets.*;
 public class SectorPresets{
     public static SectorPreset
     groundZero,
-    craters, biomassFacility, frozenForest, ruinousShores, windsweptIslands, stainedMountains, tarFields,
-    fungalPass, extractionOutpost, saltFlats, overgrowth,
+    craters, biomassFacility, frozenForest, ruinousShores, facility32m, windsweptIslands, stainedMountains, tarFields,
+    fungalPass, infestedCanyons, mycelialBastion, extractionOutpost, saltFlats, overgrowth,
     impact0078, desolateRift, nuclearComplex, planetaryTerminal,
-    coastline, navalFortress,
+    coastline, navalFortress, weatheredChannels,
+
+    geothermalStronghold, cruxscape,
 
     onset, aegis, lake, intersect, basin, atlas, split, marsh, peaks, ravine, caldera,
     stronghold, crevice, siege, crossroads, karst, origin;
@@ -52,6 +54,11 @@ public class SectorPresets{
             difficulty = 3;
         }};
 
+        facility32m = new SectorPreset("facility32m", serpulo, 64){{
+            captureWave = 25;
+            difficulty = 4;
+        }};
+
         windsweptIslands = new SectorPreset("windsweptIslands", serpulo, 246){{
             captureWave = 30;
             difficulty = 4;
@@ -71,12 +78,25 @@ public class SectorPresets{
             difficulty = 5;
         }};
 
+        weatheredChannels = new SectorPreset("weatheredChannels", serpulo, 39){{
+            captureWave = 40;
+            difficulty = 9;
+        }};
+
         navalFortress = new SectorPreset("navalFortress", serpulo, 216){{
             difficulty = 9;
         }};
 
         fungalPass = new SectorPreset("fungalPass", serpulo, 21){{
             difficulty = 4;
+        }};
+
+        infestedCanyons = new SectorPreset("infestedCanyons", serpulo, 210){{
+            difficulty = 4;
+        }};
+
+        mycelialBastion = new SectorPreset("mycelialBastion", serpulo, 260){{
+            difficulty = 8;
         }};
 
         overgrowth = new SectorPreset("overgrowth", serpulo, 134){{
@@ -106,6 +126,10 @@ public class SectorPresets{
         planetaryTerminal = new SectorPreset("planetaryTerminal", serpulo, 93){{
             difficulty = 10;
             isLastSector = true;
+        }};
+
+        geothermalStronghold = new SectorPreset("geothermalStronghold", serpulo, 264){{
+            difficulty = 10;
         }};
 
         //endregion

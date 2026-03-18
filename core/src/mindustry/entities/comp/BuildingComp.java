@@ -87,6 +87,8 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
     transient float optionalEfficiency;
     /** The efficiency this block *would* have if shouldConsume() returned true. */
     transient float potentialEfficiency;
+    /** Whether there are any consumers (aside from power) that have efficiency > 0. */
+    transient boolean shouldConsumePower;
 
     transient float healSuppressionTime = -1f;
     transient float lastHealTime = -120f * 10f;
@@ -259,6 +261,14 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
         read(read, revision);
     }
 
+    public void writeSync(Writes write){
+        writeAll(write);
+    }
+
+    public void readSync(Reads read, byte revision){
+        readAll(read, revision);
+    }
+
     @CallSuper
     public void write(Writes write){
         //overriden by subclasses!
@@ -378,13 +388,9 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
 
         float heat = 0f;
 
-        for(var edge : block.getEdges()){
-            Building build = nearby(edge.x, edge.y);
+        for(var build : proximity){
             if(build != null && build.team == team && build instanceof HeatBlock heater){
-                //massive hack but I don't really care anymore
-                if(heater instanceof HeatConductorBuild cond){
-                    cond.updateHeat();
-                }
+
 
                 boolean split = build.block instanceof HeatConductor cond && cond.splitHeat;
                 // non-routers must face us, routers must face away - next to a redirector, they're forced to face away due to cycles anyway
@@ -392,8 +398,13 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
 
                     //if there's a cycle, ignore its heat
                     if(!(build instanceof HeatConductorBuild hc && hc.cameFrom.contains(id()))){
+                        //x/y coordinate difference across point of contact
+                        float diff = (Math.min(Math.abs(build.x - x), Math.abs(build.y - y)) / tilesize);
+                        //number of points that this block had contact with
+                        int contactPoints = Math.min((int)(block.size/2f + build.block.size/2f - diff), Math.min(build.block.size, block.size));
+
                         //heat is distributed across building size
-                        float add = heater.heat() / build.block.size;
+                        float add = heater.heat() / build.block.size * contactPoints;
                         if(split){
                             //heat routers split heat across 3 surfaces
                             add /= 3f;
@@ -409,6 +420,11 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
                         if(build instanceof HeatConductorBuild hc){
                             cameFrom.addAll(hc.cameFrom);
                         }
+                    }
+
+                    //massive hack but I don't really care anymore
+                    if(heater instanceof HeatConductorBuild cond){
+                        cond.updateHeat();
                     }
                 }
             }
