@@ -27,7 +27,7 @@ public class MissileUnitType extends UnitType{
         physics = false;
         bounded = false;
         trailLength = 7;
-        hidden = true;
+        hidden = false;
         hoverable = false;
         speed = 4f;
         lifetime = 60f * 1.7f;

@@ -680,6 +680,7 @@ public class UnitTypes{
 
             weapons.add(new Weapon(){{
                 shootOnDeath = true;
+                targetUnderBlocks = false;
                 reload = 24f;
                 shootCone = 180f;
                 ejectEffect = Fx.none;
@@ -1104,6 +1105,7 @@ public class UnitTypes{
 
                     status = StatusEffects.blasted;
                     statusDuration = 60f;
+                    damage = splashDamage * 0.75f;
                 }};
             }});
         }};
@@ -1945,6 +1947,7 @@ public class UnitTypes{
             armor = 3f;
 
             buildSpeed = 1.5f;
+            rotateToBuilding = false;
 
             weapons.add(new RepairBeamWeapon("repair-beam-weapon-center"){{
                 x = 0f;
@@ -2126,6 +2129,7 @@ public class UnitTypes{
             trailScl = 2f;
 
             buildSpeed = 2f;
+            rotateToBuilding = false;
 
             weapons.add(new RepairBeamWeapon("repair-beam-weapon-center"){{
                 x = 11f;
@@ -2267,6 +2271,7 @@ public class UnitTypes{
             trailScl = 3.2f;
 
             buildSpeed = 3f;
+            rotateToBuilding = false;
 
             abilities.add(new EnergyFieldAbility(40f, 65f, 180f){{
                 statusDuration = 60f * 6f;
@@ -2310,6 +2315,7 @@ public class UnitTypes{
             trailScl = 3.5f;
 
             buildSpeed = 3.5f;
+            rotateToBuilding = false;
 
             for(float mountY : new float[]{-117/4f, 50/4f}){
                 for(float sign : Mathf.signs){
@@ -2457,7 +2463,8 @@ public class UnitTypes{
         //region core
 
         alpha = new UnitType("alpha"){{
-            aiController = BuilderAI::new;
+            aiController = () -> new BuilderAI(true, 400f);
+            controller = u -> u.team.isAI() ? aiController.get() : new CommandAI();
             isEnemy = false;
 
             lowAltitude = true;
@@ -2495,7 +2502,8 @@ public class UnitTypes{
         }};
 
         beta = new UnitType("beta"){{
-            aiController = BuilderAI::new;
+            aiController = () -> new BuilderAI(true, 400f);
+            controller = u -> u.team.isAI() ? aiController.get() : new CommandAI();
             isEnemy = false;
 
             flying = true;
@@ -2536,7 +2544,8 @@ public class UnitTypes{
         }};
 
         gamma = new UnitType("gamma"){{
-            aiController = BuilderAI::new;
+            aiController = () -> new BuilderAI(true, 400f);
+            controller = u -> u.team.isAI() ? aiController.get() : new CommandAI();
             isEnemy = false;
 
             lowAltitude = true;
@@ -4269,6 +4278,8 @@ public class UnitTypes{
             isEnemy = false;
             envDisabled = 0;
 
+            range = 60f;
+            faceTarget = true;
             targetPriority = -2;
             lowAltitude = false;
             mineWalls = true;
@@ -4333,8 +4344,10 @@ public class UnitTypes{
             isEnemy = false;
             envDisabled = 0;
 
+            range = 60f;
             targetPriority = -2;
             lowAltitude = false;
+            faceTarget = true;
             mineWalls = true;
             mineFloor = false;
             mineHardnessScaling = false;
@@ -4410,6 +4423,8 @@ public class UnitTypes{
             isEnemy = false;
             envDisabled = 0;
 
+            range = 65f;
+            faceTarget = true;
             targetPriority = -2;
             lowAltitude = false;
             mineWalls = true;

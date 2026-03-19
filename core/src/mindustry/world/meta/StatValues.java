@@ -494,7 +494,7 @@ public class StatValues{
                     }
 
                     if(type.maxDamageFraction > 0){
-                        sep(bt, Core.bundle.format("bullet.maxdamagefraction", (int)(type.maxDamageFraction * 100))); 
+                        sep(bt, Core.bundle.format("bullet.maxdamagefraction", (int)(type.maxDamageFraction * 100)));
                     }
 
                     if(type.suppressionRange > 0){

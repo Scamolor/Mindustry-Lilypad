@@ -17,6 +17,7 @@ import mindustry.*;
 import mindustry.ai.*;
 import mindustry.ai.types.*;
 import mindustry.annotations.Annotations.*;
+import mindustry.async.*;
 import mindustry.content.*;
 import mindustry.core.*;
 import mindustry.entities.*;
@@ -46,6 +47,9 @@ import static arc.Core.*;
 import static mindustry.Vars.*;
 
 public abstract class InputHandler implements InputProcessor, GestureListener{
+    //not sure where else to put this - maps unique commands based on position to a list of units that will be turned into a unit group
+    static ObjectMap<Vec2, Seq<Unit>> queuedCommands = new ObjectMap<>();
+
     /** Used for dropping items. */
     final static float playerSelectRange = mobile ? 17f : 11f;
     final static IntSeq removed = new IntSeq();
@@ -227,7 +231,7 @@ public abstract class InputHandler implements InputProcessor, GestureListener{
     }
 
     @Remote(called = Loc.server, targets = Loc.both, forward = true)
-    public static void commandUnits(Player player, int[] unitIds, @Nullable Building buildTarget, @Nullable Unit unitTarget, @Nullable Vec2 posTarget, boolean queueCommand){
+    public static void commandUnits(Player player, int[] unitIds, @Nullable Building buildTarget, @Nullable Unit unitTarget, @Nullable Vec2 posTarget, boolean queueCommand, boolean finalBatch){
         if(player == null || unitIds == null) return;
 
         //why did I ever think this was a good idea
@@ -240,6 +244,9 @@ public abstract class InputHandler implements InputProcessor, GestureListener{
         }
 
         Teamc teamTarget = buildTarget == null ? unitTarget : buildTarget;
+        Vec2 targetAsVec = new Vec2().set(teamTarget != null ? teamTarget : posTarget);
+        Seq<Unit> toAdd = queuedCommands.get(targetAsVec, Seq::new);
+        boolean anyCommandedTarget = false;
 
         for(int id : unitIds){
             Unit unit = Groups.unit.getByID(id);
@@ -250,9 +257,16 @@ public abstract class InputHandler implements InputProcessor, GestureListener{
                     ai.command(UnitCommand.moveCommand);
                 }
 
-                if(teamTarget != null && teamTarget.team() != player.team()){
-                    ai.commandTarget(teamTarget);
+                if(teamTarget != null && teamTarget.team() != player.team() &&
+                    !(teamTarget instanceof Unit u && !unit.canTarget(u)) && !(teamTarget instanceof Building && !unit.type.targetGround)){
 
+                    anyCommandedTarget = true;
+                    if(queueCommand){
+                        ai.commandQueue(teamTarget);
+                    }else{
+                        ai.commandQueue.clear();
+                        ai.commandTarget(teamTarget);
+                    }
                 }else if(posTarget != null){
                     if(queueCommand){
                         ai.commandQueue(posTarget);
@@ -261,17 +275,49 @@ public abstract class InputHandler implements InputProcessor, GestureListener{
                         ai.commandPosition(posTarget);
                     }
                 }
+
                 unit.lastCommanded = player.coloredName();
                 
                 //remove when other player command
                 if(!headless && player != Vars.player){
                     control.input.selectedUnits.remove(unit);
                 }
+
+                toAdd.add(unit);
+            }
+        }
+
+        //in the "final batch" of commands, assign formations based on EVERYTHING that was commanded.
+        if(finalBatch){
+            //each physics layer has its own group
+            UnitGroup[] groups = new UnitGroup[PhysicsProcess.layers];
+            var units = queuedCommands.remove(targetAsVec);
+
+            for(Unit unit : units){
+                if(unit.controller() instanceof CommandAI ai){
+                    //only assign a group when this is not a queued command
+                    if(ai.commandQueue.size == 0 && unitIds.length > 1){
+                        int layer = unit.collisionLayer();
+                        if(groups[layer] == null){
+                            groups[layer] = new UnitGroup();
+                        }
+
+                        groups[layer].units.add(unit);
+                        ai.group = groups[layer];
+                    }
+                }
+            }
+
+            for(int i = 0; i < groups.length; i ++){
+                var group = groups[i];
+                if(group != null && group.units.size > 0){
+                    group.calculateFormation(targetAsVec, i);
+                }
             }
         }
 
         if(unitIds.length > 0 && player == Vars.player && !state.isPaused()){
-            if(teamTarget != null){
+            if(anyCommandedTarget){
                 Fx.attackCommand.at(teamTarget);
             }else{
                 Fx.moveCommand.at(posTarget);
@@ -925,10 +971,10 @@ public abstract class InputHandler implements InputProcessor, GestureListener{
                 if(ids.length > maxChunkSize){
                     for(int i = 0; i < ids.length; i += maxChunkSize){
                         int[] data = Arrays.copyOfRange(ids, i, Math.min(i + maxChunkSize, ids.length));
-                        Call.commandUnits(player, data, attack instanceof Building b ? b : null, attack instanceof Unit u ? u : null, target, queue);
+                        Call.commandUnits(player, data, attack instanceof Building b ? b : null, attack instanceof Unit u ? u : null, target, queue, i + maxChunkSize >= ids.length);
                     }
                 }else{
-                    Call.commandUnits(player, ids, attack instanceof Building b ? b : null, attack instanceof Unit u ? u : null, target, queue);
+                    Call.commandUnits(player, ids, attack instanceof Building b ? b : null, attack instanceof Unit u ? u : null, target, queue, true);
                 }
             }
 

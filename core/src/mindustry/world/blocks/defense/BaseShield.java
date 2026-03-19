@@ -20,6 +20,8 @@ public class BaseShield extends Block{
     public float radius = 200f;
     public int sides = 24;
 
+    public @Nullable Color shieldColor;
+
     protected static BaseShieldBuild paramBuild;
     //protected static Effect paramEffect;
     protected static final Cons<Bullet> bulletConsumer = bullet -> {
@@ -125,7 +127,7 @@ public class BaseShield extends Block{
 
                 Draw.z(Layer.shields);
 
-                Draw.color(team.color, Color.white, Mathf.clamp(hit));
+                Draw.color(shieldColor == null ? team.color : shieldColor, Color.white, Mathf.clamp(hit));
 
                 if(renderer.animateShields){
                     Fill.poly(x, y, sides, radius);

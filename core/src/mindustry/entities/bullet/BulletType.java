@@ -86,6 +86,8 @@ public class BulletType extends Content implements Cloneable{
     public float reloadMultiplier = 1f;
     /** Multiplier of how much base damage is done to tiles. */
     public float buildingDamageMultiplier = 1f;
+    /** Multiplier of how much base damage is done to force shields. */
+    public float shieldDamageMultiplier = 1f;
     /** Recoil from shooter entities. */
     public float recoil;
     /** Whether to kill the shooter when this is shot. For suicide bombers. */
@@ -143,6 +145,8 @@ public class BulletType extends Content implements Cloneable{
     public float rangeOverride = -1f;
     /** When used in a turret with multiple ammo types, this can be set to a non-zero value to influence range. */
     public float rangeChange = 0f;
+    /** When used in turrets with limitRange() applied, this adds extra range to the bullets that extends past targeting range. Only particularly relevant in vanilla. */
+    public float extraRangeMargin = 0f;
     /** Range initialized in init(). */
     public float range = 0f;
     /** % of block health healed **/
@@ -572,6 +576,14 @@ public class BulletType extends Content implements Cloneable{
         }
     }
 
+    public float buildingDamage(Bullet b){
+        return b.damage() * buildingDamageMultiplier;
+    }
+
+    public float shieldDamage(Bullet b){
+        return b.damage() * shieldDamageMultiplier;
+    }
+
     public void draw(Bullet b){
         drawTrail(b);
         drawParts(b);
@@ -719,7 +731,10 @@ public class BulletType extends Content implements Cloneable{
         }
 
         if(lightningType == null){
-            lightningType = !collidesAir ? Bullets.damageLightningGround : Bullets.damageLightning;
+            lightningType =
+                !collidesAir ? Bullets.damageLightningGround :
+                !collidesGround ? Bullets.damageLightningAir :
+                Bullets.damageLightning;
         }
 
         if(lightRadius <= -1){

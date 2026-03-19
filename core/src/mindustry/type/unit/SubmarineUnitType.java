@@ -1,7 +1,11 @@
 package mindustry.type.unit;
 
+import mindustry.content.*;
+import mindustry.entities.abilities.*;
+import mindustry.graphics.*;
+import mindustry.type.*;
 import mindustry.world.meta.*;
-
+import mindustry.entities.comp.SubmarineComp;
 import mindustry.type.UnitType;
 
 public class SubmarineUnitType extends UnitType {
@@ -15,5 +19,6 @@ public class SubmarineUnitType extends UnitType {
         playerControllable = true;
         createWreck = true;
         createScorch = true;
+        envDisabled = Env.space;
     }
 }

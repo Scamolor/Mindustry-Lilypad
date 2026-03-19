@@ -297,31 +297,9 @@ public class Weapon implements Cloneable{
             mount.warmup = Mathf.lerpDelta(mount.warmup, warmupTarget, shootWarmupSpeed);
         }
 
-        //rotate if applicable
-        if(rotate && (mount.rotate || mount.shoot) && can){
-            float axisX = unit.x + Angles.trnsx(unit.rotation - 90,  x, y),
-            axisY = unit.y + Angles.trnsy(unit.rotation - 90,  x, y);
-
-            mount.targetRotation = Angles.angle(axisX, axisY, mount.aimX, mount.aimY) - unit.rotation;
-            mount.rotation = Angles.moveToward(mount.rotation, mount.targetRotation, rotateSpeed * Time.delta);
-            if(rotationLimit < 360){
-                float dst = Angles.angleDist(mount.rotation, baseRotation);
-                if(dst > rotationLimit/2f){
-                    mount.rotation = Angles.moveToward(mount.rotation, baseRotation, dst - rotationLimit/2f);
-                }
-            }
-        }else if(!rotate){
-            mount.rotation = baseRotation;
-            mount.targetRotation = unit.angleTo(mount.aimX, mount.aimY);
-        }
-
         float
-        weaponRotation = unit.rotation - 90 + (rotate ? mount.rotation : baseRotation),
         mountX = unit.x + Angles.trnsx(unit.rotation - 90, x, y),
-        mountY = unit.y + Angles.trnsy(unit.rotation - 90, x, y),
-        bulletX = mountX + Angles.trnsx(weaponRotation, this.shootX, this.shootY),
-        bulletY = mountY + Angles.trnsy(weaponRotation, this.shootX, this.shootY),
-        shootAngle = bulletRotation(unit, mount, bulletX, bulletY);
+        mountY = unit.y + Angles.trnsy(unit.rotation - 90, x, y);
 
         //find a new target
         if(!controllable && autoTarget){
@@ -355,6 +333,30 @@ public class Weapon implements Cloneable{
             //logic will return shooting as false even if these return true, which is fine
         }
 
+        //rotate if applicable
+        if(rotate && (mount.rotate || mount.shoot) && can){
+            float axisX = unit.x + Angles.trnsx(unit.rotation - 90,  x, y),
+            axisY = unit.y + Angles.trnsy(unit.rotation - 90,  x, y);
+
+            mount.targetRotation = Angles.angle(axisX, axisY, mount.aimX, mount.aimY) - unit.rotation;
+            mount.rotation = Angles.moveToward(mount.rotation, mount.targetRotation, rotateSpeed * Time.delta);
+            if(rotationLimit < 360){
+                float dst = Angles.angleDist(mount.rotation, baseRotation);
+                if(dst > rotationLimit/2f){
+                    mount.rotation = Angles.moveToward(mount.rotation, baseRotation, dst - rotationLimit/2f);
+                }
+            }
+        }else if(!rotate){
+            mount.rotation = baseRotation;
+            mount.targetRotation = unit.angleTo(mount.aimX, mount.aimY);
+        }
+
+        float
+        weaponRotation = unit.rotation - 90 + (rotate ? mount.rotation : baseRotation),
+        bulletX = mountX + Angles.trnsx(weaponRotation, this.shootX, this.shootY),
+        bulletY = mountY + Angles.trnsy(weaponRotation, this.shootX, this.shootY),
+        shootAngle = bulletRotation(unit, mount, bulletX, bulletY);
+
         if(alwaysShooting) mount.shoot = true;
 
         //update continuous state
@@ -366,7 +368,7 @@ public class Weapon implements Cloneable{
                 mount.bullet.set(bulletX, bulletY);
                 mount.reload = reload;
                 mount.recoil = 1f;
-                unit.vel.add(Tmp.v1.trns(unit.rotation + 180f, mount.bullet.type.recoil * Time.delta));
+                unit.vel.add(Tmp.v1.trns(mount.bullet.rotation() + 180f, mount.bullet.type.recoil * Time.delta));
                 if(shootSound != Sounds.none && !headless){
                     if(mount.sound == null) mount.sound = new SoundLoop(shootSound, 1f);
                     mount.sound.update(bulletX, bulletY, true);
@@ -430,7 +432,7 @@ public class Weapon implements Cloneable{
     }
 
     protected Teamc findTarget(Unit unit, float x, float y, float range, boolean air, boolean ground){
-        return Units.closestTarget(unit.team, x, y, range + Math.abs(shootY), u -> u.checkTarget(air, ground), t -> ground);
+        return Units.closestTarget(unit.team, x, y, range + Math.abs(shootY), u -> u.checkTarget(air, ground), t -> ground && (unit.type.targetUnderBlocks || !t.block.underBullets));
     }
 
     protected boolean checkTarget(Unit unit, Teamc target, float x, float y, float range){
@@ -453,9 +455,16 @@ public class Weapon implements Cloneable{
         shoot.shoot(mount.barrelCounter, (xOffset, yOffset, angle, delay, mover) -> {
             //this is incremented immediately, as it is used for total bullet creation amount detection
             mount.totalShots ++;
+            int barrel = mount.barrelCounter;
 
             if(delay > 0f){
-                Time.run(delay, () -> bullet(unit, mount, xOffset, yOffset, angle, mover));
+                Time.run(delay, () -> {
+                    //hack: make sure the barrel is the same as what it was when the bullet was queued to fire
+                    int prev = mount.barrelCounter;
+                    mount.barrelCounter = barrel;
+                    bullet(unit, mount, xOffset, yOffset, angle, mover);
+                    mount.barrelCounter = prev;
+                });
             }else{
                 bullet(unit, mount, xOffset, yOffset, angle, mover);
             }
@@ -499,14 +508,14 @@ public class Weapon implements Cloneable{
     }
 
     //override to do special things to a bullet after spawning
-    protected void handleBullet(Unit unit, WeaponMount mount, Bullet bullet) {
-        if (continuous) {
+    protected void handleBullet(Unit unit, WeaponMount mount, Bullet bullet){
+        if(continuous){
             float
-                    weaponRotation = unit.rotation - 90 + (rotate ? mount.rotation : baseRotation),
-                    mountX = unit.x + Angles.trnsx(unit.rotation - 90, x, y),
-                    mountY = unit.y + Angles.trnsy(unit.rotation - 90, x, y),
-                    bulletX = mountX + Angles.trnsx(weaponRotation, this.shootX, this.shootY),
-                    bulletY = mountY + Angles.trnsy(weaponRotation, this.shootX, this.shootY);
+                weaponRotation = unit.rotation - 90 + (rotate ? mount.rotation : baseRotation),
+                mountX = unit.x + Angles.trnsx(unit.rotation - 90, x, y),
+                mountY = unit.y + Angles.trnsy(unit.rotation - 90, x, y),
+                bulletX = mountX + Angles.trnsx(weaponRotation, this.shootX, this.shootY),
+                bulletY = mountY + Angles.trnsy(weaponRotation, this.shootX, this.shootY);
             //make sure the length updates to the last set value
             Tmp.v1.trns(bulletRotation(unit, mount, bulletX, bulletY), shootY + mount.lastLength).add(bulletX, bulletY);
             bullet.aimX = Tmp.v1.x;

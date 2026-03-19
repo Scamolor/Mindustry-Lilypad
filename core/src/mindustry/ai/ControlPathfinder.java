@@ -17,7 +17,6 @@ import mindustry.world.*;
 import static mindustry.Vars.*;
 import static mindustry.ai.Pathfinder.*;
 
-//TODO remove/replace
 public class ControlPathfinder{
     //TODO this FPS-based update system could be flawed.
     private static final long maxUpdate = Time.millisToNanos(30);
@@ -27,18 +26,18 @@ public class ControlPathfinder{
 
     public static final PathCost
 
-            costGround = (team, tile) ->
-            //deep is impassable
-            PathTile.allDeep(tile) ? impassable :
-            //impassable same-team or neutral block
-            PathTile.solid(tile) && ((PathTile.team(tile) == team && !PathTile.teamPassable(tile)) || PathTile.team(tile) == 0) ? impassable :
-            //impassable synthetic enemy block
-            ((PathTile.team(tile) != team && PathTile.team(tile) != 0) && PathTile.solid(tile) ? wallImpassableCap : 0) +
-            1 +
-            (PathTile.nearSolid(tile) ? 6 : 0) +
-            (PathTile.nearLiquid(tile) ? 8 : 0) +
-            (PathTile.deep(tile) ? 6000 : 0) +
-            (PathTile.damages(tile) ? 50 : 0),
+    costGround = (team, tile) ->
+    //deep is impassable
+    PathTile.allDeep(tile) ? impassable :
+    //impassable same-team or neutral block
+    PathTile.solid(tile) && ((PathTile.team(tile) == team && !PathTile.teamPassable(tile)) || PathTile.team(tile) == 0) ? impassable :
+    //impassable synthetic enemy block
+    ((PathTile.team(tile) != team && PathTile.team(tile) != 0) && PathTile.solid(tile) ? wallImpassableCap : 0) +
+    1 +
+    (PathTile.nearSolid(tile) ? 6 : 0) +
+    (PathTile.nearLiquid(tile) ? 8 : 0) +
+    (PathTile.deep(tile) ? 6000 : 0) +
+    (PathTile.damages(tile) ? 50 : 0),
 
     //same as ground but ignores liquids/deep stuff
     costHover = (team, tile) ->
@@ -258,14 +257,8 @@ public class ControlPathfinder{
                     float dst = unit.dst2(tile);
                     //TODO maybe put this on a timer since raycasts can be expensive?
                     if(dst < minDst && !permissiveRaycast(team, costType, tileX, tileY, tile.x, tile.y)){
-                        if(avoid(req.team, req.cost, items[i + 1])){
-                            range = 0.5f;
-                        }
-
                         req.pathIndex = Math.max(dst <= range * range ? i + 1 : i, req.pathIndex);
                         minDst = Math.min(dst, minDst);
-                    }else if(dst <= 1f){
-                        req.pathIndex = Math.min(Math.max(i + 1, req.pathIndex), len - 1);
                     }
                 }
 
@@ -295,10 +288,6 @@ public class ControlPathfinder{
                         if(Angles.angleDist(angleToNext, angleToDest) > 80f && !unit.within(tile, 1f)){
                             req.forceRecalculate();
                         }
-                    }
-
-                    if(avoid(req.team, req.cost, items[req.rayPathIndex])){
-                        range = 0.5f;
                     }
 
                     if(unit.within(tile, range)){
@@ -347,12 +336,8 @@ public class ControlPathfinder{
         requests.clear();
     }
 
-    public static boolean isNearObstacle(Unit unit, int x1, int y1, int x2, int y2){
-        return raycast(unit.team().id, unit.type.pathCost, x1, y1, x2, y2);
-    }
-
     private static boolean raycast(int team, PathCost type, int x1, int y1, int x2, int y2){
-        int ww = wwidth, wh = wheight;
+        int ww = world.width(), wh = world.height();
         int x = x1, dx = Math.abs(x2 - x), sx = x < x2 ? 1 : -1;
         int y = y1, dy = Math.abs(y2 - y), sy = y < y2 ? 1 : -1;
         int e2, err = dx - dy;
@@ -390,7 +375,7 @@ public class ControlPathfinder{
     }
 
     private static boolean permissiveRaycast(int team, PathCost type, int x1, int y1, int x2, int y2){
-        int ww = wwidth, wh = wheight;
+        int ww = world.width(), wh = world.height();
         int x = x1, dx = Math.abs(x2 - x), sx = x < x2 ? 1 : -1;
         int y = y1, dy = Math.abs(y2 - y), sy = y < y2 ? 1 : -1;
         int err = dx - dy;

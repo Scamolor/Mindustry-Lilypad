@@ -112,8 +112,8 @@ public class ContentParser{
         });
         put(UnitCommand.class, (type, data) -> {
             if(data.isString()){
-                var cmd = content.getByName(ContentType.unitCommand, data.asString());
-                if(cmd != null){
+               var cmd = content.unitCommand(data.asString());
+               if(cmd != null){
                    return cmd;
                }else{
                    throw new IllegalArgumentException("Unknown unit command name: " + data.asString());
@@ -124,7 +124,7 @@ public class ContentParser{
         });
         put(UnitStance.class, (type, data) -> {
             if(data.isString()){
-                var cmd = UnitStance.all.find(u -> u.name.equals(data.asString()));
+                var cmd = content.unitStance(data.asString());
                 if(cmd != null){
                     return cmd;
                 }else{

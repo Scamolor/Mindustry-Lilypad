@@ -260,6 +260,13 @@ public class OverlayRenderer{
         }
     }
 
+    public void checkApplySelection(Unit u){
+        if(unitFade > 0.001f && lastSelect == u){
+            Color prev = Draw.getMixColor();
+            Draw.mixcol(prev.a > 0.001f ? prev.lerp(Pal.accent, unitFade) : Pal.accent, Math.max(unitFade, prev.a));
+        }
+    }
+
     private static class CoreEdge{
         float x1, y1, x2, y2;
         Team t1, t2;
