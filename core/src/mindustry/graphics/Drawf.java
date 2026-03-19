@@ -26,6 +26,10 @@ public class Drawf{
         }
     }
 
+    public static void underwater(Runnable run){
+        renderer.blocks.floor.drawUnderwater(run);
+    }
+
     //TODO offset unused
     public static void flame(float x, float y, int divisions, float rotation, float length, float width, float pan){
         float len1 = length * pan, len2 = length * (1f - pan);

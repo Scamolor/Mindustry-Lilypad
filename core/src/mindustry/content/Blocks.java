@@ -1252,6 +1252,7 @@ public class Blocks{
             rotate = true;
             invertFlip = true;
             group = BlockGroup.liquids;
+            itemCapacity = 0;
 
             liquidCapacity = 50f;
 
@@ -1302,6 +1303,7 @@ public class Blocks{
             }});
 
             researchCostMultiplier = 1.1f;
+            itemCapacity = 0;
             liquidCapacity = 40f;
             consumePower(2f);
             ambientSound = Sounds.extractLoop;
@@ -2000,14 +2002,14 @@ public class Blocks{
 
         plastaniumConveyor = new StackConveyor("plastanium-conveyor"){{
             requirements(Category.distribution, with(Items.plastanium, 1, Items.silicon, 1, Items.graphite, 1));
-            health = 75;
+            health = 90;
             speed = 4f / 60f;
             itemCapacity = 10;
         }};
 
         armoredConveyor = new ArmoredConveyor("armored-conveyor"){{
             requirements(Category.distribution, with(Items.plastanium, 1, Items.thorium, 1, Items.metaglass, 1));
-            health = 180;
+            health = 280;
             speed = 0.08f;
             displayedSpeed = 11f;
         }};
@@ -2658,21 +2660,21 @@ public class Blocks{
             size = 5;
 
             drawer = new DrawMulti(
-                    new DrawRegion("-bottom"),
-                    new DrawLiquidTile(Liquids.cyanogen),
-                    new DrawRegion("-mid"),
-                    new DrawSoftParticles() {{
-                        alpha = 0.35f;
-                        particleRad = 12f;
-                        particleSize = 9f;
-                        particleLife = 120f;
-                        particles = 27;
-                    }},
-                    new DrawDefault(),
-                    new DrawHeatInput(),
-                    new DrawGlowRegion("-ventglow") {{
-                        color = Color.valueOf("32603a");
-                    }}
+            new DrawRegion("-bottom"),
+            new DrawLiquidTile(Liquids.cyanogen),
+            new DrawRegion("-mid"),
+            new DrawSoftParticles(){{
+                alpha = 0.35f;
+                particleRad = 12f;
+                particleSize = 9f;
+                particleLife = 120f;
+                particles = 27;
+            }},
+            new DrawDefault(),
+            new DrawHeatInput(),
+            new DrawGlowRegion("-ventglow"){{
+                color = Color.valueOf("32603a");
+            }}
             );
         }};
 
@@ -2870,6 +2872,7 @@ public class Blocks{
             ambientSoundVolume = 0.06f;
             hasLiquids = true;
             boostScale = 1f / 9f;
+            itemCapacity = 0;
             outputLiquid = new LiquidStack(Liquids.water, 30f / 60f);
             consumePower(0.5f);
             liquidCapacity = 60f;
@@ -3116,7 +3119,7 @@ public class Blocks{
         reinforcedContainer = new StorageBlock("reinforced-container"){{
             requirements(Category.effect, with(Items.tungsten, 30, Items.graphite, 40));
             size = 2;
-            itemCapacity = 80;
+            itemCapacity = 160;
             scaledHealth = 120;
             coreMerge = false;
         }};
@@ -4224,6 +4227,26 @@ public class Blocks{
                 hitEffect = despawnEffect = Fx.hitBulletColor;
                 rangeChange = 40f;
                 buildingDamageMultiplier = 0.3f;
+            }},
+            Items.carbide, new BasicBulletType(12f, 400f/0.75f){{
+                width = 15f;
+                height = 21f;
+                hitSize = 7f;
+                shootEffect = sfe;
+                smokeEffect = Fx.shootBigSmoke;
+                ammoMultiplier = 1;
+                reloadMultiplier = 0.67f;
+                hitColor = backColor = trailColor = Color.valueOf("ab8ec5");
+                frontColor = Color.white;
+                trailWidth = 2.2f;
+                trailLength = 11;
+                trailEffect = Fx.disperseTrail;
+                trailInterval = 2f;
+                hitEffect = despawnEffect = Fx.hitBulletColor;
+                rangeChange = 136f;
+                buildingDamageMultiplier = 0.3f;
+                targetBlocks = false;
+                targetMissiles = false;
             }}
             );
 
@@ -4880,7 +4903,7 @@ public class Blocks{
             coolant = consume(new ConsumeLiquid(Liquids.water, 20f / 60f));
             coolantMultiplier = 2.5f;
 
-            limitRange(-5f);
+            limitRange(5f);
         }};
 
         afflict = new PowerTurret("afflict"){{
@@ -4901,6 +4924,7 @@ public class Blocks{
                 trailInterval = 3f;
                 trailParam = 4f;
                 pierceCap = 2;
+                buildingDamageMultiplier = 0.5f;
                 fragOnHit = false;
                 speed = 5f;
                 damage = 180f;
@@ -4983,6 +5007,8 @@ public class Blocks{
             consumePower(5f);
             heatRequirement = 10f;
             maxHeatEfficiency = 2f;
+
+            newTargetInterval = 40f;
 
             inaccuracy = 1f;
             shake = 2f;
@@ -5274,6 +5300,7 @@ public class Blocks{
                     loopSoundVolume = 0.6f;
                     deathSound = Sounds.largeExplosion;
                     targetAir = false;
+                    targetUnderBlocks = false;
 
                     fogRadius = 6f;
 
@@ -5387,6 +5414,8 @@ public class Blocks{
             shootSound = Sounds.shootScathe;
 
             minWarmup = 0.94f;
+            newTargetInterval = 40f;
+            unitSort = UnitSorts.strongest;
             shootWarmupSpeed = 0.03f;
             targetAir = false;
             targetUnderBlocks = false;
@@ -5664,10 +5693,11 @@ public class Blocks{
             outlineColor = Pal.darkOutline;
             size = 5;
             envEnabled |= Env.space;
-            warmupMaintainTime = 30f;
+            warmupMaintainTime = 120f;
             reload = 100f;
             recoil = 2f;
             range = 300;
+            trackingRange = range * 1.4f;
             shootCone = 30f;
             scaledHealth = 350;
             rotateSpeed = 1.5f;
@@ -5973,7 +6003,7 @@ public class Blocks{
             shootType = new FlakBulletType(8f, 70f) {{
                 sprite = "missile-large";
 
-                lifetime = 40f;
+                lifetime = 45f;
                 width = 12f;
                 height = 22f;
 
@@ -5991,26 +6021,23 @@ public class Blocks{
                 trailEffect = Fx.colorSpark;
                 trailRotation = true;
                 trailInterval = 3f;
+                lightning = 1;
+                lightningCone = 15f;
+                lightningLength = 20;
+                lightningLengthRand = 30;
+                lightningDamage = 20f;
 
                 homingPower = 0.17f;
                 homingDelay = 19f;
                 homingRange = 160f;
 
-                explodeRange = 100f;
+                explodeRange = 160f;
                 explodeDelay = 0f;
 
                 flakInterval = 20f;
                 despawnShake = 3f;
 
-                intervalBullet = new LightningBulletType() {{
-                    lightningColor = circleColor;
-                    lightningCone = 15f;
-                    lightningLength = 35;
-                    lightningLengthRand = 5;
-                    damage = 18f;
-                }};
-
-                fragBullet = new LaserBulletType(65f) {{
+                fragBullet = new LaserBulletType(65f){{
                     colors = new Color[]{haloColor.cpy().a(0.4f), haloColor, Color.white};
                     buildingDamageMultiplier = 0.25f;
                     width = 19f;
@@ -6020,14 +6047,12 @@ public class Blocks{
                     sideLength = 40f;
                     lifetime = 22f;
                     drawSize = 400f;
-                    length = 120f;
+                    length = 180f;
                     pierceCap = 2;
                     optimalLifeFract = 1f;
                 }};
 
-                intervalBullets = 1;
-                fragSpread = fragRandomSpread = intervalRandomSpread = 0f;
-                bulletInterval = 20f;
+                fragSpread = fragRandomSpread = 0f;
 
                 splashDamage = 0f;
                 hitEffect = Fx.hitSquaresColor;
@@ -6270,25 +6295,26 @@ public class Blocks{
             }};
 
             velocityRnd = 0.15f;
-            heatRequirement = 144f;
-            maxHeatEfficiency = 1f;
+            heatRequirement = 90f;
+            maxHeatEfficiency = 2f;
             warmupMaintainTime = 120f;
-            consumePower(40f);
-            unitSort = UnitSorts.strongest;
-            shoot = new ShootSummon(0f, 0f, circleRad, 20f);
+            consumePower(10f);
+
+            shoot = new ShootSummon(0f, 0f, circleRad, 48f);
 
             minWarmup = 0.96f;
-            shootWarmupSpeed = 0.08f;
+            shootWarmupSpeed = 0.03f;
 
             shootY = circleY - 5f;
 
             outlineColor = Pal.darkOutline;
             envEnabled |= Env.space;
-            reload = 3.5f;
-            range = 410;
+            reload = 9f;
+            range = 370;
+            trackingRange = range * 1.4f;
             shootCone = 100f;
             scaledHealth = 370;
-            rotateSpeed = 2.6f;
+            rotateSpeed = 2f;
             recoil = 0.5f;
             recoilTime = 30f;
             shake = 3f;
@@ -6321,7 +6347,7 @@ public class Blocks{
             requirements(Category.units, with(Items.copper, 150, Items.lead, 130, Items.metaglass, 120));
             plans = Seq.with(
                 new UnitPlan(UnitTypes.risso, 60f * 45f, with(Items.silicon, 20, Items.metaglass, 35)),
-                new UnitPlan(UnitTypes.retusa, 60f * 50f, with(Items.silicon, 15, Items.metaglass, 25, Items.titanium, 20))
+                new UnitPlan(UnitTypes.retusa, 60f * 35f, with(Items.silicon, 15, Items.titanium, 20))
             );
             size = 3;
             consumePower(1.2f);
@@ -6989,7 +7015,7 @@ public class Blocks{
 
             targetable = false;
             privileged = true;
-            memoryCapacity = 128;
+            memoryCapacity = 512;
             forceDark = true;
         }};
 
