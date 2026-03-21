@@ -5043,18 +5043,20 @@ public class Blocks{
                 timeDuration = 60f * 20f;
                 powerDamageScl = 5f;
                 damage = 125;
-                hitColor = lightColor = Pal.redSpark;
+                hitColor = Pal.slagOrange;
+                lightColor = Pal.darkFlame;
                 lightRadius = 100f;
                 clipSize = 250f;
                 shootEffect = Fx.lancerLaserShoot;
                 smokeEffect = Fx.shootBigSmoke2;
                 lifetime = 80f;
-                sprite = "large-orb";
-                backColor = Pal.redderDust;
+                sprite = "missile-large";
+                backSprite = "missile-large-back";
+                backColor = Pal.darkPyraFlame;
                 frontColor = Color.white;
                 width = height = 12f;
                 shrinkY = 0f;
-                speed = 13.5f;
+                speed = 9f;
                 trailLength = 20;
                 trailWidth = 6f;
                 trailColor = Pal.orangeSpark;
@@ -5063,11 +5065,10 @@ public class Blocks{
                 splashDamageRadius = rad;
                 hitShake = 5f;
                 trailRotation = true;
-                homingPower = 0.02f;
                 status = StatusEffects.electrified;
                 hitSound = Sounds.plasmaboom;
                 trailEffect = new Effect(16f, e -> {
-                    color(Pal.redLight);
+                    color(Pal.darkFlame);
                     for (int s : Mathf.signs) {
                         Drawf.tri(e.x, e.y, 4f, 30f * e.fslope(), e.rotation + 90f * s);
                     }
@@ -5075,11 +5076,11 @@ public class Blocks{
 
                 hitEffect = new Effect(50f, 100f, e -> {
                     e.scaled(7f, b -> {
-                        color(Pal.redLight, b.fout());
+                        color(Pal.darkFlame, b.fout());
                         Fill.circle(e.x, e.y, rad);
                     });
 
-                    color(Pal.redLight);
+                    color(Pal.darkFlame);
                     stroke(e.fout() * 3f);
                     Lines.circle(e.x, e.y, rad);
 
@@ -5095,12 +5096,12 @@ public class Blocks{
                     Fill.circle(e.x, e.y, 12f * e.fout());
                     color();
                     Fill.circle(e.x, e.y, 6f * e.fout());
-                    Drawf.light(e.x, e.y, rad * 1.6f, Pal.lightFlame, e.fout());
+                    Drawf.light(e.x, e.y, rad * 1.6f, Pal.darkFlame, e.fout());
                 });
             }};
             shoot = new ShootPattern() {{
                 shots = 2;
-                shotDelay = 15f;
+                shotDelay = 20f;
             }};
             heatRequirement = 45f;
             consumePower(3.5f);
@@ -5112,13 +5113,12 @@ public class Blocks{
             envEnabled |= Env.space;
             reload = 300f;
             recoil = 2f;
-            range = 495;
+            range = 445;
             shootCone = 100f;
             shootSound = Sounds.shootNavanax;
             rotateSpeed = 2f;
             targetHealing = true;
-            coolantMultiplier = 3f;
-            coolant = consume(new ConsumeLiquid(Liquids.gallium, 15f / 60f));
+            coolant = consume(new ConsumeLiquid(Liquids.water, 15f / 60f));
             limitRange(5f);
         }};
 
