@@ -304,7 +304,8 @@ public class Blocks{
             liquidMultiplier = 0.5f;
             isLiquid = true;
             cacheLayer = CacheLayer.cryofluid;
-
+            supportsOverlay = true;
+            overlayAlpha = 0.35f;
             emitLight = true;
             lightRadius = 25f;
             lightColor = Color.cyan.cpy().a(0.19f);
@@ -5033,6 +5034,7 @@ public class Blocks{
 
             shootType = new EmpBulletType() {{
                 float rad = 125f;
+                buildingDamageMultiplier = 0.325f;
                 scaleLife = true;
                 lightOpacity = 0.8f;
                 unitDamageScl = 1f;
@@ -5052,7 +5054,7 @@ public class Blocks{
                 frontColor = Color.white;
                 width = height = 12f;
                 shrinkY = 0f;
-                speed = 7.5f;
+                speed = 13.5f;
                 trailLength = 20;
                 trailWidth = 6f;
                 trailColor = Pal.orangeSpark;
@@ -5061,6 +5063,7 @@ public class Blocks{
                 splashDamageRadius = rad;
                 hitShake = 5f;
                 trailRotation = true;
+                homingPower = 0.02f;
                 status = StatusEffects.electrified;
                 hitSound = Sounds.plasmaboom;
                 trailEffect = new Effect(16f, e -> {
@@ -5080,7 +5083,7 @@ public class Blocks{
                     stroke(e.fout() * 3f);
                     Lines.circle(e.x, e.y, rad);
 
-                    int points = 10;
+                    int points = 16;
                     float offset = Mathf.randomSeed(e.id, 360f);
                     for (int i = 0; i < points; i++) {
                         float angle = i * 360f / points + offset;
@@ -5099,7 +5102,7 @@ public class Blocks{
                 shots = 2;
                 shotDelay = 15f;
             }};
-            heatRequirement = 40f;
+            heatRequirement = 45f;
             consumePower(3.5f);
             size = 5;
             drawer = new DrawTurret("reinforced-") {{
@@ -5109,13 +5112,13 @@ public class Blocks{
             envEnabled |= Env.space;
             reload = 300f;
             recoil = 2f;
-            range = 425;
+            range = 495;
             shootCone = 100f;
-            scaledHealth = 370;
             shootSound = Sounds.shootNavanax;
             rotateSpeed = 2f;
             targetHealing = true;
-            coolant = consume(new ConsumeLiquid(Liquids.water, 15f / 60f));
+            coolantMultiplier = 3f;
+            coolant = consume(new ConsumeLiquid(Liquids.gallium, 15f / 60f));
             limitRange(5f);
         }};
 
@@ -5134,7 +5137,7 @@ public class Blocks{
             float brange = range + 10f;
             ammo(
             Items.tungsten, new ShrapnelBulletType(){{
-                damage = 47.5f;
+                damage = 48f;
                 knockback = 4.5f;
                 width = 26.25f;
                 hitSize = 7f;
@@ -5150,7 +5153,7 @@ public class Blocks{
                 despawnHit = true;
             }},
             Items.thorium, new ShrapnelBulletType() {{
-                damage = 52.5f;
+                damage = 54f;
                 knockback = 4.5f;
                 width = 26.25f;
                 hitSize = 7f;

@@ -4,7 +4,6 @@ import arc.*;
 import arc.graphics.*;
 import arc.math.geom.Vec2;
 import arc.util.io.*;
-import arc.graphics.g2d.Draw;
 import arc.math.Mathf;
 import mindustry.ai.*;
 import mindustry.annotations.Annotations.*;
@@ -20,7 +19,6 @@ import mindustry.world.*;
 import mindustry.world.blocks.environment.*;
 
 import static mindustry.Vars.*;
-import static mindustry.input.Binding.boost;
 
 @Component
 public abstract class SubmarineComp implements Entityc, Healthc, Velc, Unitc, Posc, WaterMovec{
@@ -29,7 +27,7 @@ public abstract class SubmarineComp implements Entityc, Healthc, Velc, Unitc, Po
     @Import
     Vec2 vel;
     @Import
-    float elevation, health, maxHealth, x, y, rotation;
+    float elevation, health, maxHealth;
     @Import
     boolean dead;
     public boolean isOnDeepwater, toggledSubmerge, underwater;
@@ -75,9 +73,7 @@ public abstract class SubmarineComp implements Entityc, Healthc, Velc, Unitc, Po
     @Override
     public void draw(){
         if(this.underwater){
-            Drawf.underwater(() -> {
-                type.draw(self());
-            });
+            Drawf.underwater(() -> type.draw(self()));
         } else {
             type.draw(self());
         }

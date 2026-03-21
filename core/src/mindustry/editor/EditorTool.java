@@ -9,6 +9,7 @@ import arc.util.*;
 import mindustry.content.*;
 import mindustry.game.*;
 import mindustry.world.*;
+import mindustry.world.blocks.environment.*;
 
 import static mindustry.Vars.*;
 
@@ -67,7 +68,7 @@ public enum EditorTool{
             }else if(mode == 2){
                 //draw teams
                 editor.drawCircle(x, y, tile -> tile.setTeam(editor.drawTeam));
-            }else if(mode == 3){
+            }else if(mode == 3 && !(editor.drawBlock instanceof Floor f && f.isLiquid)){
                 editor.drawBlocks(x, y, false, true, tile -> tile.floor().isLiquid);
             }
 
@@ -92,7 +93,7 @@ public enum EditorTool{
             });
         }
     },
-    fill(KeyCode.g, "replaceall", "fillteams", "fillerase"){
+    fill(KeyCode.g, "replaceall", "fillteams", "fillerase", "fillcliffs"){
         {
             edit = true;
         }
@@ -170,6 +171,27 @@ public enum EditorTool{
                 if(setter != null){
                     fill(x, y, false, tester, setter);
                 }
+            }else if(mode == 3){ //cliff fill
+                if(!tile.block().isStatic() || tile.block() == Blocks.cliff) return;
+                Bits wasStatic = new Bits(editor.width() * editor.height());
+                fill(x, y, false, t -> t.block().isStatic() && t.block() != Blocks.cliff, t -> {
+                    int rotation = 0;
+                    for(int i = 0; i < 8; i++){
+                        Tile other = world.tiles.get(t.x + Geometry.d8[i].x, t.y + Geometry.d8[i].y);
+                        if(other != null && !other.block().isStatic() && !wasStatic.get(other.array())){
+                            rotation |= (1 << i);
+                        }
+                    }
+
+                    if(rotation != 0){
+                        t.setBlock(Blocks.cliff);
+                    }else{
+                        t.setBlock(Blocks.air);
+                        wasStatic.set(t.array());
+                    }
+
+                    t.data = (byte)rotation;
+                });
             }
         }
 

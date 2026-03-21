@@ -232,15 +232,14 @@ public class ErekirTechTree{
                                         });
 
                                         node(heatRouter, () -> {
-
+                                            node(smallHeatRedirector, () -> {
+                                            });
                                         });
                                     });
                                 });
                             });
 
                             node(slagIncinerator, Seq.with(new OnSector(basin)), () -> {
-
-                                //TODO these are unused.
                                 node(slagCentrifuge, () -> {});
                                 node(heatReactor, () -> {});
                             });

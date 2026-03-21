@@ -4,6 +4,7 @@ import arc.util.*;
 import mindustry.entities.*;
 import mindustry.gen.*;
 
+/** This class can only be used with PointDefenseBulletWeapon. Attempting to spawn it in outside of that weapon will lead to standard behavior. */
 public class InterceptorBulletType extends BasicBulletType{
 
     public InterceptorBulletType(float speed, float damage){
@@ -26,12 +27,12 @@ public class InterceptorBulletType extends BasicBulletType{
 
                 //check for an overlap between the two bullet trajectories; it is the responsibility of the creator to make sure the bullet is a valid target
                 if(EntityCollisions.collide(
-                    b.x, b.y,
-                    b.hitSize, b.hitSize,
-                    b.deltaX, b.deltaY,
-                    other.x, other.y,
-                    other.hitSize, other.hitSize,
-                    other.deltaX, other.deltaY, Tmp.v1)){
+                b.x, b.y,
+                b.hitSize, b.hitSize,
+                b.deltaX, b.deltaY,
+                other.x, other.y,
+                other.hitSize, other.hitSize,
+                other.deltaX, other.deltaY, Tmp.v1)){
 
                     b.set(Tmp.v1);
 

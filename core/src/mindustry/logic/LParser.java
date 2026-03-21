@@ -7,7 +7,7 @@ import mindustry.logic.LStatements.*;
 
 public class LParser {
     private static final String[] tokens = new String[16];
-    private static final int maxJumps = 500;
+    private static final int maxJumps = 5000;
     private static final StringMap opNameChanges = StringMap.of(
             "atan2", "angle",
             "dst", "len"
