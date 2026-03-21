@@ -5034,7 +5034,7 @@ public class Blocks{
 
             shootType = new EmpBulletType() {{
                 float rad = 125f;
-                buildingDamageMultiplier = 0.325f;
+                buildingDamageMultiplier = 0.3f;
                 scaleLife = true;
                 lightOpacity = 0.8f;
                 unitDamageScl = 1f;
@@ -5051,8 +5051,7 @@ public class Blocks{
                 smokeEffect = Fx.shootBigSmoke2;
                 lifetime = 80f;
                 sprite = "missile-large";
-                backSprite = "missile-large-back";
-                backColor = Pal.darkPyraFlame;
+                backColor = Pal.lightPyraFlame;
                 frontColor = Color.white;
                 width = height = 12f;
                 shrinkY = 0f;
@@ -5068,7 +5067,7 @@ public class Blocks{
                 status = StatusEffects.electrified;
                 hitSound = Sounds.plasmaboom;
                 trailEffect = new Effect(16f, e -> {
-                    color(Pal.darkFlame);
+                    color(Pal.lightFlame);
                     for (int s : Mathf.signs) {
                         Drawf.tri(e.x, e.y, 4f, 30f * e.fslope(), e.rotation + 90f * s);
                     }
@@ -5076,11 +5075,11 @@ public class Blocks{
 
                 hitEffect = new Effect(50f, 100f, e -> {
                     e.scaled(7f, b -> {
-                        color(Pal.darkFlame, b.fout());
+                        color(Pal.lightFlame, b.fout());
                         Fill.circle(e.x, e.y, rad);
                     });
 
-                    color(Pal.darkFlame);
+                    color(Pal.lightFlame);
                     stroke(e.fout() * 3f);
                     Lines.circle(e.x, e.y, rad);
 
@@ -5096,7 +5095,7 @@ public class Blocks{
                     Fill.circle(e.x, e.y, 12f * e.fout());
                     color();
                     Fill.circle(e.x, e.y, 6f * e.fout());
-                    Drawf.light(e.x, e.y, rad * 1.6f, Pal.darkFlame, e.fout());
+                    Drawf.light(e.x, e.y, rad * 1.6f, Pal.lightPyraFlame, e.fout());
                 });
             }};
             shoot = new ShootPattern() {{
@@ -5118,6 +5117,7 @@ public class Blocks{
             shootSound = Sounds.shootNavanax;
             rotateSpeed = 2f;
             targetHealing = true;
+            maxHeatEfficiency = 2f;
             coolant = consume(new ConsumeLiquid(Liquids.water, 15f / 60f));
             limitRange(5f);
         }};
