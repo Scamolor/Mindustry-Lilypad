@@ -8,6 +8,7 @@ import arc.struct.*;
 import arc.util.*;
 import mindustry.*;
 import mindustry.ai.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.gen.*;
 import mindustry.type.*;
 import mindustry.world.*;
@@ -422,6 +423,14 @@ public class Teams{
             "cores=" + cores +
             ", team=" + team +
             '}';
+        }
+    }
+
+    @Remote(called = Loc.server, unreliable = true)
+    public static void destroyPayload(Building build){
+        if(build != null && build.getPayload() instanceof UnitPayload && build.takePayload() instanceof UnitPayload unit){
+            unit.dump();
+            unit.unit.killed();
         }
     }
 

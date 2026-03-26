@@ -35,6 +35,7 @@ import mindustry.maps.*;
 import mindustry.type.*;
 import mindustry.ui.*;
 import mindustry.world.blocks.storage.*;
+import mindustry.world.blocks.storage.CoreBlock.*;
 
 import static arc.Core.*;
 import static mindustry.Vars.*;
@@ -392,11 +393,15 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
 
         return sector.planet.generator != null ?
             //use planet impl when possible
-            sector.planet.generator.allowLanding(sector) :
-            sector.hasBase() || sector.near().contains(Sector::hasBase); //near an occupied sector
+            (mode == planetLaunch ? sector.planet.generator.allowAcceleratorLanding(sector) : sector.planet.generator.allowLanding(sector)) :
+            mode == planetLaunch || sector.hasBase() || sector.near().contains(Sector::hasBase); //near an occupied sector
     }
 
     Sector findLauncher(Sector to){
+        if(mode == planetLaunch){
+            return launchSector;
+        }
+
         Sector launchSector = this.launchSector != null && this.launchSector.planet == to.planet && this.launchSector.hasBase() ? this.launchSector : null;
         //directly nearby.
         if(to.near().contains(launchSector)) return launchSector;
@@ -469,6 +474,10 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
             if(launchFrom != null && hovered != launchFrom && canSelect(hovered)){
                 planets.drawArc(planet, launchFrom.tile.v, hovered.tile.v);
             }
+        }
+
+        if(mode == planetLaunch && launchSector != null && selected != null && hovered == null){
+            planets.drawArc(planet, launchSector.tile.v, selected.tile.v);
         }
 
         if(state.uiAlpha > 0.001f){
@@ -603,7 +612,11 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
         new Table(t -> {
             t.touchable = Touchable.disabled;
             t.top();
-            t.label(() -> mode == select ? "@sectors.select" : "").style(Styles.outlineLabel).color(Pal.accent);
+            t.label(() ->
+                mode == select ? "@sectors.select" :
+                mode == planetLaunch ? "@sectors.launchselect" :
+                ""
+            ).style(Styles.outlineLabel).color(Pal.accent);
         }),
         buttons,
 
@@ -629,11 +642,12 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
                     if(planet.solarSystem == star && selectable(planet)){
                         Button planetButton = planetTable.button(planet.localizedName, Icon.icons.get(planet.icon + "Small", Icon.icons.get(planet.icon, Icon.commandRallySmall)), Styles.flatTogglet, () -> {
                             selected = null;
-                            launchSector = null;
                             if(state.planet != planet){
                                 newPresets.clear();
                                 state.planet = planet;
 
+                                selected = null;
+                                updateSelected();
                                 rebuildExpand();
                             }
                             settings.put("lastplanet", planet.name);
@@ -646,17 +660,14 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
             }
         }).visible(() -> mode != select),
 
-        new Table(c -> {
-            expandTable = c;
-        })).grow();
-
+        new Table(c -> expandTable = c)).grow();
         rebuildExpand();
     }
 
     void rebuildExpand(){
         Table c = expandTable;
         c.clear();
-        c.visible(() -> !(graphics.isPortrait() && mobile));
+        c.visible(() -> !(graphics.isPortrait() && mobile) && mode != planetLaunch);
         if(state.planet.sectors.contains(Sector::hasBase)){
             int attacked = state.planet.sectors.count(Sector::isAttacked);
 
@@ -791,6 +802,11 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
                 newPresets.add(state.planet.sectors.get(state.planet.startSector));
 
             }
+        }
+
+        //fade in sector dialog after panning
+        if(sectorTop != null && state.otherCamPos == null){
+            sectorTop.color.a = Mathf.lerpDelta(sectorTop.color.a, 1f, 0.1f);
         }
 
         if(hovered != null && !mobile && state.planet.hasGrid()){
@@ -997,6 +1013,7 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
                 sector.save = null;
             }
             updateSelected();
+            rebuildList();
         });
     }
 
@@ -1220,7 +1237,7 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
                 control.saves.getCurrent().save();
             }catch(Throwable e){
                 e.printStackTrace();
-                ui.showException("[accent]" + Core.bundle.get("savefail"), e);
+                ui.showException("[accent]" + bundle.get("savefail"), e);
             }
         }
 
@@ -1244,7 +1261,8 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
 
                     Events.fire(new SectorLaunchLoadoutEvent(sector, from, loadout));
 
-                    if(settings.getBool("skipcoreanimation")){
+                    CoreBuild core = player.team().core();
+                    if(core == null || settings.getBool("skipcoreanimation")){
                         //just... go there
                         control.playSector(from, sector);
                         //hide only after load screen is shown
@@ -1256,9 +1274,9 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
                         //allow planet dialog to finish hiding before actually launching
                         Time.runTask(5f, () -> {
                             Runnable doLaunch = () -> {
-                                renderer.showLaunch(schemCore);
+                                renderer.showLaunch(core);
                                 //run with less delay, as the loading animation is delayed by several frames
-                                Time.runTask(coreLandDuration - 8f, () -> control.playSector(from, sector));
+                                Time.runTask(core.launchDuration() - 8f, () -> control.playSector(from, sector));
                             };
 
                             //load launchFrom sector right before launching so animation is correct

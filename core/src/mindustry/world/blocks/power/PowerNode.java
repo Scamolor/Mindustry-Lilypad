@@ -35,12 +35,14 @@ public class PowerNode extends PowerBlock{
     public int maxNodes = 3;
     public boolean autolink = true, drawRange = true, sameBlockConnection = false;
     public float laserScale = 0.25f;
+    public float powerLayer = Layer.power;
     public Color laserColor1 = Color.white;
     public Color laserColor2 = Pal.powerLight;
 
     public PowerNode(String name){
         super(name);
         configurable = true;
+        ignoreResizeConfig = true;
         consumesPower = false;
         outputsPower = false;
         canOverdrive = false;
@@ -49,6 +51,7 @@ public class PowerNode extends PowerBlock{
         drawDisabled = false;
         envEnabled |= Env.space;
         destructible = true;
+        delayLandingConfig = true;
 
         //nodes do not even need to update
         update = false;
@@ -173,16 +176,19 @@ public class PowerNode extends PowerBlock{
     }
 
     protected void setupColor(float satisfaction){
-        Draw.color(laserColor1, laserColor2, (1f - satisfaction) * 0.86f + Mathf.absin(3f, 0.1f));
-        Draw.alpha(Renderer.laserOpacity);
+        Draw.color(Tmp.c1.set(laserColor1).lerp(laserColor2, (1f - satisfaction) * 0.86f + Mathf.absin(3f, 0.1f)).a(Renderer.laserOpacity));
     }
 
     public void drawLaser(float x1, float y1, float x2, float y2, int size1, int size2){
+        drawLaser(x1, y1, x2, y2, size1, size2, true);
+    }
+
+    public void drawLaser(float x1, float y1, float x2, float y2, int size1, int size2, boolean light){
         float angle1 = Angles.angle(x1, y1, x2, y2),
             vx = Mathf.cosDeg(angle1), vy = Mathf.sinDeg(angle1),
             len1 = size1 * tilesize / 2f - 1.5f, len2 = size2 * tilesize / 2f - 1.5f;
 
-        Drawf.laser(laser, laserEnd, x1 + vx*len1, y1 + vy*len1, x2 - vx*len2, y2 - vy*len2, laserScale);
+        Drawf.laser(laser, laserEnd, laserEnd, x1 + vx*len1, y1 + vy*len1, x2 - vx*len2, y2 - vy*len2, laserScale, light);
     }
 
     protected boolean overlaps(float srcx, float srcy, Tile other, Block otherBlock, float range){
@@ -195,7 +201,7 @@ public class PowerNode extends PowerBlock{
     }
 
     protected boolean overlaps(Building src, Building other, float range){
-        return overlaps(src.x, src.y, other.tile(), range);
+        return overlaps(src.x, src.y, other.tile, range);
     }
 
     protected boolean overlaps(Tile src, Tile other, float range){
@@ -210,9 +216,9 @@ public class PowerNode extends PowerBlock{
     protected void getPotentialLinks(Tile tile, Team team, Cons<Building> others){
         if(!autolink) return;
 
-        Boolf<Building> valid = other -> other != null && other.tile() != tile && other.block.connectedPower && other.power != null &&
+        Boolf<Building> valid = other -> other != null && other.tile != tile && other.block.connectedPower && other.power != null &&
             (other.block.outputsPower || other.block.consumesPower || other.block instanceof PowerNode) &&
-            overlaps(tile.x * tilesize + offset, tile.y * tilesize + offset, other.tile(), laserRange * tilesize) && other.team == team &&
+            overlaps(tile.x * tilesize + offset, tile.y * tilesize + offset, other.tile, laserRange * tilesize) && other.team == team &&
             !graphs.contains(other.power.graph) &&
             !PowerNode.insulated(tile, other.tile) &&
             !(other instanceof PowerNodeBuild obuild && obuild.power.links.size >= ((PowerNode)obuild.block).maxNodes) &&
@@ -265,7 +271,7 @@ public class PowerNode extends PowerBlock{
     //TODO code duplication w/ method above?
     /** Iterates through linked nodes of a block at a tile. All returned buildings are power nodes. */
     public static void getNodeLinks(Tile tile, Block block, Team team, Cons<Building> others){
-        Boolf<Building> valid = other -> other != null && other.tile() != tile && other.block instanceof PowerNode node &&
+        Boolf<Building> valid = other -> other != null && other.tile != tile && other.block instanceof PowerNode node &&
         node.autolink &&
         other.power.links.size < node.maxNodes &&
         node.overlaps(other.x, other.y, tile, block, node.laserRange * tilesize) && other.team == team
@@ -313,6 +319,12 @@ public class PowerNode extends PowerBlock{
             others.get(t);
         });
     }
+
+    private static int currentFindX, currentFindY;
+    private static BuildPlan currentPlan;
+    private static final Boolf<BuildPlan> planFinder = other -> other.block != null
+        && (currentFindX >= other.x - ((other.block.size - 1) / 2) && currentFindY >= other.y - ((other.block.size - 1) / 2) && currentFindX <= other.x + other.block.size / 2 && currentFindY <= other.y + other.block.size / 2)
+        && other != currentPlan && other.block.hasPower;
 
     @Override
     public void drawPlanConfigTop(BuildPlan plan, Eachable<BuildPlan> list){
@@ -473,9 +485,9 @@ public class PowerNode extends PowerBlock{
         public void draw(){
             super.draw();
 
-            if(Mathf.zero(Renderer.laserOpacity) || isPayload()) return;
+            if(Mathf.zero(Renderer.laserOpacity) || isPayload() || team == Team.derelict) return;
 
-            Draw.z(Layer.power);
+            Draw.z(powerLayer);
             setupColor(power.graph.getSatisfaction());
 
             for(int i = 0; i < power.links.size; i++){

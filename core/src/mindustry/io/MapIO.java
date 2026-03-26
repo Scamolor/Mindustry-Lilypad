@@ -3,12 +3,18 @@ package mindustry.io;
 import arc.files.*;
 import arc.graphics.*;
 import arc.struct.*;
+import arc.util.*;
 import arc.util.io.*;
+import io.anuke.mindustry.world.*;
+import io.anuke.mindustry.world.LegacyColorMapper.*;
+import mindustry.*;
 import mindustry.content.*;
 import mindustry.core.*;
+import mindustry.ctype.*;
 import mindustry.game.*;
 import mindustry.maps.*;
 import mindustry.world.*;
+import mindustry.world.ColorMapper;
 import mindustry.world.blocks.environment.*;
 import mindustry.world.blocks.storage.*;
 
@@ -39,8 +45,7 @@ public class MapIO{
             SaveIO.readHeader(stream);
             int version = stream.readInt();
             SaveVersion ver = SaveIO.getSaveWriter(version);
-            if (ver == null)
-                throw new IOException("Unknown save version: " + version + ". Are you trying to load a save from a newer version?");
+            if(ver == null) throw new IOException("Unknown save version: " + version + ". Are you trying to load a save from a newer version?");
             StringMap tags = new StringMap();
             ver.region("meta", stream, counter, in -> tags.putAll(ver.readStringMap(in)));
             return new Map(file, tags.getInt("width"), tags.getInt("height"), tags, custom, version, Version.build);
@@ -71,8 +76,7 @@ public class MapIO{
             SaveIO.readHeader(stream);
             int version = stream.readInt();
             SaveVersion ver = SaveIO.getSaveWriter(version);
-            if (ver == null)
-                throw new IOException("Unknown save version: " + version + ". Are you trying to load a save from a newer version?");
+            if(ver == null) throw new IOException("Unknown save version: " + version + ". Are you trying to load a save from a newer version?");
             ver.region("meta", stream, counter, ver::readStringMap);
 
             Pixmap floors = new Pixmap(map.width, map.height);
@@ -94,12 +98,22 @@ public class MapIO{
 
             ver.region("content", stream, counter, ver::readContentHeader);
             ver.region("preview_map", stream, counter, in -> ver.readMap(in, new WorldContext(){
-                @Override public void resize(int width, int height){}
-                @Override public boolean isGenerating(){return false;}
-                @Override public void begin(){
+                @Override
+                public void resize(int width, int height){
+                }
+
+                @Override
+                public boolean isGenerating(){
+                    return false;
+                }
+
+                @Override
+                public void begin(){
                     world.setGenerating(true);
                 }
-                @Override public void end(){
+
+                @Override
+                public void end(){
                     world.setGenerating(false);
                 }
 
@@ -139,7 +153,7 @@ public class MapIO{
                         floors.set(x, floors.height - 1 - y, colorFor(Blocks.air, content.block(floorID), Blocks.air, Team.derelict));
                     }
                     if(content.block(overlayID) == Blocks.spawn){
-                        map.spawns ++;
+                        map.spawns++;
                     }
                     return tile;
                 }
@@ -176,7 +190,7 @@ public class MapIO{
         for(Tile tile : tiles){
             //while synthetic blocks are possible, most of their data is lost, so in order to avoid questions like
             //"why is there air under my drill" and "why are all my conveyors facing right", they are disabled
-            int color = tile.block().hasColor && !tile.block().synthetic() ? tile.block().mapColor.rgba() : tile.floor().mapColor.rgba();
+            int color = tile.block().hasColor && !tile.block().hasBuilding() ? tile.block().mapColor.rgba() : tile.floor().mapColor.rgba();
             pix.set(tile.x, tiles.height - 1 - tile.y, color);
         }
         return pix;
@@ -186,6 +200,9 @@ public class MapIO{
         for(Tile tile : tiles){
             int color = pixmap.get(tile.x, pixmap.height - 1 - tile.y);
             Block block = ColorMapper.get(color);
+
+            //ignore buildings; reading images is only intended for environment tiles
+            if(block.hasBuilding()) continue;
 
             if(block.isOverlay()){
                 tile.setOverlay(block.asFloor());
@@ -198,7 +215,6 @@ public class MapIO{
             }
         }
 
-        //guess at floors by grabbing a random adjacent floor
         for(Tile tile : tiles){
             //default to stone floor
             if(tile.floor() == Blocks.air){

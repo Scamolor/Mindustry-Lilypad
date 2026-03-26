@@ -31,10 +31,11 @@ public enum BlockFlag{
     launchPad,
     unitCargoUnloadPoint,
     unitAssembler,
-    hasFogRadius;
+    hasFogRadius,
+    steamVent;
 
     public final static BlockFlag[] all = values();
 
     /** Values for logic only. Filters out some internal flags. */
-    public final static BlockFlag[] allLogic = {core, storage, generator, turret, factory, repair, resupply, battery, reactor, drill, shield, launchPad, unitCargoUnloadPoint, unitAssembler, hasFogRadius};
+    public final static BlockFlag[] allLogic = {core, storage, generator, turret, factory, repair, resupply, battery, reactor, drill, shield, launchPad, unitCargoUnloadPoint, unitAssembler, hasFogRadius, steamVent};
 }

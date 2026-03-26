@@ -5,6 +5,7 @@ import mindustry.content.*;
 import mindustry.editor.DrawOperation.*;
 import mindustry.game.*;
 import mindustry.gen.*;
+import mindustry.graphics.*;
 import mindustry.world.*;
 import mindustry.world.blocks.environment.*;
 import mindustry.world.modules.*;
@@ -45,6 +46,9 @@ public class EditorTile extends Tile{
 
     @Override
     public void setBlock(Block type, Team team, int rotation, Prov<Building> entityprov){
+        Block prev = this.block;
+        Tile prevCenter = (build == null ? this : build.tile);
+
         if(skip()){
             super.setBlock(type, team, rotation, entityprov);
             return;
@@ -147,8 +151,8 @@ public class EditorTile extends Tile{
         if(block.hasBuilding()){
             build = entityprov.get().init(this, team, false, rotation);
             if(block.hasItems) build.items = new ItemModule();
-            if(block.hasLiquids) build.liquids(new LiquidModule());
-            if(block.hasPower) build.power(new PowerModule());
+            if(block.hasLiquids) build.liquids = new LiquidModule();
+            if(block.hasPower) build.power = new PowerModule();
         }
     }
 

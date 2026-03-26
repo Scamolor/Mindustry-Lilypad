@@ -3,6 +3,8 @@ package mindustry.world.blocks.logic;
 import arc.Graphics.*;
 import arc.Graphics.Cursor.*;
 import arc.func.*;
+import arc.graphics.*;
+import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.math.geom.*;
 import arc.scene.ui.layout.*;
@@ -10,6 +12,7 @@ import arc.struct.Bits;
 import arc.struct.*;
 import arc.util.*;
 import arc.util.io.*;
+import arc.util.pooling.*;
 import mindustry.ai.types.*;
 import mindustry.core.*;
 import mindustry.gen.*;
@@ -31,6 +34,7 @@ import static mindustry.Vars.*;
 
 public class LogicBlock extends Block{
     private static final int maxByteLen = 1024 * 100;
+    public static final int maxNameLength = 32;
 
     public int maxInstructionScale = 5;
     public int instructionsPerTick = 1;
@@ -45,6 +49,7 @@ public class LogicBlock extends Block{
         configurable = true;
         group = BlockGroup.logic;
         schematicPriority = 5;
+        ignoreResizeConfig = true;
 
         //universal, no real requirements
         envEnabled = Env.any;
@@ -53,6 +58,20 @@ public class LogicBlock extends Block{
             if(!accessible()) return;
 
             build.readCompressed(data, true);
+        });
+
+        config(String.class, (LogicBuild build, String data) -> {
+            if(!accessible() || !privileged) return;
+
+            if(data != null && data.length() < maxNameLength){
+                build.tag = data;
+            }
+        });
+
+        config(Character.class, (LogicBuild build, Character data) -> {
+            if(!accessible() || !privileged) return;
+
+            build.iconTag = data;
         });
 
         config(Integer.class, (LogicBuild entity, Integer pos) -> {
@@ -234,6 +253,9 @@ public class LogicBlock extends Block{
         public boolean checkedDuplicates = false;
         //dynamic only for privileged processors
         public int ipt = instructionsPerTick;
+        /** Display name, for convenience. This is currently only available for world processors. */
+        public @Nullable String tag;
+        public char iconTag;
 
         /** Block of code to run after load. */
         public @Nullable Runnable loadBlock;
@@ -358,6 +380,8 @@ public class LogicBlock extends Block{
                     asm.putConst("@maph", world.height());
                     asm.putConst("@links", executor.links.length);
                     asm.putConst("@ipt", instructionsPerTick);
+
+                    Object oldUnit = null;
 
                     if(keep){
                         //store any older variables
@@ -635,6 +659,9 @@ public class LogicBlock extends Block{
             if(privileged){
                 write.s(Mathf.clamp(ipt, 1, maxInstructionsPerTick));
             }
+
+            TypeIO.writeString(write, tag);
+            write.s(iconTag);
         }
 
         @Override

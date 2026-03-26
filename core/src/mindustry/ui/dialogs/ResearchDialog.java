@@ -48,9 +48,29 @@ public class ResearchDialog extends BaseDialog{
 
     private final Seq<Planet> rootPlanets = new Seq<>(false, 4);
     private boolean showTechSelect;
+    private boolean needsRebuild;
 
     public ResearchDialog(){
         super("");
+
+        Events.on(ResetEvent.class, e -> {
+            hide();
+        });
+
+        Events.on(UnlockEvent.class, e -> {
+            if(net.client() && !needsRebuild){
+                needsRebuild = true;
+                Core.app.post(() -> {
+                    needsRebuild = false;
+
+                    checkNodes(root);
+                    view.hoverNode = null;
+                    treeLayout();
+                    view.rebuild();
+                    Core.scene.act();
+                });
+            }
+        });
 
         titleTable.remove();
         titleTable.clear();
@@ -89,6 +109,7 @@ public class ResearchDialog extends BaseDialog{
 
         margin(0f).marginBottom(8);
         cont.stack(titleTable, view = new View(), itemDisplay = new ItemsDisplay()).grow();
+        itemDisplay.visible(() -> !net.client());
 
         titleTable.toFront();
 

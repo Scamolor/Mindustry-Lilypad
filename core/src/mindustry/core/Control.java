@@ -53,7 +53,7 @@ public class Control implements ApplicationListener, Loadable{
 
     private Interval timer = new Interval(2);
     private boolean hiscore = false;
-    private boolean wasPaused = false;
+    private boolean wasPaused = false, backgroundPaused = false;
     private Seq<Building> toBePlaced = new Seq<>(false);
 
     public Control(){
@@ -74,6 +74,7 @@ public class Control implements ApplicationListener, Loadable{
                     ui.showInfo("@mods.initfailed");
                 });
             }
+            checkAutoUnlocks();
         });
 
         Events.on(StateChangeEvent.class, event -> {
@@ -200,30 +201,19 @@ public class Control implements ApplicationListener, Loadable{
             float coreDelay = 0f;
 
             if(!settings.getBool("skipcoreanimation") && !state.rules.pvp){
-                coreDelay = coreLandDuration;
+                coreDelay = core.launchDuration();
                 //delay player respawn so animation can play.
-                player.deathTimer = Player.deathDelay - coreLandDuration;
+                player.deathTimer = Player.deathDelay - core.launchDuration();
                 //TODO this sounds pretty bad due to conflict
                 if(settings.getInt("musicvol") > 0){
-                    Musics.land.stop();
-                    Musics.land.play();
-                    Musics.land.setVolume(settings.getInt("musicvol") / 100f);
+                    //TODO what to do if another core with different music is already playing?
+                    Music music = core.landMusic();
+                    music.stop();
+                    music.play();
+                    music.setVolume(settings.getInt("musicvol") / 100f);
                 }
 
-                app.post(() -> ui.hudfrag.showLand());
-                renderer.showLanding();
-
-                Time.run(coreLandDuration, () -> {
-                    Fx.launch.at(core);
-                    Effect.shake(5f, 5f, core);
-                    core.thrusterTime = 1f;
-
-                    if(state.isCampaign() && Vars.showSectorLandInfo && (state.rules.sector.preset == null || state.rules.sector.preset.showSectorLandInfo)){
-                        ui.announce("[accent]" + state.rules.sector.name() + "\n" +
-                        (state.rules.sector.info.resources.any() ? "[lightgray]" + bundle.get("sectors.resources") + "[white] " +
-                        state.rules.sector.info.resources.toString(" ", u -> u.emoji()) : ""), 5);
-                    }
-                });
+                renderer.showLanding(core);
             }
 
             if(state.isCampaign()){
@@ -332,6 +322,13 @@ public class Control implements ApplicationListener, Loadable{
     void createPlayer(){
         player = Player.create();
         player.name = Core.settings.getString("name");
+
+        String locale = Core.settings.getString("locale");
+        if(locale.equals("default")){
+            locale = Locale.getDefault().toString();
+        }
+        player.locale = locale;
+
         player.color.set(Core.settings.getInt("color-0"));
 
         if(mobile){

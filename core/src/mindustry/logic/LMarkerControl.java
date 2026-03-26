@@ -13,6 +13,9 @@ public enum LMarkerControl{
     stroke("stroke"),
     outline("outline"),
     rotation("rotation"),
+    shapeSides("sides"),
+    shapeFill("true/false"),
+    shapeOutline("true/false"),
     shape("sides", "fill", "outline"),
     arc("start", "end"),
     flushText("fetch"),
@@ -21,11 +24,10 @@ public enum LMarkerControl{
     textAlign("align"),
     lineAlign("align"),
     labelFlags("background", "outline"),
-    texture("printFlush", "name"),
-    textureSize("width", "height"),
-    posi("index", "x", "y"),
-    uvi("index", "x", "y"),
-    colori("index", "color");
+    texture("name", "-", "-"),
+    textureWidth("width"),
+    textureHeight("height"),
+    textureSize("width", "height");
 
     public final String[] params;
 

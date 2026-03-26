@@ -5,6 +5,7 @@ import arc.func.*;
 import arc.math.*;
 import arc.net.*;
 import arc.net.FrameworkMessage.*;
+import arc.net.Server.*;
 import arc.net.dns.*;
 import arc.struct.*;
 import arc.util.*;

@@ -3,6 +3,7 @@ package mindustry.ui.dialogs;
 import arc.*;
 import arc.func.*;
 import arc.graphics.*;
+import arc.input.KeyCode;
 import arc.scene.style.*;
 import arc.scene.ui.*;
 import arc.scene.ui.ImageButton.*;
@@ -30,6 +31,12 @@ public class CustomRulesDialog extends BaseDialog{
     private Table main;
     private Prov<Rules> resetter;
     private LoadoutDialog loadoutDialog;
+    public Seq<Table> categories;
+    public Table current;
+    public Seq<String> categoryNames;
+    public String currentName;
+    public String ruleSearch = "";
+    public Seq<Runnable> additionalSetup; // for modding to easily add new rules
 
     public CustomRulesDialog(){
         super("@mode.custom");
@@ -39,6 +46,12 @@ public class CustomRulesDialog extends BaseDialog{
         setFillParent(true);
         shown(this::setup);
         addCloseButton();
+
+        additionalSetup = new Seq<>();
+        categories = new Seq<>();
+        categoryNames = new Seq<>();
+        currentName = "";
+        ruleSearch = "";
 
         buttons.button("@edit", Icon.pencil, () -> {
             BaseDialog dialog = new BaseDialog("@waves.edit");
@@ -50,8 +63,13 @@ public class CustomRulesDialog extends BaseDialog{
                 t.defaults().size(280f, 64f).pad(2f);
 
                 t.button("@waves.copy", Icon.copy, style, () -> {
-                    ui.showInfoFade("@waves.copied");
+                    ui.showInfoFade("@copied");
+
+                    //hack: don't write the spawns, they just waste space
+                    var spawns = rules.spawns;
+                    rules.spawns = new Seq<>();
                     Core.app.setClipboardText(JsonIO.write(rules));
+                    rules.spawns = spawns;
                     dialog.hide();
                 }).marginLeft(12f).row();
 
@@ -182,6 +200,7 @@ public class CustomRulesDialog extends BaseDialog{
         check("@rules.wavesending", b -> rules.waveSending = b, () -> rules.waveSending, () -> rules.waves);
         check("@rules.wavetimer", b -> rules.waveTimer = b, () -> rules.waveTimer, () -> rules.waves);
         check("@rules.waitForWaveToEnd", b -> rules.waitEnemies = b, () -> rules.waitEnemies, () -> rules.waves && rules.waveTimer);
+        check("@rules.airUseSpawns", b -> rules.airUseSpawns = b, () -> rules.airUseSpawns, () -> rules.waves);
         numberi("@rules.wavelimit", f -> rules.winWave = f, () -> rules.winWave, () -> rules.waves, 0, Integer.MAX_VALUE);
         number("@rules.wavespacing", false, f -> rules.waveSpacing = f * 60f, () -> rules.waveSpacing / 60f, () -> rules.waves && rules.waveTimer, 1, Float.MAX_VALUE);
         //this is experimental, because it's not clear that 0 makes it default.
@@ -228,6 +247,7 @@ public class CustomRulesDialog extends BaseDialog{
 
         title("@rules.title.unit");
         check("@rules.unitcapvariable", b -> rules.unitCapVariable = b, () -> rules.unitCapVariable);
+        check("@rules.unitpayloadsexplode", b -> rules.unitPayloadsExplode = b, () -> rules.unitPayloadsExplode);
         numberi("@rules.unitcap", f -> rules.unitCap = f, () -> rules.unitCap, -999, 999);
         number("@rules.unitdamagemultiplier", f -> rules.unitDamageMultiplier = f, () -> rules.unitDamageMultiplier);
         number("@rules.unitcrashdamagemultiplier", f -> rules.unitCrashDamageMultiplier = f, () -> rules.unitCrashDamageMultiplier);

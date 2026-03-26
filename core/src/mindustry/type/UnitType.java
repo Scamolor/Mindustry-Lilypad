@@ -103,6 +103,8 @@ public class UnitType extends UnlockableContent implements Senseable{
 
     /** for ground units, the layer upon which this unit is drawn */
     groundLayer = Layer.groundUnit,
+    /** For units that fly, the layer upon which this unit is drawn. If no value is set, defaults to Layer.flyingUnitLow or Layer.flyingUnit depending on lowAltitude */
+    flyingLayer = -1,
     /** Payload capacity of this unit in world units^2 */
     payloadCapacity = 8,
     /** building speed multiplier; <0 to disable. */
@@ -141,7 +143,7 @@ public class UnitType extends UnlockableContent implements Senseable{
 
     /** if true, this unit counts as an enemy in the wave counter (usually false for support-only units) */
     public boolean isEnemy = true,
-    /** if true, the unit is always at elevation 1 */
+    /** If true, the unit is always at elevation 1. */
     flying = false,
     /** whether this flying unit should wobble around */
     wobble = true,
@@ -308,6 +310,8 @@ public class UnitType extends UnlockableContent implements Senseable{
     /** Flags to target based on priority. Null indicates that the closest target should be found. The closest enemy core is used as a fallback. */
     public BlockFlag[] targetFlags = {null};
 
+    /** A value of false is used to hide command changing UI in unit factories. */
+    public boolean allowChangeCommands = true;
     /** Commands available to this unit through RTS controls. An empty array means commands will be assigned based on unit capabilities in init(). */
     public UnitCommand[] commands = {};
     /** Command to assign to this unit upon creation. Null indicates the first command in the array. */

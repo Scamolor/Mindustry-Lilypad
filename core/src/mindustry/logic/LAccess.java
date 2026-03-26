@@ -96,5 +96,4 @@ public enum LAccess{
         this.params = params;
         isObj = obj;
     }
-
 }
