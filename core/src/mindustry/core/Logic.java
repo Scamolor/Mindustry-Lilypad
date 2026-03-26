@@ -3,10 +3,13 @@ package mindustry.core;
 import arc.*;
 import arc.math.*;
 import arc.util.*;
+import mindustry.*;
 import mindustry.ai.*;
 import mindustry.annotations.Annotations.*;
+import mindustry.content.*;
 import mindustry.core.GameState.*;
 import mindustry.ctype.*;
+import mindustry.entities.*;
 import mindustry.game.EventType.*;
 import mindustry.game.*;
 import mindustry.game.Teams.*;
@@ -15,6 +18,7 @@ import mindustry.maps.*;
 import mindustry.type.*;
 import mindustry.type.Weather.*;
 import mindustry.world.*;
+import mindustry.world.blocks.storage.*;
 import mindustry.world.blocks.storage.CoreBlock.*;
 
 import java.util.*;
@@ -47,21 +51,17 @@ public class Logic implements ApplicationListener{
 
         Events.on(BlockBuildEndEvent.class, event -> {
             if(!event.breaking){
-                TeamData data = event.team.data();
-                Iterator<BlockPlan> it = data.plans.iterator();
-                var bounds = event.tile.block().bounds(event.tile.x, event.tile.y, Tmp.r1);
-                while(it.hasNext()){
-                    BlockPlan b = it.next();
-                    Block block = content.block(b.block);
-                    if(bounds.overlaps(block.bounds(b.x, b.y, Tmp.r2))){
-                        b.removed = true;
-                        it.remove();
-                    }
-                }
+                checkOverlappingPlans(event.team, event.tile);
 
                 if(event.team == state.rules.defaultTeam){
                     state.stats.placedBlockCount.increment(event.tile.block());
                 }
+            }
+        });
+
+        Events.on(PayloadDropEvent.class, e -> {
+            if(e.build != null){
+                checkOverlappingPlans(e.build.team, e.build.tile);
             }
         });
 
@@ -211,6 +211,19 @@ public class Logic implements ApplicationListener{
         });
     }
 
+    private void checkOverlappingPlans(Team team, Tile tile){
+        TeamData data = team.data();
+        Iterator<BlockPlan> it = data.plans.iterator();
+        var bounds = tile.block().bounds(tile.x, tile.y, Tmp.r1);
+        while(it.hasNext()){
+            BlockPlan b = it.next();
+            if(bounds.overlaps(Vars.content.block(String.valueOf(b.block)).bounds(b.x, b.y, Tmp.r2))){
+                b.removed = true;
+                it.remove();
+            }
+        }
+    }
+
     /** Adds starting items, resets wave time, and sets state to playing. */
     public void play(){
         state.set(State.playing);
@@ -251,6 +264,7 @@ public class Logic implements ApplicationListener{
         Groups.clear();
         Time.clear();
         Events.fire(new ResetEvent());
+        world.tiles = new Tiles(0, 0);
 
         //save settings on reset
         Core.settings.manualSave();
@@ -397,7 +411,9 @@ public class Logic implements ApplicationListener{
     @Override
     public void dispose(){
         //save the settings before quitting
+        if(netServer != null){
         netServer.admins.forceSave();
+        }
         Core.settings.manualSave();
     }
 

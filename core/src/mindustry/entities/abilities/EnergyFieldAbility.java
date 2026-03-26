@@ -14,6 +14,7 @@ import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.type.*;
+import mindustry.world.meta.*;
 
 import static mindustry.Vars.*;
 
@@ -135,7 +136,7 @@ public class EnergyFieldAbility extends Ability{
 
             if(hitBuildings && targetGround){
                 Units.nearbyBuildings(rx, ry, range, b -> {
-                    if((b.team != Team.derelict || state.rules.coreCapture) && (b.team != unit.team || b.damaged())){
+                    if((b.team != Team.derelict || state.rules.coreCapture) && ((b.team != unit.team && b.block.targetable) || b.damaged()) && !b.block.privileged){
                         all.add(b);
                     }
                 });

@@ -3,6 +3,7 @@ package mindustry.logic;
 import arc.*;
 import arc.func.*;
 import arc.graphics.*;
+import arc.input.*;
 import arc.scene.actions.*;
 import arc.scene.ui.*;
 import arc.scene.ui.TextButton.*;
@@ -17,6 +18,9 @@ import mindustry.logic.LExecutor.*;
 import mindustry.logic.LStatements.*;
 import mindustry.ui.*;
 import mindustry.ui.dialogs.*;
+import mindustry.world.blocks.logic.*;
+
+import java.util.*;
 
 import static mindustry.Vars.*;
 import static mindustry.logic.LCanvas.*;

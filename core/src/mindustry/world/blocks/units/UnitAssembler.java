@@ -9,6 +9,7 @@ import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
 import arc.util.io.*;
+import mindustry.Vars;
 import mindustry.ai.types.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.content.*;
@@ -40,17 +41,19 @@ public class UnitAssembler extends PayloadBlock{
     public UnitType droneType = UnitTypes.assemblyDrone;
     public int dronesCreated = 4;
     public float droneConstructTime = 60f * 4f;
+    public int[] capacities = {};
 
     public Seq<AssemblerUnitPlan> plans = new Seq<>(4);
 
     protected @Nullable ConsumePayloadDynamic consPayload;
+    protected @Nullable ConsumeItemDynamic consItem;
 
     public UnitAssembler(String name){
         super(name);
         update = solid = true;
         rotate = true;
         rotateDraw = false;
-        acceptsPayload = true;
+        acceptsPayload = hasItems = true;
         flags = EnumSet.of(BlockFlag.unitAssembler);
         regionRotated1 = 1;
         sync = true;
@@ -87,9 +90,7 @@ public class UnitAssembler extends PayloadBlock{
     public boolean canPlaceOn(Tile tile, Team team, int rotation){
         //overlapping construction areas not allowed; grow by a tiny amount so edges can't overlap either.
         Rect rect = getRect(Tmp.r1, tile.worldx() + offset, tile.worldy() + offset, rotation).grow(0.1f);
-        return
-            !indexer.getFlagged(team, BlockFlag.unitAssembler).contains(b -> getRect(Tmp.r2, b.x, b.y, b.rotation).overlaps(rect)) &&
-            !team.data().getBuildings(ConstructBlock.get(size)).contains(b -> ((ConstructBuild)b).current instanceof UnitAssembler && getRect(Tmp.r2, b.x, b.y, b.rotation).overlaps(rect));
+        return !indexer.getFlagged(team, BlockFlag.unitAssembler).contains(b -> getRect(Tmp.r2, b.x, b.y, b.rotation).overlaps(rect));
     }
 
     @Override
@@ -448,7 +449,7 @@ public class UnitAssembler extends PayloadBlock{
 
             if(!net.client()){
                 var unit = plan.unit.create(team);
-                if(unit != null && unit.isCommandable() && commandPos != null){
+                if(unit != null && unit.isCommandable()){
                     unit.command().commandPosition(commandPos);
                 }
                 unit.set(spawn.x + Mathf.range(0.001f), spawn.y + Mathf.range(0.001f));

@@ -29,6 +29,7 @@ public class RepairTower extends Block{
         update = true;
         solid = true;
         suppressable = true;
+        flags = EnumSet.of(BlockFlag.repair);
     }
 
     @Override
@@ -69,11 +70,12 @@ public class RepairTower extends Block{
                 warmup = 0f;
                 return;
             }
+
             boolean any = false;
             if(efficiency > 0){
                 for(var target : targets){
                     if(target.damaged()){
-                        target.heal(healAmount * efficiency);
+                        target.heal(healAmount * edelta());
                         any = true;
                     }
                 }

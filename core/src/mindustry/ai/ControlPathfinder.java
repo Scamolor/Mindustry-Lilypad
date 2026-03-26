@@ -257,6 +257,10 @@ public class ControlPathfinder{
                     float dst = unit.dst2(tile);
                     //TODO maybe put this on a timer since raycasts can be expensive?
                     if(dst < minDst && !permissiveRaycast(team, costType, tileX, tileY, tile.x, tile.y)){
+                        if(avoid(req.team, req.cost, items[i + 1])){
+                            range = 0.5f;
+                        }
+
                         req.pathIndex = Math.max(dst <= range * range ? i + 1 : i, req.pathIndex);
                         minDst = Math.min(dst, minDst);
                     }
@@ -288,6 +292,10 @@ public class ControlPathfinder{
                         if(Angles.angleDist(angleToNext, angleToDest) > 80f && !unit.within(tile, 1f)){
                             req.forceRecalculate();
                         }
+                    }
+
+                    if(avoid(req.team, req.cost, items[req.rayPathIndex])){
+                        range = 0.5f;
                     }
 
                     if(unit.within(tile, range)){
@@ -334,6 +342,10 @@ public class ControlPathfinder{
         }
         threads = null;
         requests.clear();
+    }
+
+    public static boolean isNearObstacle(Unit unit, int x1, int y1, int x2, int y2){
+        return raycast(unit.team().id, unit.type.pathCost, x1, y1, x2, y2);
     }
 
     private static boolean raycast(int team, PathCost type, int x1, int y1, int x2, int y2){

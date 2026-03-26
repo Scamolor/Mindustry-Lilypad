@@ -17,6 +17,7 @@ import mindustry.graphics.*;
 import mindustry.type.*;
 import mindustry.ui.*;
 import mindustry.world.*;
+import mindustry.world.consumers.*;
 import mindustry.world.meta.*;
 
 import static mindustry.Vars.*;
@@ -30,6 +31,8 @@ public class WallCrafter extends Block{
 
     /** Time to produce one item at 100% efficiency. */
     public float drillTime = 150f;
+    /** How many times faster the drill will progress when boosted by liquid. */
+    public float liquidBoostIntensity = 1.6f;
     /** Effect randomly played while drilling. */
     public Effect updateEffect = Fx.mineWallSmall;
     public float updateEffectChance = 0.02f;
@@ -38,6 +41,14 @@ public class WallCrafter extends Block{
     public Attribute attribute = Attribute.sand;
 
     public Item output = Items.sand;
+
+    public float boostItemUseTime = 120f;
+    /** How many times faster the drill will progress when boosted by items. Note: Using item and liquid boosters at once is not supported. */
+    public float itemBoostIntensity = 1.6f;
+    public @Nullable Consume itemConsumer;
+    public boolean hasLiquidBooster;
+
+    public final int timerUse = timers ++;
 
     public WallCrafter(String name){
         super(name);
@@ -151,6 +162,7 @@ public class WallCrafter extends Block{
             super.updateTile();
 
             boolean cons = shouldConsume();
+            boolean itemValid = itemConsumer != null && itemConsumer.efficiency(this) > 0;
 
             warmup = Mathf.approachDelta(warmup, Mathf.num(efficiency > 0), 1f / 40f);
             float dx = Geometry.d4x(rotation) * 0.5f, dy = Geometry.d4y(rotation) * 0.5f;
@@ -164,25 +176,29 @@ public class WallCrafter extends Block{
                         dest.block().mapColor
                     );
                 }
-            }, null);
+            }, null) * Mathf.lerp(1f, liquidBoostIntensity, hasLiquidBooster ? optionalEfficiency : 0f) * (itemValid ? itemBoostIntensity : 1f);
+
+            if(itemValid && eff * efficiency > 0 && timer(timerUse, boostItemUseTime)){
+                consume();
+            }
 
             lastEfficiency = eff * timeScale * efficiency;
 
             if(cons && (time += edelta() * eff) >= drillTime){
-                items.add(output, 1);
+                offload(output);
                 time %= drillTime;
             }
 
-            totalTime += edelta() * warmup;
+            totalTime += edelta() * warmup * (eff <= 0f ? 0f : 1f);
 
-            if(timer(timerDump, dumpTime)){
-                dump();
+            if(timer(timerDump, dumpTime / timeScale)){
+                dump(output);
             }
         }
 
         @Override
         public boolean shouldConsume(){
-            return items.total() < itemCapacity;
+            return items.get(output) < itemCapacity;
         }
 
         @Override

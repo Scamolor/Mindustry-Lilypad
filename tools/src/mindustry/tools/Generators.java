@@ -11,6 +11,7 @@ import arc.struct.*;
 import arc.util.*;
 import arc.util.noise.*;
 import mindustry.ctype.*;
+import mindustry.entities.part.*;
 import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
@@ -68,6 +69,37 @@ public class Generators{
 
     public static void run(){
         ObjectMap<Block, Pixmap> gens = new ObjectMap<>();
+
+        generate("autotiles", () -> {
+            for(Block block : content.blocks().select(b -> (b.isFloor() && b.asFloor().autotile) || (b instanceof StaticWall && ((StaticWall)b).autotile))){
+                Fi basePath = new Fi("../../../assets-raw/sprites_out/blocks/environment/" + block.name + "-autotile.png"), iconPath = basePath.parent().child(block.name + ".png");
+
+                if(basePath.exists()){
+                    //theoretically this might not finish in time, but I doubt that will ever happen
+                    mainExecutor.submit(() -> {
+                        try{
+                            ImageTileGenerator.generate(basePath, block.name, new Fi("../../../assets-raw/sprites_out/blocks/environment/" + block.name));
+                        }catch(Throwable e){
+                            Log.err("Failed to autotile: " + block.name, e);
+                        }finally{
+                            //the raw autotile source image must never be included, it isn't useful
+                            basePath.delete();
+                        }
+                    });
+
+                    if(!iconPath.exists()){
+                        //save the bottom right region as the "main" sprite for previews
+                        Pixmap out = new Pixmap(basePath);
+                        Pixmap cropped = out.crop(96, 96, 32, 32);
+                        iconPath.writePng(cropped);
+                        out.dispose();
+                        gens.put(block, cropped);
+                    }
+                }else{
+                    Log.warn("Autotile floor '@' not found: @", block.name, basePath.absolutePath());
+                }
+            }
+        });
 
         generate("splashes", () -> {
 
@@ -469,6 +501,20 @@ public class Generators{
             }
         });
 
+        generate("sector-icons", () -> {
+            for(SectorPreset item : content.sectors()){
+                if(!has("sector-" + item.name)){
+                    continue;
+                }
+
+                Pixmap base = get("sector-" + item.name);
+                Pixmap container = new Pixmap(base.width + 10, base.height + 10);
+                container.draw(base, 5, 5, true);
+
+                replace("sector-" + item.name, container.outline(Pal.darkerGray, 5));
+            }
+        });
+
         generate("team-icons", () -> {
             for(Team team : Team.all){
                 if(has("team-" + team.name)){
@@ -494,27 +540,27 @@ public class Generators{
         //TODO !!!!! currently just an experiment
 
         if(false)
-            generate("all-icons", () -> {
-                for(Seq<Content> arr : content.getContentMap()){
-                    for(Content cont : arr){
-                        if(cont instanceof UnlockableContent && !(cont instanceof Planet)){
-                            UnlockableContent unlock = (UnlockableContent)cont;
+        generate("all-icons", () -> {
+            for(Seq<Content> arr : content.getContentMap()){
+                for(Content cont : arr){
+                    if(cont instanceof UnlockableContent && !(cont instanceof Planet)){
+                        UnlockableContent unlock = (UnlockableContent)cont;
 
-                            if(unlock.generateIcons){
-                                try{
-                                    unlock.createIcons(packer);
-                                }catch(IllegalArgumentException e){
-                                    Log.err(e);
-                                    Log.err("Skip: @", unlock.name);
-                                }
+                        if(unlock.generateIcons){
+                            try{
+                                unlock.createIcons(packer);
+                            }catch(IllegalArgumentException e){
+                                Log.err(e);
+                                Log.err("Skip: @", unlock.name);
                             }
                         }
                     }
                 }
-            });
+            }
+        });
 
         generate("unit-icons", () -> content.units().each(type -> {
-            if(type.internal) return; //internal hidden units don't generate
+            if(type.internal && !type.internalGenerateSprites) return; //internal hidden units don't generate
 
             ObjectSet<String> outlined = new ObjectSet<>();
 
@@ -534,6 +580,28 @@ public class Generators{
                 for(TextureRegion region : toOutline){
                     Pixmap pix = get(region).outline(type.outlineColor, type.outlineRadius);
                     save(pix, ((GenRegion)region).name + "-outline");
+                }
+
+                Seq<DrawPart> allParts = new Seq<>();
+
+                //this code is complete trash
+                Cons<Seq<DrawPart>>[] allDrawIter = new Cons[]{null};
+                allDrawIter[0] = seq -> {
+                    for(DrawPart part : seq){
+                        allParts.add(part);
+                        if(part instanceof RegionPart){
+                            allDrawIter[0].get(((RegionPart)part).children);
+                        }
+                    }
+                };
+                allDrawIter[0].get(type.parts);
+
+                for(DrawPart part : allParts){
+                    if(part instanceof RegionPart && ((RegionPart)part).replaceOutline){
+                        for(TextureRegion r : ((RegionPart)part).regions){
+                            outliner.get(r);
+                        }
+                    }
                 }
 
                 Seq<Weapon> weapons = type.weapons;
@@ -586,7 +654,7 @@ public class Generators{
                 if(sample instanceof Legsc) outliner.get(type.legRegion);
                 if(sample instanceof Tankc) outliner.get(type.treadRegion);
 
-                Pixmap image = type.segments > 0 ? get(type.segmentRegions[0]) : outline.get(get(type.previewRegion));
+                Pixmap image = type.segments > 0 ? get(type.segmentRegions[0]) : type.drawBody ? outline.get(get(type.previewRegion)) : new Pixmap(1, 1);
 
                 Func<Weapon, Pixmap> weaponRegion = weapon -> Core.atlas.has(weapon.name + "-preview") ? get(weapon.name + "-preview") : get(weapon.region);
                 Cons2<Weapon, Pixmap> drawWeapon = (weapon, pixmap) ->
@@ -614,7 +682,7 @@ public class Generators{
                 //outline is currently never needed, although it could theoretically be necessary
                 if(type.needsBodyOutline()){
                     save(image, type.name + "-outline");
-                }else if(type.segments == 0){
+                }else if(type.segments == 0 && type.drawBody){
                     replace(type.name, type.segments > 0 ? get(type.segmentRegions[0]) : outline.get(get(type.region)));
                 }
 
@@ -682,7 +750,9 @@ public class Generators{
                 }
 
                 //TODO I can save a LOT of space by not creating a full icon.
-                save(image, "unit-" + type.name + "-full");
+                if(type.generateFullIcon){
+                    save(image, "unit-" + type.name + "-full");
+                }
 
                 Rand rand = new Rand();
                 rand.setSeed(type.name.hashCode());
@@ -764,14 +834,15 @@ public class Generators{
         });
 
         generate("edges", () -> {
-            content.blocks().<Floor>each(b -> b instanceof Floor && !(b instanceof OverlayFloor), floor -> {
+            content.blocks().<Floor>each(b -> b instanceof Floor && !(b instanceof OverlayFloor) && !b.isAir(), floor -> {
 
                 if(has(floor.name + "-edge") || floor.blendGroup != floor){
                     return;
                 }
 
                 try{
-                    Pixmap image = gens.get(floor, get(floor.getGeneratedIcons()[0]));
+                    Pixmap image = gens.get(floor);
+                    if(image == null) image = get(floor.getGeneratedIcons()[0]);
                     Pixmap edge = get("edge-stencil");
                     Pixmap result = new Pixmap(edge.width, edge.height);
 
@@ -783,7 +854,9 @@ public class Generators{
 
                     save(result, "../blocks/environment/" + floor.name + "-edge");
 
-                }catch(Exception ignored){}
+                }catch(Exception e){
+                    Log.err("Failed to generate edge for " + floor, e);
+                }
             });
         });
 

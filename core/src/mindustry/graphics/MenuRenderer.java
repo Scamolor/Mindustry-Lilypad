@@ -29,7 +29,7 @@ public class MenuRenderer implements Disposable{
     private float flyerRot = 45f;
     private int flyers = Mathf.chance(0.2) ? Mathf.random(35) : Mathf.random(15);
     //no longer random or "dynamic", mod units in the menu look jarring, and it's not worth the configuration effort
-    private UnitType flyerType = Seq.with(UnitTypes.flare, UnitTypes.horizon, UnitTypes.zenith, UnitTypes.mono, UnitTypes.poly, UnitTypes.mega, UnitTypes.alpha, UnitTypes.beta, UnitTypes.gamma).random();
+    private UnitType flyerType = Seq.with(UnitTypes.flare, UnitTypes.horizon, UnitTypes.zenith, UnitTypes.antumbra, UnitTypes.eclipse, UnitTypes.mono, UnitTypes.poly, UnitTypes.mega, UnitTypes.quad, UnitTypes.oct, UnitTypes.alpha, UnitTypes.beta, UnitTypes.gamma, UnitTypes.spark, UnitTypes.elude, UnitTypes.avert, UnitTypes.obviate, UnitTypes.quell, UnitTypes.disrupt, UnitTypes.evoke, UnitTypes.incite, UnitTypes.emanate, UnitTypes.assemblyDrone, UnitTypes.effectDrone, UnitTypes.manifold, UnitTypes.missile, UnitTypes.block).random();
 
     public MenuRenderer(){
         Time.mark();

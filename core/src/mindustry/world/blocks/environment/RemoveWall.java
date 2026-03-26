@@ -8,9 +8,9 @@ import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.world.*;
 
-public class RemoveWall extends Block {
+public class RemoveWall extends Block{
 
-    public RemoveWall(String name) {
+    public RemoveWall(String name){
         super(name);
 
         allowRectanglePlacement = true;
@@ -22,7 +22,7 @@ public class RemoveWall extends Block {
     }
 
     @Override
-    public void drawPlan(BuildPlan plan, Eachable<BuildPlan> list, boolean valid, float alpha) {
+    public void drawPlan(BuildPlan plan, Eachable<BuildPlan> list, boolean valid, float alpha){
         Draw.reset();
         Draw.alpha(alpha * (valid ? 1f : 0.2f));
         float prevScale = Draw.scl;
@@ -33,18 +33,18 @@ public class RemoveWall extends Block {
     }
 
     @Override
-    public boolean canPlaceOn(Tile tile, Team team, int rotation) {
+    public boolean canPlaceOn(Tile tile, Team team, int rotation){
         return tile.block() != Blocks.air;
     }
 
     @Override
-    public boolean canReplace(Block other) {
+    public boolean canReplace(Block other){
         return other != Blocks.air && !other.synthetic();
     }
 
-    public void placeEnded(Tile tile, @Nullable Unit builder, int rotation, Object config) {
+    public void placeEnded(Tile tile, @Nullable Unit builder, Object config){
         tile.setBlock(Blocks.air);
-        if (tile.overlay().wallOre) {
+        if(tile.overlay().wallOre){
             tile.setOverlay(Blocks.air);
         }
     }

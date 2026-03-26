@@ -54,6 +54,10 @@ public class DirectionalItemBuffer{
     }
 
     public void read(Reads read){
+        read(read, false);
+    }
+
+    public void read(Reads read, boolean legacy){
         for(int i = 0; i < 4; i++){
             indexes[i] = read.b();
             byte length = read.b();

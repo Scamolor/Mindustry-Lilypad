@@ -2,6 +2,7 @@ package mindustry.mod;
 
 import arc.*;
 import arc.assets.*;
+import arc.assets.loaders.MusicLoader.*;
 import arc.assets.loaders.SoundLoader.*;
 import arc.audio.*;
 import arc.files.*;

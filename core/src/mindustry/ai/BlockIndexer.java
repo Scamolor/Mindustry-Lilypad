@@ -6,7 +6,10 @@ import arc.math.*;
 import arc.math.geom.*;
 import arc.struct.*;
 import arc.util.*;
+import mindustry.ai.types.*;
 import mindustry.content.*;
+import mindustry.entities.*;
+import mindustry.entities.Units.*;
 import mindustry.game.EventType.*;
 import mindustry.game.*;
 import mindustry.game.Teams.*;
@@ -14,6 +17,7 @@ import mindustry.gen.*;
 import mindustry.logic.*;
 import mindustry.type.*;
 import mindustry.world.*;
+import mindustry.world.blocks.environment.*;
 import mindustry.world.meta.*;
 
 import static mindustry.Vars.*;
@@ -28,11 +32,13 @@ public class BlockIndexer{
     private int quadWidth, quadHeight;
 
     /** Stores all ore quadrants on the map. Maps ID to qX to qY to a list of tiles with that ore. */
-    private IntSeq[][][] ores;
+    private IntSeq[][][] ores, wallOres;
     /** Stores all damaged tile entities by team. */
     private Seq<Building>[] damagedTiles = new Seq[Team.all.length];
+    /** All ores present on the map - can be wall or floor. */
+    private Seq<Item> allPresentOres = new Seq<>();
     /** All ores available on this map. */
-    private ObjectIntMap<Item> allOres = new ObjectIntMap<>();
+    private ObjectIntMap<Item> allOres = new ObjectIntMap<>(), allWallOres = new ObjectIntMap<>();
     /** Stores teams that are present here as tiles. */
     private Seq<Team> activeTeams = new Seq<>(Team.class);
     /** Maps teams to a map of flagged tiles by flag. */
@@ -41,6 +47,8 @@ public class BlockIndexer{
     private boolean[] blocksPresent;
     /** Array used for returning and reusing. */
     private Seq<Building> breturnArray = new Seq<>(Building.class);
+    /** Maps block flag to a list of floor tiles that have it. */
+    private Seq<Tile>[] floorMap;
 
     public BlockIndexer(){
         clearFlags();
@@ -56,12 +64,15 @@ public class BlockIndexer{
         Events.on(WorldLoadEvent.class, event -> {
             damagedTiles = new Seq[Team.all.length];
             flagMap = new Seq[Team.all.length][BlockFlag.all.length];
+            floorMap = new Seq[BlockFlag.all.length];
             activeTeams = new Seq<>(Team.class);
 
             clearFlags();
 
             allOres.clear();
+            allWallOres.clear();
             ores = new IntSeq[content.items().size][][];
+            wallOres = new IntSeq[content.items().size][][];
             quadWidth = Mathf.ceil(world.width() / (float)quadrantSize);
             quadHeight = Mathf.ceil(world.height() / (float)quadrantSize);
             blocksPresent = new boolean[content.blocks().size];

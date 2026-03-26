@@ -18,6 +18,7 @@ import mindustry.graphics.*;
 import mindustry.logic.*;
 import mindustry.type.*;
 import mindustry.world.*;
+import mindustry.world.blocks.*;
 import mindustry.world.meta.*;
 
 import static mindustry.Vars.*;
@@ -299,7 +300,7 @@ public class MassDriver extends Block{
             smokeEffect.at(x + Angles.trnsx(angle, translation), y + Angles.trnsy(angle, translation), angle);
 
             Effect.shake(shake, shake, this);
-            
+
             shootSound.at(tile, Mathf.random(0.9f, 1.1f));
         }
 

@@ -58,6 +58,16 @@ abstract class HealthComp implements Entityc, Posc{
         damagePierce(amount, true);
     }
 
+    /** Damage and multiply armor received. */
+    void damageArmorMult(float amount, float armorMult, boolean withEffect){
+        damage(amount, withEffect);
+    }
+
+    /** Damage and multiply armor received. */
+    void damageArmorMult(float amount, float armorMult){
+        damageArmorMult(amount, armorMult, true);
+    }
+
     void damage(float amount){
         health -= amount;
         hitTime = 1f;

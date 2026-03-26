@@ -9,9 +9,11 @@ import static mindustry.Vars.*;
 
 @Component
 abstract class BlockUnitComp implements Unitc{
-    @Import Team team;
+    @Import
+    Team team;
 
-    @ReadOnly transient Building tile;
+    @ReadOnly
+    transient Building tile;
 
     public void tile(Building tile){
         this.tile = tile;
@@ -40,7 +42,7 @@ abstract class BlockUnitComp implements Unitc{
     @Replace
     @Override
     public TextureRegion icon(){
-        return tile.block.fullIcon;
+        return tile.block.uiIcon;
     }
 
     @Override
@@ -60,6 +62,11 @@ abstract class BlockUnitComp implements Unitc{
 
     @Replace
     public boolean isValid(){
+        return tile != null && tile.isValid();
+    }
+
+    @Replace
+    public boolean isAdded(){
         return tile != null && tile.isValid();
     }
 

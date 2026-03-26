@@ -90,12 +90,11 @@ public class BurstDrill extends Drill{
 
             if(invertTime > 0f) invertTime -= delta() / invertedTime;
 
-            if(timer(timerDump, dumpTime)){
+            if(timer(timerDump, dumpTime / timeScale)){
                 dump(items.has(dominantItem) ? dominantItem : null);
             }
 
-            float multiplier = Mathf.lerp(1f, optionalBoostIntensity, optionalEfficiency);
-            float drillTime = getDrillTime(dominantItem) / multiplier;
+            float drillTime = getDrillTime(dominantItem);
 
             smoothProgress = Mathf.lerpDelta(smoothProgress, progress / (drillTime - 20f), 0.1f);
 

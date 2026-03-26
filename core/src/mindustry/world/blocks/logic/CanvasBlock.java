@@ -16,7 +16,9 @@ import arc.util.io.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.entities.units.*;
 import mindustry.gen.*;
+import mindustry.logic.*;
 import mindustry.ui.*;
+import mindustry.ui.dialogs.*;
 import mindustry.world.*;
 
 import static mindustry.Vars.*;
@@ -54,6 +56,14 @@ public class CanvasBlock extends Block{
         });
     }
 
+    public void setPaletteFromString(String value){
+        String[] split = value.split("\n");
+        palette = new int[split.length];
+        for(int i = 0; i < split.length; i++){
+            palette[i] = (Integer.parseInt(split[i], 16) << 8) | 0xff;
+        }
+    }
+
     @Override
     public void init(){
         super.init();
@@ -62,13 +72,17 @@ public class CanvasBlock extends Block{
             colorToIndex.put(palette[i], i);
         }
         bitsPerPixel = Mathf.log2(Mathf.nextPowerOfTwo(palette.length));
+
+        clipSize = Math.max(clipSize, size * 8 - padding);
+
+        previewPixmap = new Pixmap(canvasSize, canvasSize);
     }
 
     @Override
     public void drawPlanRegion(BuildPlan plan, Eachable<BuildPlan> list){
         //only draw the preview in schematics, as it lags otherwise
         if(!plan.worldContext && plan.config instanceof byte[] data){
-            Pixmap pix = makePixmap(data);
+            Pixmap pix = makePixmap(data, previewPixmap);
 
             if(previewTexture == null){
                 previewTexture = new Texture(pix);
@@ -120,12 +134,7 @@ public class CanvasBlock extends Block{
         }
     }
 
-    /** returns the same pixmap instance each time, use with care */
-    public Pixmap makePixmap(byte[] data){
-        if(previewPixmap == null){
-            previewPixmap = new Pixmap(canvasSize, canvasSize);
-        }
-
+    public Pixmap makePixmap(byte[] data, Pixmap target){
         int bpp = bitsPerPixel;
         int pixels = canvasSize * canvasSize;
         for(int i = 0; i < pixels; i++){
@@ -149,11 +158,26 @@ public class CanvasBlock extends Block{
         public @Nullable Texture texture;
         public byte[] data = new byte[Mathf.ceil(canvasSize * canvasSize * bitsPerPixel / 8f)];
         public int blending;
+        protected boolean invalidated = false;
+
+        public void setPixel(int pos, int index){
+            if(pos < canvasSize * canvasSize && pos >= 0 && index >= 0 && index < palette.length){
+                setByte(data, pos * bitsPerPixel, index);
+                invalidated = true;
+            }
+        }
+
+        public double getPixel(int pos){
+            if(pos >= 0 && pos < canvasSize * canvasSize){
+                return getByte(data, pos * bitsPerPixel);
+            }
+            return Double.NaN;
+        }
 
         public void updateTexture(){
             if(headless) return;
 
-            Pixmap pix = makePixmap(data);
+            Pixmap pix = makePixmap(data, previewPixmap);
             if(texture != null){
                 texture.draw(pix);
             }else{
@@ -178,9 +202,9 @@ public class CanvasBlock extends Block{
                 int word = i + bitOffset >>> 3;
 
                 if(((value >>> i) & 1) == 0){
-                    bytes[word] &= ~(1 << (i + bitOffset & 7));
+                    bytes[word] &= (byte)~(1 << (i + bitOffset & 7));
                 }else{
-                    bytes[word] |= (1 << (i + bitOffset & 7));
+                    bytes[word] |= (byte)(1 << (i + bitOffset & 7));
                 }
             }
         }
@@ -193,6 +217,22 @@ public class CanvasBlock extends Block{
             for(int i = 0; i < 4; i++){
                 if(blends(world.tile(tile.x + Geometry.d4[i].x * size, tile.y + Geometry.d4[i].y * size))) blending |= (1 << i);
             }
+        }
+
+        public boolean readable(LExecutor exec){
+            return isValid() && (exec.privileged || this.team == exec.team);
+        }
+
+        public void read(LVar position, LVar output){
+            output.setnum(getPixel(position.numi()));
+        }
+
+        public boolean writable(LExecutor exec){
+            return readable(exec);
+        }
+
+        public void write(LVar position, LVar value){
+            setPixel(position.numi(), value.numi());
         }
 
         boolean blends(Tile other){
@@ -236,6 +276,14 @@ public class CanvasBlock extends Block{
         }
 
         @Override
+        public double sense(LAccess sensor){
+            return switch(sensor){
+                case displayWidth, displayHeight -> canvasSize;
+                default -> super.sense(sensor);
+            };
+        }
+
+        @Override
         public void remove(){
             super.remove();
             if(texture != null){
@@ -246,95 +294,7 @@ public class CanvasBlock extends Block{
 
         @Override
         public void buildConfiguration(Table table){
-            table.button(Icon.pencil, Styles.cleari, () -> {
-                Dialog dialog = new Dialog();
-
-                Pixmap pix = makePixmap(data);
-                Texture texture = new Texture(pix);
-                int[] curColor = {palette[0]};
-                boolean[] modified = {false};
-
-                dialog.resized(dialog::hide);
-
-                dialog.cont.table(Tex.pane, body -> {
-                    body.stack(new Element(){
-                        int lastX, lastY;
-
-                        {
-                            addListener(new InputListener(){
-                                int convertX(float ex){
-                                    return (int)((ex - x) / width * canvasSize);
-                                }
-
-                                int convertY(float ey){
-                                    return pix.height - 1 - (int)((ey - y) / height * canvasSize);
-                                }
-
-                                @Override
-                                public boolean touchDown(InputEvent event, float ex, float ey, int pointer, KeyCode button){
-                                    int cx = convertX(ex), cy = convertY(ey);
-                                    draw(cx, cy);
-                                    lastX = cx;
-                                    lastY = cy;
-                                    return true;
-                                }
-
-                                @Override
-                                public void touchDragged(InputEvent event, float ex, float ey, int pointer){
-                                    int cx = convertX(ex), cy = convertY(ey);
-                                    Bresenham2.line(lastX, lastY, cx, cy, (x, y) -> draw(x, y));
-                                    lastX = cx;
-                                    lastY = cy;
-                                }
-                            });
-                        }
-
-                        void draw(int x, int y){
-                            if(pix.get(x, y) != curColor[0]){
-                                pix.set(x, y, curColor[0]);
-                                Pixmaps.drawPixel(texture, x, y, curColor[0]);
-                                modified[0] = true;
-                            }
-                        }
-
-                        @Override
-                        public void draw(){
-                            Tmp.tr1.set(texture);
-                            Draw.alpha(parentAlpha);
-                            Draw.rect(Tmp.tr1, x + width/2f, y + height/2f, width, height);
-                        }
-                    }, new GridImage(canvasSize, canvasSize){{
-                        touchable = Touchable.disabled;
-                    }}).size(mobile && !Core.graphics.isPortrait() ? Math.min(290f, Core.graphics.getHeight() / Scl.scl(1f) - 75f / Scl.scl(1f)) : 480f);
-                });
-
-                dialog.cont.row();
-
-                dialog.cont.table(Tex.button, p -> {
-                    for(int i = 0; i < palette.length; i++){
-                        int fi = i;
-
-                        var button = p.button(Tex.whiteui, Styles.squareTogglei, 30, () -> {
-                            curColor[0] = palette[fi];
-                        }).size(44).checked(b -> curColor[0] == palette[fi]).get();
-                        button.getStyle().imageUpColor = new Color(palette[i]);
-                    }
-                });
-
-                dialog.closeOnBack();
-
-                dialog.buttons.defaults().size(150f, 64f);
-                dialog.buttons.button("@cancel", Icon.cancel, dialog::hide);
-                dialog.buttons.button("@ok", Icon.ok, () -> {
-                    if(modified[0]){
-                        configure(packPixmap(pix));
-                        texture.dispose();
-                    }
-                    dialog.hide();
-                });
-
-                dialog.show();
-            }).size(40f);
+            table.button(Icon.pencil, Styles.cleari, () -> new CanvasEditDialog(this).show()).size(40f);
         }
 
         @Override

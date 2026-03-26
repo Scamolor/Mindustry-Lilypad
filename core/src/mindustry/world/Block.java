@@ -24,7 +24,9 @@ import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.graphics.MultiPacker.*;
+import mindustry.input.InputHandler.*;
 import mindustry.logic.*;
+import mindustry.mod.*;
 import mindustry.type.*;
 import mindustry.ui.*;
 import mindustry.world.blocks.*;
@@ -57,10 +59,16 @@ public class Block extends UnlockableContent implements Senseable{
     public boolean conductivePower = false;
     /** If true, this block can output payloads; affects blending. */
     public boolean outputsPayload = false;
+    /** If true, this block can input payloads; affects unit payload enter behavior. */
+    public boolean acceptsUnitPayloads = false;
     /** If true, payloads will attempt to move into this block. */
     public boolean acceptsPayload = false;
     /** Visual flag use for blending of certain transportation blocks. */
     public boolean acceptsItems = false;
+    /** If true, this block won't be affected by the onlyDepositCore rule. */
+    public boolean alwaysAllowDeposit = false;
+    /** Cooldown, in seconds, applied to player item depositing when any item is deposited to this block. Overrides the itemDepositCooldown if non-negative. */
+    public float depositCooldown = -1f;
     /** If true, all item capacities of this block are separate instead of pooled as one number. */
     public boolean separateItemCapacity = false;
     /** maximum items this block can carry (usually, this is per-type of item) */
@@ -110,8 +118,14 @@ public class Block extends UnlockableContent implements Senseable{
     public boolean rotate;
     /** if rotate is true and this is false, the region won't rotate when drawing */
     public boolean rotateDraw = true;
+    /** if rotate is true and this is false, the region won't rotate when drawing in the editor */
+    public boolean rotateDrawEditor = true;
+    /** visual rotation offset used in broken plan rendering */
+    public float visualRotationOffset = 0f;
     /** if rotate = false and this is true, rotation will be locked at 0 when placing (default); advanced use only */
     public boolean lockRotation = true;
+    /** if true, this block won't face the line drag direction */
+    public boolean ignoreLineRotation = false;
     /** if true, schematic flips with this block are inverted. */
     public boolean invertFlip = false;
     /** number of different variant regions to use */
@@ -156,6 +170,8 @@ public class Block extends UnlockableContent implements Senseable{
     public boolean updateInUnits = true;
     /** if true, this block updates in payloads in units regardless of the experimental game rule */
     public boolean alwaysUpdateInUnits = false;
+    /** if true, this block can be picked up in payloads */
+    public boolean canPickup = true;
     /** if false, only incinerable liquids are dropped when deconstructing; otherwise, all liquids are dropped. */
     public boolean deconstructDropAllLiquid = false;
     /** Whether to use this block's color in the minimap. Only used for overlays. */
@@ -174,6 +190,12 @@ public class Block extends UnlockableContent implements Senseable{
     public float armor = 0f;
     /** base block explosiveness */
     public float baseExplosiveness = 0f;
+    /** scaling of explosiveness based on items/liquids */
+    public float explosivenessScale = 1f;
+    /** scaling of explosion flammability based on items/liquids */
+    public float flammabilityScale = 1f;
+    /** base value for screen shake upon destruction */
+    public float baseShake = 3f;
     /** bullet that this block spawns when destroyed */
     public @Nullable BulletType destroyBullet = null;
     /** if true, destroyBullet is spawned on the block's team instead of Derelict team */
@@ -194,10 +216,14 @@ public class Block extends UnlockableContent implements Senseable{
     public int sizeOffset = 0;
     /** Clipping size of this block. Should be as large as the block will draw. */
     public float clipSize = -1f;
+    /** Clipping size for lights only. */
+    public float lightClipSize;
     /** When placeRangeCheck is enabled, this is the range checked for enemy blocks. */
     public float placeOverlapRange = 50f;
     /** Multiplier of damage dealt to this block by tanks. Does not apply to crawlers. */
     public float crushDamageMultiplier = 1f;
+    /** If true, this block is instantly destroyed by tanks with crushFragile set to true. */
+    public boolean crushFragile = false;
     /** Max of timers used. */
     public int timers = 0;
     /** Cache layer. Only used for 'cached' rendering. */
@@ -221,6 +247,10 @@ public class Block extends UnlockableContent implements Senseable{
     public int unitCapModifier = 0;
     /** Whether the block can be tapped and selected to configure. */
     public boolean configurable;
+    /** Sound played when this block is configured. */
+    public Sound configureSound = Sounds.click;
+    /** If true, this block does not have pointConfig with a transform called on map resize. */
+    public boolean ignoreResizeConfig;
     /** If true, this building can be selected like a unit when commanding. */
     public boolean commandable;
     /** If true, the building inventory can be shown with the config. */
@@ -229,6 +259,8 @@ public class Block extends UnlockableContent implements Senseable{
     public int selectionRows = 5, selectionColumns = 4;
     /** If true, this block can be configured by logic. */
     public boolean logicConfigurable = false;
+    /** If true, configuration is delayed when playing the landing block buildup animation. This may be removed in the future! */
+    public boolean delayLandingConfig;
     /** Whether this block consumes touchDown events when tapped. */
     public boolean consumesTap;
     /** Whether to draw the glow of the liquid for this block, if it has one. */
@@ -288,6 +320,8 @@ public class Block extends UnlockableContent implements Senseable{
     public Sound breakSound = Sounds.breaks;
     /** Sounds made when this block is destroyed.*/
     public Sound destroySound = Sounds.boom;
+    /** Range of destroy sound. */
+    public float destroyPitchMin = 1f, destroyPitchMax = 1f;
     /** How reflective this block is. */
     public float albedo = 0f;
     /** Environmental passive light color. */
@@ -318,8 +352,8 @@ public class Block extends UnlockableContent implements Senseable{
     public ItemStack[] requirements = {};
     /** Category in place menu. */
     public Category category = Category.distribution;
-    /** Time to build this block in ticks; do not modify directly! */
-    public float buildCost = 20f;
+    /** Time to build this block in ticks. If this value is <0, it is calculated dynamically. */
+    public float buildTime = -1f;
     /** Whether this block is visible and can currently be built. */
     public BuildVisibility buildVisibility = BuildVisibility.hidden;
     /** Multiplier for speed of building this block. */
@@ -344,6 +378,8 @@ public class Block extends UnlockableContent implements Senseable{
     public ObjectFloatMap<Item> researchCostMultipliers = new ObjectFloatMap<>();
     /** Override for research cost. Uses multipliers above and building requirements if not set. */
     public @Nullable ItemStack[] researchCost;
+    /** If set, all blocks will be forced to be this team. */
+    public @Nullable Team forceTeam;
     /** Whether this block has instant transfer.*/
     public boolean instantTransfer = false;
     /** Whether you can rotate this block after it is placed. */
@@ -434,6 +470,18 @@ public class Block extends UnlockableContent implements Senseable{
         drawOverlay(x * tilesize + offset, y * tilesize + offset, rotation);
     }
 
+    /** Draws a region to overlay a specific side of this block. This method makes sure it is placed at the edge of the side. */
+    public void drawSideRegion(TextureRegion region, float x, float y, int rotation){
+        var p = Geometry.d4[Mathf.mod(rotation, 4)];
+        float s = size * tilesize/2f;
+
+        Draw.rect(region,
+        x + p.x * (s - region.width/2f * region.scl()),
+        y + p.y * (s - region.width/2f * region.scl()),
+        rotation * 90f
+        );
+    }
+
     public void drawPotentialLinks(int x, int y){
         if((consumesPower || outputsPower) && hasPower && connectedPower){
             Tile tile = world.tile(x, y);
@@ -442,6 +490,14 @@ public class Block extends UnlockableContent implements Senseable{
                     PowerNode node = (PowerNode)other.block;
                     Draw.color(node.laserColor1, Renderer.laserOpacity * 0.5f);
                     node.drawLaser(x * tilesize + offset, y * tilesize + offset, other.x, other.y, size, other.block.size);
+
+                    Drawf.square(other.x, other.y, other.block.size * tilesize / 2f + 2f, Pal.place);
+                });
+
+                BeamNode.getNodeLinks(tile, this, player.team(), other -> {
+                    BeamNode node = (BeamNode)other.block;
+                    Draw.color(node.laserColor1, Renderer.laserOpacity * 0.5f);
+                    node.drawLaser(other.x, other.y, x * tilesize + offset, y * tilesize + offset, size, other.block.size);
 
                     Drawf.square(other.x, other.y, other.block.size * tilesize / 2f + 2f, Pal.place);
                 });
@@ -484,6 +540,10 @@ public class Block extends UnlockableContent implements Senseable{
     public void drawOverlay(float x, float y, int rotation){
     }
 
+    public boolean displayShadow(Tile tile){
+        return hasShadow;
+    }
+
     public float sumAttribute(@Nullable Attribute attr, int x, int y){
         if(attr == null) return 0;
         Tile tile = world.tile(x, y);
@@ -523,6 +583,10 @@ public class Block extends UnlockableContent implements Senseable{
         return rotate;
     }
 
+    public boolean rotatedOutput(int fromX, int fromY, Tile destination){
+        return rotatedOutput(fromX, fromY);
+    }
+
     public boolean synthetic(){
         return update || destructible;
     }
@@ -532,7 +596,7 @@ public class Block extends UnlockableContent implements Senseable{
     }
 
     /** If true, the 'map edge' darkness will be applied to this block. */
-    public boolean isDarkened(Tile tile) {
+    public boolean isDarkened(Tile tile){
         return solid && ((!synthetic() && fillsTile) || checkForceDark(tile));
     }
 
@@ -550,7 +614,7 @@ public class Block extends UnlockableContent implements Senseable{
         }
 
         if(canBeBuilt() && requirements.length > 0){
-            stats.add(Stat.buildTime, buildCost / 60, StatUnit.seconds);
+            stats.add(Stat.buildTime, buildTime / 60, StatUnit.seconds);
             stats.add(Stat.buildCost, StatValues.items(false, requirements));
         }
 
@@ -667,7 +731,7 @@ public class Block extends UnlockableContent implements Senseable{
     public boolean canReplace(Block other){
         if(other.alwaysReplace) return true;
         if(other.privileged) return false;
-        return other.replaceable && (other != this || (rotate && quickRotate)) && this.group != BlockGroup.none && other.group == this.group &&
+        return other.replaceable && (other != this || (rotate && quickRotate)) && ((this.group != BlockGroup.none && other.group == this.group) || other == this) &&
             (size == other.size || (size >= other.size && ((subclass != null && subclass == other.subclass) || group.anyReplace)));
     }
 
@@ -880,8 +944,8 @@ public class Block extends UnlockableContent implements Senseable{
         return buildType.get();
     }
 
-    public void updateClipRadius(float size){
-        clipSize = Math.max(clipSize, size * tilesize + size * 2f);
+    public void updateClipRadius(float radiusInWorldUnits){
+        clipSize = Math.max(clipSize, this.size * tilesize + radiusInWorldUnits * 2f);
     }
 
     public Rect bounds(int x, int y, Rect rect){
@@ -909,6 +973,22 @@ public class Block extends UnlockableContent implements Senseable{
         return (envEnabled & env) != 0 && (envDisabled & env) == 0 && (envRequired == 0 || (envRequired & env) == envRequired);
     }
 
+    /** Called to set up configuration UI in the editor.
+     * Config value should be assigned to lastConfig.*/
+    public void buildEditorConfig(Table table){
+    }
+
+    /** Called when the block is picked (middle click). Clientside only! */
+    public void onPicked(Tile tile){
+    }
+
+    /** @return the config value returned when this block is picked on a certain tile. This is only called for non-buildings. */
+    public Object getConfig(Tile tile){
+        return null;
+    }
+    /** Called when this block is set on the specified tile. */
+    public void blockChanged(Tile tile){}
+
     /** Called when building of this block begins. */
     public void placeBegan(Tile tile, Block previous){
 
@@ -917,6 +997,11 @@ public class Block extends UnlockableContent implements Senseable{
     /** Called when building of this block begins. */
     public void placeBegan(Tile tile, Block previous, @Nullable Unit builder){
         placeBegan(tile, previous);
+    }
+
+    /** Called when building of this block ends. */
+    public void placeEnded(Tile tile, @Nullable Unit builder, int rotation, @Nullable Object config){
+
     }
 
     /** Called right before building of this block begins. */
@@ -965,6 +1050,14 @@ public class Block extends UnlockableContent implements Senseable{
             throw new IllegalStateException("You can only remove consumers before init(). After init(), all consumers have already been initialized.");
         }
         consumeBuilder.remove(cons);
+    }
+
+    public void removeConsumers(Boolf<Consume> b){
+        consumeBuilder.removeAll(b);
+        //the power was removed, unassign it
+        if(!consumeBuilder.contains(c -> c instanceof ConsumePower)){
+            consPower = null;
+        }
     }
 
     public ConsumeLiquid consumeLiquid(Liquid liquid, float amount){
@@ -1183,12 +1276,15 @@ public class Block extends UnlockableContent implements Senseable{
 
         clipSize = Math.max(clipSize, size * tilesize);
 
+        lightClipSize = Math.max(lightClipSize, clipSize);
+
         if(hasLiquids && drawLiquidLight){
-            clipSize = Math.max(size * 30f * 2f, clipSize);
+            emitLight = true;
+            lightClipSize = Math.max(lightClipSize, size * 30f * 2f);
         }
 
         if(emitLight){
-            clipSize = Math.max(clipSize, lightRadius * 2f);
+            lightClipSize = Math.max(lightClipSize, lightRadius * 2f);
         }
 
         if(group == BlockGroup.transportation || category == Category.distribution){
@@ -1198,14 +1294,18 @@ public class Block extends UnlockableContent implements Senseable{
         offset = ((size + 1) % 2) * tilesize / 2f;
         sizeOffset = -((size - 1) / 2);
 
-        if(requirements.length > 0){
-            buildCost = 0f;
+        if(requirements.length > 0 && buildTime < 0){
+            buildTime = 0f;
             for(ItemStack stack : requirements){
-                buildCost += stack.amount * stack.item.cost;
+                buildTime += stack.amount * stack.item.cost;
             }
         }
 
-        buildCost *= buildCostMultiplier;
+        if(buildTime < 0){
+            buildTime = 20f;
+        }
+
+        buildTime *= buildCostMultiplier;
 
         consumers = consumeBuilder.toArray(Consume.class);
         optionalConsumers = consumeBuilder.select(consume -> consume.optional && !consume.ignore()).toArray(Consume.class);
@@ -1294,6 +1394,8 @@ public class Block extends UnlockableContent implements Senseable{
                 packer.add(PageType.editor, "editor-" + rname, Core.atlas.getPixmap(rname));
             }
         }
+
+        Seq<Pixmap> toDispose = new Seq<>();
 
         //generate paletted team regions
         if(teamRegion != null && teamRegion.found()){
@@ -1386,11 +1488,22 @@ public class Block extends UnlockableContent implements Senseable{
         }
     }
 
+    /** Fills the specified array with the list of configuration options this block has. Only used for plans. */
+    public void getPlanConfigs(Seq<UnlockableContent> options){
+        if(configurations.containsKey(Item.class)){
+            options.add(content.items());
+        }
+        if(configurations.containsKey(Liquid.class)){
+            options.add(content.liquids());
+        }
+    }
+
     @Override
     public double sense(LAccess sensor){
         return switch(sensor){
             case color -> mapColor.toDoubleBits();
             case health, maxHealth -> health;
+            case solid -> solid ? 1 : 0;
             case size -> size;
             case itemCapacity -> itemCapacity;
             case liquidCapacity -> liquidCapacity;

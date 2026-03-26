@@ -10,8 +10,10 @@ import arc.util.*;
 import arc.util.io.*;
 import mindustry.*;
 import mindustry.annotations.Annotations.*;
+import mindustry.ctype.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
+import mindustry.logic.*;
 import mindustry.ui.*;
 import mindustry.world.*;
 import mindustry.world.meta.*;
@@ -64,7 +66,7 @@ public class LogicDisplay extends Block{
     }
 
     public class LogicDisplayBuild extends Building{
-        public FrameBuffer buffer;
+        public @Nullable FrameBuffer buffer;
         public float color = Color.whiteFloatBits;
         public float stroke = 1f;
         public LongQueue commands = new LongQueue(256);
@@ -86,12 +88,32 @@ public class LogicDisplay extends Block{
                 }
             });
 
+            processCommands();
+
+            Draw.blend(Blending.disabled);
+            Draw.draw(Draw.z(), () -> {
+                if(buffer != null){
+                    Draw.rect(Draw.wrap(buffer.getTexture()), x, y, buffer.getWidth() * scaleFactor * Draw.scl, -buffer.getHeight() * scaleFactor * Draw.scl);
+                }
+            });
+            Draw.blend();
+        }
+
+        public void flushCommands(LongSeq graphicsBuffer){
+            int added = Math.min(graphicsBuffer.size, LExecutor.maxDisplayBuffer - commands.size);
+
+            for(int i = 0; i < added; i++){
+                commands.addLast(graphicsBuffer.items[i]);
+            }
+        }
+
+        public void processCommands(){
             //don't bother processing commands if displays are off
-            if(!commands.isEmpty()){
+            if(!commands.isEmpty() && buffer != null){
                 Draw.draw(Draw.z(), () -> {
                     Tmp.m1.set(Draw.proj());
                     Tmp.m2.set(Draw.trans());
-                    Draw.proj(0, 0, displaySize, displaySize);
+                    Draw.proj(0, 0, buffer.getWidth(), buffer.getHeight());
                     if(transform != null){
                         Draw.trans(transform);
                     }
@@ -116,8 +138,10 @@ public class LogicDisplay extends Block{
                             case commandColor -> Draw.color(this.color = Color.toFloatBits(x, y, p1, p2));
                             case commandStroke -> Lines.stroke(this.stroke = x);
                             case commandImage -> {
-                                var icon = Fonts.logicIcon(p1);
-                                Draw.rect(Fonts.logicIcon(p1), x, y, p2, p2 / icon.ratio(), p3);
+                                if(p4 >= 0 && p4 < ContentType.all.length && Vars.content.getByID(ContentType.all[p4], p1) instanceof UnlockableContent u){
+                                    var icon = u.fullIcon;
+                                    Draw.rect(icon, x, y, p2, p2 / icon.ratio(), p3);
+                                }
                             }
                             case commandPrint -> {
                                 var glyph = Fonts.logic.getData().getGlyph((char)p1);
@@ -141,14 +165,6 @@ public class LogicDisplay extends Block{
                     Draw.reset();
                 });
             }
-
-            Draw.blend(Blending.disabled);
-            Draw.draw(Draw.z(), () -> {
-                if(buffer != null){
-                    Draw.rect(Draw.wrap(buffer.getTexture()), x, y, buffer.getWidth() * scaleFactor * Draw.scl, -buffer.getHeight() * scaleFactor * Draw.scl);
-                }
-            });
-            Draw.blend();
         }
 
         @Override

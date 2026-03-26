@@ -19,6 +19,8 @@ public class CommandAI extends AIController{
     protected static final int maxCommandQueueSize = 50;
     protected static final Vec2 vecOut = new Vec2(), vecMovePos = new Vec2();
     protected static final boolean[] noFound = {false};
+    protected static final UnitPayload tmpPayload = new UnitPayload(null);
+    protected static final int transferStateNone = 0, transferStateLoad = 1, transferStateUnload = 2;
 
     public Seq<Position> commandQueue = new Seq<>(5);
     public @Nullable Vec2 targetPos;
@@ -28,6 +30,8 @@ public class CommandAI extends AIController{
     public int groupIndex = 0;
     /** All encountered unreachable buildings of this AI. Why a sequence? Because contains() is very rarely called on it. */
     public IntSeq unreachableBuildings = new IntSeq(8);
+    /** ID of unit read as target. This is set up after reading. Do not access! */
+    public int readAttackTarget = -1;
 
     protected boolean stopAtTarget, stopWhenInRange;
     protected Vec2 lastTargetPos;

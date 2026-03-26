@@ -47,8 +47,7 @@ public enum EditorTool{
             });
         }
     },
-    //the "under liquid" rendering is too buggy to make public
-    pencil(KeyCode.b, "replace", "square", "drawteams"/*, "underliquid"*/){
+    pencil(KeyCode.b, "replace", "square", "drawteams", "underliquid"){
         {
             edit = true;
             draggable = true;
@@ -132,7 +131,7 @@ public enum EditorTool{
                     Block dest = tile.floor();
                     if(dest == editor.drawBlock) return;
                     tester = t -> t.floor() == dest;
-                    setter = t -> t.setFloorUnder(editor.drawBlock.asFloor());
+                    setter = t -> t.setFloor(editor.drawBlock.asFloor());
                 }else{
                     Block dest = tile.block();
                     if(dest == editor.drawBlock) return;

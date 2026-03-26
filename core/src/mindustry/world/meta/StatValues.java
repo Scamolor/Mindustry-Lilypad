@@ -5,16 +5,22 @@ import arc.func.*;
 import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
+import arc.scene.*;
+import arc.scene.event.*;
+import arc.scene.style.*;
 import arc.scene.ui.*;
+import arc.scene.ui.Tooltip.*;
 import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
 import mindustry.*;
 import mindustry.content.*;
+import mindustry.core.*;
 import mindustry.ctype.*;
 import mindustry.entities.abilities.*;
 import mindustry.entities.bullet.*;
 import mindustry.gen.*;
+import mindustry.graphics.*;
 import mindustry.maps.*;
 import mindustry.type.*;
 import mindustry.ui.*;
@@ -66,7 +72,7 @@ public class StatValues{
     }
 
     public static StatValue liquid(Liquid liquid, float amount, boolean perSecond){
-        return table -> table.add(new LiquidDisplay(liquid, amount, perSecond));
+        return table -> table.add(new LiquidDisplay(liquid, amount, perSecond)).left();
     }
 
     public static StatValue liquids(Boolf<Liquid> filter, float amount, boolean perSecond){
@@ -292,6 +298,37 @@ public class StatValues{
         };
     }
 
+    public static StatValue itemEffMultiplier(Floatf<Item> efficiency, float timePeriod, Boolf<Item> filter){
+        return table -> {
+            table.getCells().peek().growX(); //Expand the spacer on the row above to push everything to the left
+            table.row();
+            table.table(c -> {
+                for(Item item : content.items().select(i -> filter.get(i) && i.unlockedNow() && !i.isHidden())){
+                    c.table(Styles.grayPanel, b -> {
+                        b.image(item.uiIcon).size(40).pad(10f).left().scaling(Scaling.fit);
+                        b.add(item.localizedName + (timePeriod > 0 ? "\n[lightgray]" + Strings.autoFixed(1f / (timePeriod / 60f), 2) + StatUnit.perSecond.localized() : "")).left().grow();
+                        b.add(Core.bundle.format("stat.efficiency", fixValue(efficiency.get(item) * 100f))).right().pad(10f).padRight(15f);
+                    }).growX().pad(5).row();
+                }
+            }).growX().colspan(table.getColumns()).row();
+        };
+    }
+
+    public static StatValue liquidEffMultiplier(Floatf<Liquid> efficiency, float amount, Boolf<Liquid> filter){
+        return table -> {
+            table.getCells().peek().growX(); //Expand the spacer on the row above to push everything to the left
+            table.row();
+            table.table(c -> {
+                for(Liquid liquid : content.liquids().select(l -> filter.get(l) && l.unlockedNow() && !l.isHidden())){
+                    c.table(Styles.grayPanel, b -> {
+                        b.add(new LiquidDisplay(liquid, 40f, amount, true)).pad(10f).left().grow();
+                        b.add(Core.bundle.format("stat.efficiency", fixValue(efficiency.get(liquid) * 100f))).right().pad(10f).padRight(15f);
+                    }).growX().pad(5).row();
+                }
+            }).growX().colspan(table.getColumns()).row();
+        };
+    }
+
     public static StatValue speedBoosters(String unit, float amount, float speed, boolean strength, Boolf<Liquid> filter){
         return table -> {
             table.row();
@@ -374,23 +411,17 @@ public class StatValues{
     public static StatValue abilities(Seq<Ability> abilities){
         return table -> {
             table.row();
-            table.table(t -> {
-                int count = 0;
-                for(Ability ability : abilities){
-                    if(ability.display){
-                        t.table(Styles.grayPanel, a -> {
-                            a.add("[accent]" + ability.localized()).padBottom(4).center().top().expandX();
-                            a.row();
-                            a.left().top().defaults().left();
-                            ability.addStats(a);
-                        }).pad(5).margin(10).growX().top().uniformX();
-                        if((++count) == 2){
-                            count = 0;
-                            t.row();
-                        }
-                    }
-                };
-            });
+            table.table(t -> abilities.each(ability -> {
+                if(ability.display){
+                    t.row();
+                    t.table(Styles.grayPanel, a -> {
+                        a.add("[accent]" + ability.localized()).padBottom(4);
+                        a.row();
+                        a.left().top().defaults().left();
+                        ability.addStats(a);
+                    }).pad(5).margin(10).growX();
+                }
+            }));
         };
     }
 
@@ -502,7 +533,7 @@ public class StatValues{
                     }
 
                     if(type.status != StatusEffects.none){
-                        sep(bt, (type.status.hasEmoji() ? type.status.emoji() : "") + "[stat]" + type.status.localizedName + (type.status.reactive ? "" : "[lightgray] ~ [stat]" + ((int)(type.statusDuration / 60f)) + "[lightgray] " + Core.bundle.get("unit.seconds")));
+                        sep(bt, (type.status.minfo.mod == null ? type.status.emoji() : "") + "[stat]" + type.status.localizedName + (type.status.reactive ? "" : "[lightgray] ~ [stat]" + ((int)(type.statusDuration / 60f)) + "[lightgray] " + Core.bundle.get("unit.seconds")));
                     }
 
                     if(type.intervalBullet != null){

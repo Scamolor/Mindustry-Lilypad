@@ -58,6 +58,11 @@ public abstract class PlanetGenerator extends BasicGenerator implements HexMeshe
         return sector.planet.allowLaunchToNumbered && (sector.hasBase() || sector.near().contains(Sector::hasBase));
     }
 
+    /** @return whether to allow landing on the specified procedural sector */
+    public boolean allowAcceleratorLanding(Sector sector){
+        return sector.planet.allowLaunchToNumbered;
+    }
+
     public void addWeather(Sector sector, Rules rules){
 
         //apply weather based on terrain
