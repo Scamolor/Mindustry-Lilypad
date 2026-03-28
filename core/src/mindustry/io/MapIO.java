@@ -5,8 +5,6 @@ import arc.graphics.*;
 import arc.struct.*;
 import arc.util.*;
 import arc.util.io.*;
-import io.anuke.mindustry.world.*;
-import io.anuke.mindustry.world.LegacyColorMapper.*;
 import mindustry.*;
 import mindustry.content.*;
 import mindustry.core.*;
