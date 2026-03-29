@@ -224,7 +224,7 @@ public class BeamNode extends PowerBlock{
                     if(dst > 1 + size/2){
                         var point = Geometry.d4[i];
                         float poff = tilesize/2f;
-                        Drawf.laser(laser, laserEnd, x + poff*size*point.x, y + poff*size*point.y, dests[i].worldx() - poff*point.x, dests[i].worldy() - poff*point.y, w);
+                        Drawf.laser(laser, laserEnd, x + poff*size*point.x, y + poff*size*point.y, dests[i].worldx() - poff*point.x, dests[i].worldy() - poff*point.y, w, false);
                     }
                 }
             }

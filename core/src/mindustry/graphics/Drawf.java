@@ -423,9 +423,9 @@ public class Drawf{
 
     public static void square(float x, float y, float radius, float rotation, Color color, Color bgColor, float scaling){
         Lines.stroke(3f * scaling, bgColor);
-        Lines.square(x, y, radius + 1f * scaling, rotation);
-        Lines.stroke(1f * scaling, color);
-        Lines.square(x, y, radius + 1f * scaling, rotation);
+        Lines.square(x, y, radius + scaling, rotation);
+        Lines.stroke(scaling, color);
+        Lines.square(x, y, radius + scaling, rotation);
         Draw.reset();
     }
 
@@ -494,6 +494,9 @@ public class Drawf{
 
     public static void laser(TextureRegion line, TextureRegion start, TextureRegion end, float x, float y, float x2, float y2){
         laser(line, start, end, x, y, x2, y2, 1f);
+    }
+
+    public static void laser(TextureRegion line, TextureRegion edge, float x, float y, float x2, float y2, float scale, boolean light){
     }
 
     public static void laser(TextureRegion line, TextureRegion edge, float x, float y, float x2, float y2, float scale){
