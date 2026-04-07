@@ -10,6 +10,7 @@ import arc.math.geom.*;
 import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
+import mindustry.*;
 import mindustry.ai.types.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.audio.*;
@@ -92,14 +93,16 @@ public class Weapon implements Cloneable{
     public float shootX = 0f, shootY = 3f;
     /** offsets of weapon position on unit */
     public float x = 5f, y = 0f;
-    /** Random spread on the X axis. */
-    public float xRand = 0f;
+    /** Random spread on the X/Y axis. */
+    public float xRand = 0f, yRand = 0f;
     /** pattern used for bullets */
     public ShootPattern shoot = new ShootPattern();
     /** radius of shadow drawn under the weapon; <0 to disable */
     public float shadow = -1f;
     /** fraction of velocity that is random */
     public float velocityRnd = 0f;
+    /** extra velocity that is added as a fraction */
+    public float extraVelocity = 0f;
     /** The half-radius of the cone in which shooting will start. */
     public float shootCone = 5f;
     /** Cone in which the weapon can rotate relative to its mount. */
@@ -124,8 +127,16 @@ public class Weapon implements Cloneable{
     public int otherSide = -1;
     /** draw Z offset relative to the default value */
     public float layerOffset = 0f;
+    /** sound looped when shooting */
+    public Sound activeSound = Sounds.none;
+    /** volume of active sound */
+    public float activeSoundVolume = 1f;
     /** sound used for shooting */
-    public Sound shootSound = Sounds.pew;
+    public Sound shootSound = Sounds.shoot;
+    /** volume of the shoot sound */
+    public float shootSoundVolume = 1f;
+    /** sound used when this weapon first fires; for continuous weapons only */
+    public Sound initialShootSound = Sounds.none;
     /** sound used for weapons that have a delay */
     public Sound chargeSound = Sounds.none;
     /** sound played when there is nothing to shoot */

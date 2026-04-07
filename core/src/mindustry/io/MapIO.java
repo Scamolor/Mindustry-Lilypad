@@ -81,6 +81,12 @@ public class MapIO{
             Pixmap walls = new Pixmap(map.width, map.height);
             int black = 255;
             int shade = Color.rgba8888(0f, 0f, 0f, 0.5f);
+
+            int width = map.width, height = map.height;
+            int len = width*height;
+            short[] floorIds = new short[len];
+            boolean[] overlays = new boolean[len];
+
             CachedTile tile = new CachedTile(){
                 @Override
                 public void setBlock(Block type){
@@ -96,22 +102,12 @@ public class MapIO{
 
             ver.region("content", stream, counter, ver::readContentHeader);
             ver.region("preview_map", stream, counter, in -> ver.readMap(in, new WorldContext(){
-                @Override
-                public void resize(int width, int height){
-                }
-
-                @Override
-                public boolean isGenerating(){
-                    return false;
-                }
-
-                @Override
-                public void begin(){
+                @Override public void resize(int width, int height){}
+                @Override public boolean isGenerating(){return false;}
+                @Override public void begin(){
                     world.setGenerating(true);
                 }
-
-                @Override
-                public void end(){
+                @Override public void end(){
                     world.setGenerating(false);
                 }
 
@@ -151,8 +147,10 @@ public class MapIO{
                         floors.set(x, floors.height - 1 - y, colorFor(Blocks.air, content.block(floorID), Blocks.air, Team.derelict));
                     }
                     if(content.block(overlayID) == Blocks.spawn){
-                        map.spawns++;
+                        map.spawns ++;
                     }
+                    floorIds[x + y * width] = (short)floorID;
+                    overlays[x + y * width] = overlayID != 0;
                     return tile;
                 }
             }));
@@ -170,7 +168,14 @@ public class MapIO{
         for(int x = 0; x < pixmap.width; x++){
             for(int y = 0; y < pixmap.height; y++){
                 Tile tile = tiles.getn(x, y);
-                pixmap.set(x, pixmap.height - 1 - y, colorFor(tile.block(), tile.floor(), tile.overlay(), tile.team()));
+                int color = 0;
+                if(!tile.block().synthetic() && tile.block() != Blocks.air){
+                    color = tile.block().minimapColor(tile);
+                }else if(tile.overlay() == Blocks.air && tile.block() == Blocks.air){
+                    color = tile.floor().minimapColor(tile);
+                }
+                if(color == 0) color = colorFor(tile.block(), tile.floor(), tile.overlay(), tile.team());
+                pixmap.set(x, pixmap.height - 1 - y, color);
             }
         }
         return pixmap;
@@ -216,7 +221,7 @@ public class MapIO{
         for(Tile tile : tiles){
             //default to stone floor
             if(tile.floor() == Blocks.air){
-                tile.setFloorUnder((Floor)Blocks.stone);
+                tile.setFloor((Floor)Blocks.stone);
             }
         }
     }

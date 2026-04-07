@@ -56,6 +56,8 @@ public class UnitType extends UnlockableContent implements Senseable{
     public float speed = 1.1f,
     /** multiplier for speed when boosting */
     boostMultiplier = 1f,
+    /** how affected this unit is by terrain */
+    floorMultiplier = 1f,
     /** body rotation speed in degrees/t */
     rotateSpeed = 5f,
     /** mech base rotation speed in degrees/t*/
@@ -66,6 +68,8 @@ public class UnitType extends UnlockableContent implements Senseable{
     accel = 0.5f,
     /** size of one side of the hitbox square */
     hitSize = 6f,
+    /** shake on unit death */
+    deathShake = -1f,
     /** shake on each step for leg/mech units */
     stepShake = -1f,
     /** ripple / dust size for legged units */
@@ -88,8 +92,12 @@ public class UnitType extends UnlockableContent implements Senseable{
     mineRange = 70f,
     /** range at which this unit can build */
     buildRange = Vars.buildingRange,
+    /** radius for circleTarget, if true */
+    circleTargetRadius = 80f,
     /** multiplier for damage this (flying) unit deals when crashing on enemy things */
     crashDamageMultiplier = 1f,
+    /** multiplier for health that this flying unit has for its wreck, based on its max health. */
+    wreckHealthMultiplier = 0.25f,
     /** a VERY ROUGH estimate of unit DPS; initialized in init() */
     dpsEstimate = -1,
     /** graphics clipping size; <0 to calculate automatically */
@@ -113,6 +121,8 @@ public class UnitType extends UnlockableContent implements Senseable{
     aimDst = -1f,
     /** Visual offset of build beam from front. */
     buildBeamOffset = 3.8f,
+    /** Visual offset of the mining beam from the front. Defaults to half the hitsize. */
+    mineBeamOffset = Float.NEGATIVE_INFINITY,
     /** WIP: Units of low priority will always be ignored in favor of those with higher priority, regardless of distance. */
     targetPriority = 0f,
     /** Elevation of shadow drawn under this (ground) unit. Visual only. */
@@ -131,6 +141,8 @@ public class UnitType extends UnlockableContent implements Senseable{
     lightRadius = -1f,
     /** light color opacity*/
     lightOpacity = 0.6f,
+    /** scale of soft shadow - its size is calculated based off of region size */
+    softShadowScl = 1f,
     /** fog view radius in tiles. <0 for automatic radius. */
     fogRadius = -1f,
 
@@ -155,6 +167,10 @@ public class UnitType extends UnlockableContent implements Senseable{
     faceTarget = true,
     /** AI flag: if true, this flying unit circles around its target like a bomber */
     circleTarget = false,
+    /** AI flag: if true, this unit will drop bombs under itself even when it is not next to its 'real' target. used for carpet bombers */
+    autoDropBombs = false,
+    /** For the mobile version only: If false, this unit will not auto-target buildings to attach when a player controls it. */
+    targetBuildingsMobile = true,
     /** if true, this unit can boost into the air if a player/processors controls it*/
     canBoost = false,
     /** if true, this unit will always boost when using builder AI */
@@ -165,6 +181,8 @@ public class UnitType extends UnlockableContent implements Senseable{
     logicControllable = true,
     /** if false, players cannot control this unit */
     playerControllable = true,
+    /** If true, the unit can be selected with the global selection hotkey (shift+g). */
+    controlSelectGlobal = true,
     /** if false, this unit cannot be moved into payloads */
     allowedInPayloads = true,
     /** if false, this unit cannot be hit by bullets or explosions*/
@@ -240,6 +258,8 @@ public class UnitType extends UnlockableContent implements Senseable{
     squareShape = false,
     /** if true, this unit will draw its building beam towards blocks. */
     drawBuildBeam = true,
+    /** if true, this unit will draw its mining beam towards blocks */
+    drawMineBeam = true,
     /** if false, the team indicator/cell is not drawn. */
     drawCell = true,
     /** if false, carried items are not drawn. */
@@ -248,6 +268,8 @@ public class UnitType extends UnlockableContent implements Senseable{
     drawShields = true,
     /** if false, the unit body is not drawn. */
     drawBody = true,
+    /** if false, the soft shadow is not drawn. */
+    drawSoftShadow = true,
     /** if false, the unit is not drawn on the minimap. */
     drawMinimap = true;
 
@@ -272,11 +294,33 @@ public class UnitType extends UnlockableContent implements Senseable{
     /** override for unit shield colour. */
     public @Nullable Color shieldColor;
     /** sound played when this unit explodes (*not* when it is shot down) */
-    public Sound deathSound = Sounds.bang;
+    public Sound deathSound = Sounds.none;
+    /** volume of death sound */
+    public float deathSoundVolume = 1f;
+    /** sound played when the unit wreck is shot down */
+    public Sound wreckSound = Sounds.none;
+    /** volume of wreck falling sound */
+    public float wreckSoundVolume = 1f;
     /** sound played on loop when this unit is around. */
     public Sound loopSound = Sounds.none;
     /** volume of loop sound */
     public float loopSoundVolume = 0.5f;
+    /** sound played when this mech/insect unit does a step */
+    public Sound stepSound = Sounds.mechStepSmall;
+    /** volume of step sound */
+    public float stepSoundVolume = 0.5f;
+    /** base pitch of step sound */
+    public float stepSoundPitch = 1f, stepSoundPitchRange = 0.1f;
+    /** sound looped when tank moves */
+    public Sound tankMoveSound = Sounds.tankMove;
+    /** sound looped when the unit moves; volume depends on velocity */
+    public Sound moveSound = Sounds.none;
+    /** volume of movement sound */
+    public float moveSoundVolume = 1f;
+    /** pitch of movement sound based on velocity */
+    public float moveSoundPitchMin = 1f, moveSoundPitchMax = 1f;
+    /** volume of tank move sfx */
+    public float tankMoveVolume = 0.5f;
     /** effect that this unit emits when falling */
     public Effect fallEffect = Fx.fallSmoke;
     /** effect created at engine when unit falls. */
@@ -300,6 +344,8 @@ public class UnitType extends UnlockableContent implements Senseable{
     /** override for engine trail color */
     public @Nullable Color trailColor;
 
+    /** Cost type ID for flow field/enemy AI pathfinding. */
+    public int flowfieldPathType = -1;
     /** Function used for calculating cost of moving with ControlPathfinder. Does not affect "normal" flow field pathfinding. */
     public @Nullable PathCost pathCost;
     /** ID for path cost, to be used in the control path finder. This is the value that actually matters; do not assign manually. Set in init(). */
@@ -342,7 +388,7 @@ public class UnitType extends UnlockableContent implements Senseable{
     /** if true, harder materials will take longer to mine */
     public boolean mineHardnessScaling = true;
     /** continuous sound emitted when mining. */
-    public Sound mineSound = Sounds.minebeam;
+    public Sound mineSound = Sounds.loopMineBeam;
     /** volume of mining sound. */
     public float mineSoundVolume = 0.6f;
     /** Target items to mine. Used in MinerAI */
@@ -386,13 +432,17 @@ public class UnitType extends UnlockableContent implements Senseable{
     /** how straight the leg outward angles are (0 = circular, 1 = horizontal line) */
     legStraightness = 0f;
 
+    /** If true, the base (further away) leg region is drawn under instead of over. */
+    public boolean legBaseUnder = false;
     /** If true, legs are locked to the base of the unit instead of being on an implicit rotating "mount". */
     public boolean lockLegBase = false;
     /** If true, legs always try to move around even when the unit is not moving (leads to more natural behavior) */
     public boolean legContinuousMove;
     /** TODO neither of these appear to do much */
     public boolean flipBackLegs = true, flipLegSide = false;
-    public int ammoResupplyAmount = 10;
+    /** Whether to emit a splashing noise in water. */
+    public boolean emitWalkSound = true;
+    /** Whether to emit a splashing effect in water (fasle implies emitWalkSound false). */
     public float ammoResupplyRange = 100f;
 
     //MECH UNITS
@@ -414,11 +464,21 @@ public class UnitType extends UnlockableContent implements Senseable{
     public int treadFrames = 18;
     /** how much of a top part of a tread sprite is "cut off" relative to the pattern; this is corrected for */
     public int treadPullOffset = 0;
+    /** if true, 'fragile' blocks will instantly be crushed in a 1x1 area around the tank */
+    public boolean crushFragile = false;
 
     //SEGMENTED / CRAWL UNITS (this is WIP content!)
 
     /** number of independent segments */
     public int segments = 0;
+    /** TODO wave support - for multi-unit segmented units, this is the number of independent units that are spawned */
+    public int segmentUnits = 1;
+    /** unit spawned in segments; if null, the same unit is used */
+    public @Nullable UnitType segmentUnit;
+    /** unit spawned at the end; if null, the segment unit is used */
+    public @Nullable UnitType segmentEndUnit;
+    /** true - parent segments are on higher layers; false - parent segments are on lower layers than head*/
+    public boolean segmentLayerOrder = true;
     /** magnitude of sine offset between segments */
     public float segmentMag = 2f,
     /** scale of sine offset between segments */
@@ -429,6 +489,10 @@ public class UnitType extends UnlockableContent implements Senseable{
     segmentRotSpeed = 1f,
     /** maximum difference between segment angles */
     segmentMaxRot = 30f,
+    /** spacing between separate unit segments (only used for multi-unit worms) */
+    segmentSpacing = -1f,
+    /** rotation between segments is clamped to this range */
+    segmentRotationRange = 80f,
     /** speed multiplier this unit will have when crawlSlowdownFrac is met. */
     crawlSlowdown = 0.5f,
     /** damage dealt to blocks under this tank/crawler every frame. */
@@ -449,7 +513,7 @@ public class UnitType extends UnlockableContent implements Senseable{
     public TextureRegion baseRegion, legRegion, region, previewRegion, shadowRegion, cellRegion, itemCircleRegion,
         softShadowRegion, jointRegion, footRegion, legBaseRegion, baseJointRegion, outlineRegion, treadRegion,
         mineLaserRegion, mineLaserEndRegion;
-    public TextureRegion[] wreckRegions, segmentRegions, segmentOutlineRegions;
+    public TextureRegion[] wreckRegions, segmentRegions, segmentCellRegions, segmentOutlineRegions;
     public TextureRegion[][] treadRegions;
 
     //INTERNAL REQUIREMENTS

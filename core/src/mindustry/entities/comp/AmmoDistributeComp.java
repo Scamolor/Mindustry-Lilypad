@@ -20,8 +20,8 @@ abstract class AmmoDistributeComp implements Unitc{
     public void update(){
         if(ammoCooldown > 0f) ammoCooldown -= Time.delta;
 
-        if(ammo > 0 && ammoCooldown <= 0f && ResupplyPoint.resupply(team, x, y, type.ammoResupplyRange, Math.min(type.ammoResupplyAmount, ammo), type.ammoType.color(), u -> u != self())){
-            ammo -= Math.min(type.ammoResupplyAmount, ammo);
+        if(ammo > 0 && ammoCooldown <= 0f && ResupplyPoint.resupply(team, x, y, type.ammoResupplyRange, Math.min(type.ammoCapacity, ammo), type.ammoType.color(), u -> u != self())){
+            ammo -= Math.min(type.ammoCapacity, ammo);
             ammoCooldown = 5f;
         }
     }

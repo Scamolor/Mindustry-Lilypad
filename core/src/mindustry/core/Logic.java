@@ -217,8 +217,12 @@ public class Logic implements ApplicationListener{
         var bounds = tile.block().bounds(tile.x, tile.y, Tmp.r1);
         while(it.hasNext()){
             BlockPlan b = it.next();
-            if(bounds.overlaps(Vars.content.block(String.valueOf(b.block)).bounds(b.x, b.y, Tmp.r2))){
-                b.removed = true;
+            if (Vars.content.block(String.valueOf(b.block)) != null){
+                if(bounds.overlaps(Vars.content.block(String.valueOf(b.block)).bounds(b.x, b.y, Tmp.r2))){
+                    b.removed = true;
+                    it.remove();
+                }
+            }else{
                 it.remove();
             }
         }

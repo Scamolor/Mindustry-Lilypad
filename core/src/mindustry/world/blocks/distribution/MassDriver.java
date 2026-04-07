@@ -105,13 +105,18 @@ public class MassDriver extends Block{
         }
     }
 
-    public class MassDriverBuild extends Building{
+    public class MassDriverBuild extends Building implements RotBlock{
         public int link = -1;
         public float rotation = 90;
         public float reloadCounter = 0f;
         public DriverState state = DriverState.idle;
         //TODO use queue? this array usually holds about 3 shooters max anyway
         public OrderedSet<Building> waitingShooters = new OrderedSet<>();
+
+        @Override
+        public float buildRotation(){
+            return rotation;
+        }
 
         public Building currentShooter(){
             return waitingShooters.isEmpty() ? null : waitingShooters.first();
@@ -210,7 +215,7 @@ public class MassDriver extends Block{
 
         @Override
         public double sense(LAccess sensor){
-            if(sensor == LAccess.progress) return Mathf.clamp(1f - reloadCounter / reload);
+            if(sensor == LAccess.progress) return Mathf.clamp(1f - reloadCounter);
             return super.sense(sensor);
         }
 
@@ -243,7 +248,7 @@ public class MassDriver extends Block{
 
             if(linkValid()){
                 Building target = world.build(link);
-                Drawf.circles(target.x, target.y, (target.block().size / 2f + 1) * tilesize + sin - 2f, Pal.place);
+                Drawf.circles(target.x, target.y, (target.block.size / 2f + 1) * tilesize + sin - 2f, Pal.place);
                 Drawf.arrow(x, y, target.x, target.y, size * tilesize + sin, 4f + sin);
             }
 
@@ -294,7 +299,7 @@ public class MassDriver extends Block{
 
             bullet.create(this, team,
                 x + Angles.trnsx(angle, translation), y + Angles.trnsy(angle, translation),
-                angle, -1f, bulletSpeed, bulletLifetime, data);
+                angle, totalUsed/2f, bulletSpeed, bulletLifetime, data);
 
             shootEffect.at(x + Angles.trnsx(angle, translation), y + Angles.trnsy(angle, translation), angle);
             smokeEffect.at(x + Angles.trnsx(angle, translation), y + Angles.trnsy(angle, translation), angle);

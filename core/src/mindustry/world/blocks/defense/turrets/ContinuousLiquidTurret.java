@@ -4,6 +4,7 @@ import arc.struct.*;
 import mindustry.content.*;
 import mindustry.entities.bullet.*;
 import mindustry.gen.*;
+import mindustry.logic.*;
 import mindustry.type.*;
 import mindustry.world.consumers.*;
 import mindustry.world.meta.*;
@@ -16,7 +17,7 @@ public class ContinuousLiquidTurret extends ContinuousTurret{
         super(name);
         hasLiquids = true;
         //TODO
-        loopSound = Sounds.minebeam;
+        loopSound = Sounds.loopMineBeam;
         shootSound = Sounds.none;
         smokeEffect = Fx.none;
         shootEffect = Fx.none;
@@ -45,25 +46,28 @@ public class ContinuousLiquidTurret extends ContinuousTurret{
         //TODO display ammoMultiplier.
         consume(new ConsumeLiquidFilter(i -> ammoTypes.containsKey(i), liquidConsumed){
 
+            {
+                multiplier = b -> {
+                    var ammo = ammoTypes.get(b.liquids.current());
+                    return ammo == null ? 1f : 1f / ammo.ammoMultiplier;
+                };
+            }
+
             @Override
             public void display(Stats stats){
 
             }
-
-            //TODO
-            //@Override
-            //protected float use(Building entity){
-            //    BulletType type = ammoTypes.get(entity.liquids.current());
-            //    return Math.min(amount * entity.edelta(), entity.block.liquidCapacity) / (type == null ? 1f : type.ammoMultiplier);
-            //}
         });
 
-        ammoTypes.each((item, type) -> placeOverlapRange = Math.max(placeOverlapRange, range + type.rangeChange + placeOverlapMargin));
+        if(targetGround){
+            ammoTypes.each((item, type) -> placeOverlapRange = Math.max(placeOverlapRange, range + type.rangeChange + placeOverlapMargin));
+        }
 
         super.init();
     }
 
     public class ContinuousLiquidTurretBuild extends ContinuousTurretBuild{
+        boolean activated;
 
         @Override
         public boolean shouldActiveSound(){
@@ -72,14 +76,34 @@ public class ContinuousLiquidTurret extends ContinuousTurret{
 
         @Override
         public void updateTile(){
+            super.updateTile();
+
             unit.ammo(unit.type().ammoCapacity * liquids.currentAmount() / liquidCapacity);
 
-            super.updateTile();
+            //only allow the turret to begin firing when it can fire for 4 continuous updates
+            if(liquids.currentAmount() >= liquidConsumed * 4f){
+                activated = true;
+            }else if(liquids.currentAmount() < liquidConsumed){
+                activated = false;
+            }
+        }
+
+        @Override
+        public Object senseObject(LAccess sensor){
+            return switch(sensor){
+                case currentAmmoType -> liquids.current();
+                default -> super.senseObject(sensor);
+            };
         }
 
         @Override
         public boolean canConsume(){
             return hasCorrectAmmo() && super.canConsume();
+        }
+
+        @Override
+        public boolean shouldConsume(){
+            return super.shouldConsume() && activated;
         }
 
         @Override
@@ -95,7 +119,7 @@ public class ContinuousLiquidTurret extends ContinuousTurret{
 
         @Override
         public boolean hasAmmo(){
-            return hasCorrectAmmo() && ammoTypes.get(liquids.current()) != null && liquids.currentAmount() > 0f;
+            return hasCorrectAmmo() && ammoTypes.get(liquids.current()) != null && liquids.currentAmount() > 0f && activated;
         }
 
         public boolean hasCorrectAmmo(){

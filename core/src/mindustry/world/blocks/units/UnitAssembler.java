@@ -1,6 +1,7 @@
 package mindustry.world.blocks.units;
 
 import arc.*;
+import arc.audio.*;
 import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
@@ -17,6 +18,7 @@ import mindustry.ctype.*;
 import mindustry.entities.*;
 import mindustry.entities.units.*;
 import mindustry.game.*;
+import mindustry.game.EventType.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.io.*;
@@ -45,6 +47,9 @@ public class UnitAssembler extends PayloadBlock{
 
     public Seq<AssemblerUnitPlan> plans = new Seq<>(4);
 
+    public Sound createSound = Sounds.unitCreateBig;
+    public float createSoundVolume = 1f;
+
     protected @Nullable ConsumePayloadDynamic consPayload;
     protected @Nullable ConsumeItemDynamic consItem;
 
@@ -60,6 +65,8 @@ public class UnitAssembler extends PayloadBlock{
         group = BlockGroup.units;
         commandable = true;
         quickRotate = false;
+        ambientSound = Sounds.loopUnitBuilding;
+        ambientSoundVolume = 0.13f;
     }
 
     public Rect getRect(Rect rect, float x, float y, int rotation){
