@@ -200,6 +200,7 @@ public class CustomRulesDialog extends BaseDialog{
         check("@rules.wavesending", b -> rules.waveSending = b, () -> rules.waveSending, () -> rules.waves);
         check("@rules.wavetimer", b -> rules.waveTimer = b, () -> rules.waveTimer, () -> rules.waves);
         check("@rules.waitForWaveToEnd", b -> rules.waitEnemies = b, () -> rules.waitEnemies, () -> rules.waves && rules.waveTimer);
+        check("@rules.randomwaveai", b -> rules.randomWaveAI = b, () -> rules.randomWaveAI, () -> rules.waves);
         check("@rules.airUseSpawns", b -> rules.airUseSpawns = b, () -> rules.airUseSpawns, () -> rules.waves);
         numberi("@rules.wavelimit", f -> rules.winWave = f, () -> rules.winWave, () -> rules.waves, 0, Integer.MAX_VALUE);
         number("@rules.wavespacing", false, f -> rules.waveSpacing = f * 60f, () -> rules.waveSpacing / 60f, () -> rules.waves && rules.waveTimer, 1, Float.MAX_VALUE);
@@ -235,10 +236,10 @@ public class CustomRulesDialog extends BaseDialog{
         number("@rules.blockdamagemultiplier", f -> rules.blockDamageMultiplier = f, () -> rules.blockDamageMultiplier);
 
         main.button("@configure",
-            () -> loadoutDialog.show(999999, rules.loadout,
-                i -> true,
-                () -> rules.loadout.clear().add(new ItemStack(Items.copper, 100)),
-                () -> {}, () -> {}
+        () -> loadoutDialog.show(999999, rules.loadout,
+        i -> true,
+        () -> rules.loadout.clear().add(new ItemStack(Items.copper, 100)),
+        () -> {}, () -> {}
         )).left().width(300f).row();
 
         main.button("@bannedblocks", () -> showBanned("@bannedblocks", ContentType.block, rules.bannedBlocks, Block::canBeBuilt)).left().width(300f).row();
@@ -251,6 +252,7 @@ public class CustomRulesDialog extends BaseDialog{
         numberi("@rules.unitcap", f -> rules.unitCap = f, () -> rules.unitCap, -999, 999);
         number("@rules.unitdamagemultiplier", f -> rules.unitDamageMultiplier = f, () -> rules.unitDamageMultiplier);
         number("@rules.unitcrashdamagemultiplier", f -> rules.unitCrashDamageMultiplier = f, () -> rules.unitCrashDamageMultiplier);
+        number("@rules.unitminespeedmultiplier", f -> rules.unitMineSpeedMultiplier = f, () -> rules.unitMineSpeedMultiplier);
         number("@rules.unitbuildspeedmultiplier", f -> rules.unitBuildSpeedMultiplier = f, () -> rules.unitBuildSpeedMultiplier, 0f, 50f);
         number("@rules.unitcostmultiplier", f -> rules.unitCostMultiplier = f, () -> rules.unitCostMultiplier);
         number("@rules.unithealthmultiplier", f -> rules.unitHealthMultiplier = f, () -> rules.unitHealthMultiplier);
@@ -353,11 +355,14 @@ public class CustomRulesDialog extends BaseDialog{
                 check("@rules.buildai", b -> teams.buildAi = b, () -> teams.buildAi, () -> team != rules.defaultTeam && rules.env != Planets.erekir.defaultEnv && !rules.pvp);
                 number("@rules.buildaitier", false, f -> teams.buildAiTier = f, () -> teams.buildAiTier, () -> teams.buildAi && rules.env != Planets.erekir.defaultEnv && !rules.pvp, 0, 1);
 
+                number("@rules.extracorebuildradius", f -> teams.extraCoreBuildRadius = f * tilesize, () -> Math.min(teams.extraCoreBuildRadius / tilesize, 200), () -> !rules.polygonCoreProtection);
+
                 check("@rules.infiniteresources", b -> teams.infiniteResources = b, () -> teams.infiniteResources);
                 number("@rules.buildspeedmultiplier", f -> teams.buildSpeedMultiplier = f, () -> teams.buildSpeedMultiplier, 0.001f, 50f);
 
                 number("@rules.unitdamagemultiplier", f -> teams.unitDamageMultiplier = f, () -> teams.unitDamageMultiplier);
                 number("@rules.unitcrashdamagemultiplier", f -> teams.unitCrashDamageMultiplier = f, () -> teams.unitCrashDamageMultiplier);
+                number("@rules.unitminespeedmultiplier", f -> teams.unitMineSpeedMultiplier = f, () -> teams.unitMineSpeedMultiplier);
                 number("@rules.unitbuildspeedmultiplier", f -> teams.unitBuildSpeedMultiplier = f, () -> teams.unitBuildSpeedMultiplier, 0.001f, 50f);
                 number("@rules.unitcostmultiplier", f -> teams.unitCostMultiplier = f, () -> teams.unitCostMultiplier);
                 number("@rules.unithealthmultiplier", f -> teams.unitHealthMultiplier = f, () -> teams.unitHealthMultiplier);
@@ -404,11 +409,11 @@ public class CustomRulesDialog extends BaseDialog{
         main.table(t -> {
             t.left();
             t.add(text).left().padRight(5)
-                .update(a -> a.setColor(condition.get() ? Color.white : Color.gray));
+            .update(a -> a.setColor(condition.get() ? Color.white : Color.gray));
             t.field((prov.get()) + "", s -> cons.get(Strings.parseInt(s)))
-                .update(a -> a.setDisabled(!condition.get()))
-                .padRight(100f)
-                .valid(f -> Strings.parseInt(f) >= min && Strings.parseInt(f) <= max).width(120f).left();
+            .update(a -> a.setDisabled(!condition.get()))
+            .padRight(100f)
+            .valid(f -> Strings.parseInt(f) >= min && Strings.parseInt(f) <= max).width(120f).left();
         }).padTop(0).row();
     }
 
@@ -443,8 +448,8 @@ public class CustomRulesDialog extends BaseDialog{
 
     Cell<TextField> field(Table table, float value, Floatc setter){
         return table.field(Strings.autoFixed(value, 2), v -> setter.get(Strings.parseFloat(v)))
-            .valid(Strings::canParsePositiveFloat)
-            .size(90f, 40f).pad(2f);
+        .valid(Strings::canParsePositiveFloat)
+        .size(90f, 40f).pad(2f);
     }
 
     void weatherDialog(){

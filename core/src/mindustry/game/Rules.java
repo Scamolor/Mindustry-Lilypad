@@ -7,6 +7,7 @@ import arc.util.serialization.*;
 import arc.util.serialization.Json.*;
 import mindustry.*;
 import mindustry.content.*;
+import mindustry.ctype.*;
 import mindustry.graphics.g3d.*;
 import mindustry.io.*;
 import mindustry.type.*;
@@ -19,6 +20,8 @@ import mindustry.world.blocks.*;
  * Does not store game state, just configuration.
  */
 public class Rules{
+    /** Allows editing the rules in-game. Essentially a cheat mode toggle. */
+    public boolean allowEditRules = false;
     /** Sandbox mode: Enables infinite resources, build range and build speed. */
     public boolean infiniteResources;
     /** Team-specific rules. */
@@ -31,6 +34,8 @@ public class Rules{
     public boolean waves;
     /** Whether air units spawn at spawns instead of the edge of the map */
     public boolean airUseSpawns = false;
+    /** If true, units spawn at enemy cores in attack maps with waves enabled. */
+    public boolean wavesSpawnAtCores = true;
     /** Whether the game objective is PvP. Note that this enables automatic hosting. */
     public boolean pvp;
     /** Whether is waiting for players enabled in PvP. */
@@ -59,6 +64,8 @@ public class Rules{
     public boolean fire = true;
     /** Whether units use and require ammo. */
     public boolean unitAmmo = false;
+    /** EXPERIMENTAL! If true, air and ground units target random things each wave instead of only the core/generators. */
+    public boolean randomWaveAI = false;
     /** EXPERIMENTAL! If true, blocks will update in units and share power. */
     public boolean unitPayloadUpdate = false;
     /** If true, units' payloads are destroy()ed when the unit is destroyed. */
@@ -79,10 +86,14 @@ public class Rules{
     public float unitHealthMultiplier = 1f;
     /** How much damage unit crash damage deals. (Compounds with unitDamageMultiplier) */
     public float unitCrashDamageMultiplier = 1f;
+    /** How fast units can mine. */
+    public float unitMineSpeedMultiplier = 1f;
     /** If true, ghost blocks will appear upon destruction, letting builder blocks/units rebuild them. */
     public boolean ghostBlocks = true;
     /** Whether to allow units to build with logic. */
     public boolean logicUnitBuild = true;
+    /** If true, world processors can be edited and placed on this map. */
+    public boolean allowEditWorldProcessors = false;
     /** If true, world processors no longer update. Used for testing. */
     public boolean disableWorldProcessors = false;
     /** How much health blocks start with. */
@@ -95,6 +106,8 @@ public class Rules{
     public float buildSpeedMultiplier = 1f;
     /** Multiplier for percentage of materials refunded when deconstructing. */
     public float deconstructRefundMultiplier = 0.5f;
+    /** Multiplier for time in timer objectives. */
+    public float objectiveTimerMultiplier = 1f;
     /** No-build zone around enemy core radius. */
     public float enemyCoreBuildRadius = 400f;
     /** If true, no-build zones are calculated based on the closest core. */
@@ -105,6 +118,8 @@ public class Rules{
     public boolean cleanupDeadTeams = true;
     /** If true, items can only be deposited in the core. */
     public boolean onlyDepositCore = false;
+    /** Cooldown, in seconds, of item depositing for players. */
+    public float itemDepositCooldown = 0.5f;
     /** If true, every enemy block in the radius of the (enemy) core is destroyed upon death. Used for campaign maps. */
     public boolean coreDestroyClear = false;
     /** If true, banned blocks are hidden from the build menu. */
@@ -129,6 +144,8 @@ public class Rules{
     public int winWave = 0;
     /** Base unit cap. Can still be increased by blocks. */
     public int unitCap = 0;
+    /** If true, the unit cap is disabled. */
+    public boolean disableUnitCap;
     /** Environment drag multiplier. */
     public float dragMultiplier = 1f;
     /** Environmental flags that dictate visuals & how blocks function. */
@@ -205,6 +222,8 @@ public class Rules{
     public @Nullable PlanetParams planetBackground;
     /** Rules from this planet are applied. If it's {@code sun}, mixed tech is enabled. */
     public Planet planet = Planets.serpulo;
+    /** If the `data` instruction is allowed for world processors */
+    public boolean allowLogicData = false;
 
     /** Copies this ruleset exactly. Not efficient at all, do not use often. */
     public Rules copy(){
@@ -230,6 +249,10 @@ public class Rules{
         return (this.env & env) != 0;
     }
 
+    public float buildRadius(Team team){
+        return enemyCoreBuildRadius + teams.get(team).extraCoreBuildRadius;
+    }
+
     public float unitBuildSpeed(Team team){
         return unitBuildSpeedMultiplier * teams.get(team).unitBuildSpeedMultiplier;
     }
@@ -249,6 +272,10 @@ public class Rules{
 
     public float unitCrashDamage(Team team){
         return unitDamage(team) * unitCrashDamageMultiplier * teams.get(team).unitCrashDamageMultiplier;
+    }
+
+    public float unitMineSpeed(Team team){
+        return unitMineSpeedMultiplier * teams.get(team).unitMineSpeedMultiplier;
     }
 
     public float blockHealth(Team team){
@@ -276,10 +303,14 @@ public class Rules{
         public boolean aiCoreSpawn = true;
         /** If true, blocks don't require power or resources. */
         public boolean cheat;
+        /** If true, the core is always filled to capacity with all items. */
+        public boolean fillItems;
         /** If true, resources are not consumed when building. */
         public boolean infiniteResources;
         /** If true, this team has infinite unit ammo. */
         public boolean infiniteAmmo;
+        /** EXPERIMENTAL, DO NOT USE: Pre-built base AI. Gives the illusion of intelligent design of pre-building an attack base. */
+        public boolean prebuildAi;
 
         /** AI that builds random schematics. */
         public boolean buildAi;
@@ -301,6 +332,8 @@ public class Rules{
         public float unitDamageMultiplier = 1f;
         /** How much damage unit crash damage deals. (Compounds with unitDamageMultiplier) */
         public float unitCrashDamageMultiplier = 1f;
+        /** How fast units can mine. */
+        public float unitMineSpeedMultiplier = 1f;
         /** Multiplier of resources that units take to build. */
         public float unitCostMultiplier = 1f;
         /** How much health units start with. */
@@ -311,6 +344,9 @@ public class Rules{
         public float blockDamageMultiplier = 1f;
         /** Multiplier for building speed. */
         public float buildSpeedMultiplier = 1f;
+        /** Extra spacing added to the no-build zone around the core. */
+        public float extraCoreBuildRadius = 0f;
+
 
         //build cost disabled due to technical complexity
     }

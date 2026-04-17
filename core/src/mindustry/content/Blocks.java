@@ -71,7 +71,7 @@ public class Blocks{
     cruxFloor1, cruxFloor2, cruxFloor3, cruxFloor4, cruxFloor5, cruxFloor6, cruxFloor7, cruxFloor8, cruxFloor9, cruxFloor10, cruxFloor11, cruxFloor12, cruxFloor13,
 
     //new metal walls
-    metalWall1, metalWall2, metalWall3, metalWall4, metalTiles13,
+    metalWall1, metalWall2, metalWall3, metalWall4, metalTiles9, metalTiles10, metalTiles11, metalTiles12, metalTiles13,
 
     //coloured
     coloredFloor, coloredWall,
@@ -914,26 +914,26 @@ public class Blocks{
             drawEdgeIn = false;
         }};
 
-        cruxFloor9 = new Floor("crux-floor-9"){{
+        metalTiles9 = new Floor("metal-tiles-9"){{
             autotile = true;
             drawEdgeOut = false;
             drawEdgeIn = false;
         }};
 
-        cruxFloor10 = new Floor("crux-floor-10"){{
+        metalTiles10 = new Floor("metal-tiles-10"){{
             autotile = true;
             drawEdgeOut = false;
             drawEdgeIn = false;
         }};
 
-        cruxFloor11 = new Floor("crux-floor-11"){{
+        metalTiles11 = new Floor("metal-tiles-11"){{
             autotile = true;
             drawEdgeOut = false;
             drawEdgeIn = false;
             autotileVariants = 3;
         }};
 
-        cruxFloor12 = new Floor("crux-floor-12"){{
+        metalTiles12 = new Floor("metal-tiles-12"){{
             autotile = true;
             drawEdgeOut = false;
             drawEdgeIn = false;

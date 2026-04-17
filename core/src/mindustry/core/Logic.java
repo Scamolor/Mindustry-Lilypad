@@ -214,15 +214,17 @@ public class Logic implements ApplicationListener{
     private void checkOverlappingPlans(Team team, Tile tile){
         TeamData data = team.data();
         Iterator<BlockPlan> it = data.plans.iterator();
+        if(tile.block() == null) return;
         var bounds = tile.block().bounds(tile.x, tile.y, Tmp.r1);
         while(it.hasNext()){
             BlockPlan b = it.next();
-            if (Vars.content.block(String.valueOf(b.block)) != null){
-                if(bounds.overlaps(Vars.content.block(String.valueOf(b.block)).bounds(b.x, b.y, Tmp.r2))){
-                    b.removed = true;
-                    it.remove();
-                }
-            }else{
+            var planBlock = Vars.content.block(String.valueOf(b.block));
+            if(planBlock == null){
+                it.remove();
+                continue;
+            }
+            if(bounds.overlaps(planBlock.bounds(b.x, b.y, Tmp.r2))){
+                b.removed = true;
                 it.remove();
             }
         }

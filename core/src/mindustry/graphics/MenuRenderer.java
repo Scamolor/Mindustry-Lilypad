@@ -44,7 +44,7 @@ public class MenuRenderer implements Disposable{
 
         Tiles tiles = world.resize(width, height);
         //only uses base game ores now, mod ones usually contrast too much with the floor
-        Seq<Block> ores = Seq.with(Blocks.oreCopper, Blocks.oreLead, Blocks.oreScrap, Blocks.oreCoal, Blocks.oreTitanium, Blocks.oreThorium);
+        Seq<Block> ores = Seq.with(Blocks.oreCopper, Blocks.oreLead, Blocks.oreScrap, Blocks.oreCoal, Blocks.oreTitanium, Blocks.oreThorium, Blocks.oreBeryllium, Blocks.oreCrystalThorium, Blocks.oreTungsten);
         shadows = new FrameBuffer(width, height);
         int offset = Mathf.random(100000);
         int s1 = offset, s2 = offset + 1, s3 = offset + 2;
@@ -57,13 +57,24 @@ public class MenuRenderer implements Disposable{
         new Block[]{Blocks.ice, Blocks.iceWall},
         new Block[]{Blocks.moss, Blocks.sporePine},
         new Block[]{Blocks.dirt, Blocks.dirtWall},
-        new Block[]{Blocks.dacite, Blocks.daciteWall}
+        new Block[]{Blocks.dacite, Blocks.daciteWall},
+        new Block[]{Blocks.arkyciteFloor, Blocks.arkyicWall},
+        new Block[]{Blocks.crystallineStone, Blocks.crystallineStoneWall},
+        new Block[]{Blocks.beryllicStone, Blocks.beryllicStoneWall},
+        new Block[]{Blocks.yellowStone, Blocks.yellowStoneWall},
+        new Block[]{Blocks.rhyolite, Blocks.rhyoliteWall},
+        new Block[]{Blocks.redStone, Blocks.redStoneWall},
+        new Block[]{Blocks.redIce, Blocks.redIceWall},
+        new Block[]{Blocks.ferricStone, Blocks.ferricStoneWall},
+        new Block[]{Blocks.carbonStone, Blocks.carbonWall},
+        new Block[]{Blocks.bluemat, Blocks.coralChunk}
         );
         Block[] selected2 = Structs.random(
         new Block[]{Blocks.basalt, Blocks.duneWall},
         new Block[]{Blocks.basalt, Blocks.duneWall},
         new Block[]{Blocks.stone, Blocks.stoneWall},
         new Block[]{Blocks.stone, Blocks.stoneWall},
+        new Block[]{Blocks.grass, Blocks.shrubs},
         new Block[]{Blocks.moss, Blocks.sporeWall},
         new Block[]{Blocks.salt, Blocks.saltWall}
         );
