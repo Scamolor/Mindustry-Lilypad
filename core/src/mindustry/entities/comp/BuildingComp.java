@@ -3,6 +3,7 @@ package mindustry.entities.comp;
 import arc.*;
 import arc.Graphics.*;
 import arc.Graphics.Cursor.*;
+import arc.audio.*;
 import arc.func.*;
 import arc.graphics.*;
 import arc.graphics.g2d.*;
@@ -104,6 +105,9 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
     private transient boolean sleeping;
     private transient float sleepTime;
     private transient boolean initialized;
+
+    //used only by the indexer
+    transient short indexerBuildIndex, indexerBuildTypeIndex;
 
     /** Sets this tile entity data to this and adds it if necessary. */
     public Building init(Tile tile, Team team, boolean shouldAdd, int rotation){
@@ -471,6 +475,15 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
 
     public boolean wasRecentlyDamaged(){
         return lastDamageTime + recentDamageTime >= Time.time;
+    }
+
+    public void eachEdge(Cons<Tile> cons){
+        for(var edge : block.getEdges()){
+            Tile other = world.tile(tile.x + edge.x, tile.y + edge.y);
+            if(other != null){
+                cons.get(other);
+            }
+        }
     }
 
     public Building nearby(int dx, int dy){
@@ -1118,7 +1131,7 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
         }
         power.links.clear();
     }
-    
+
     public boolean conductsTo(Building other){
         return !block.insulated;
     }
@@ -1307,8 +1320,17 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
     public void unitOn(Unit unit){
     }
 
+    /** Called every frame a unit is on this. Applies to any unit.  */
+    public void unitOnAny(Unit unit){
+    }
+
     /** Called when a unit that spawned at this tile is removed. */
     public void unitRemoved(Unit unit){
+    }
+
+    /** Called when a puddle is on this building. Only called at an interval (40 ticks). */
+    public void puddleOn(Puddle puddle){
+
     }
 
     /** Called when arbitrary configuration is applied to a tile. */

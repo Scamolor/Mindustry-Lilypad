@@ -58,6 +58,8 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
     transient String lastCommanded;
     transient float shadowAlpha = -1f, healTime;
     transient int lastFogPos;
+    /** Only used in suicide units */
+    transient boolean hasTarget;
     private transient float resupplyTime = Mathf.random(10f);
     private transient boolean wasPlayer;
     private transient boolean wasHealed;
@@ -233,6 +235,8 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
             case mining -> mining() ? 1 : 0;
             case mineX -> mining() ? mineTile.x : -1;
             case mineY -> mining() ? mineTile.y : -1;
+            case buildX -> isBuilding() ? buildPlan().x : -1;
+            case buildY -> isBuilding() ? buildPlan().y : -1;
             case armor -> armorOverride >= 0f ? armorOverride : armor;
             case flag -> flag;
             case speed -> type.speed * 60f / tilesize * speedMultiplier;
@@ -242,7 +246,7 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
                     controller instanceof CommandAI command && command.hasCommand() ? ctrlCommand :
                     0;
             case payloadCount -> ((Object)this) instanceof Payloadc pay ? pay.payloads().size : 0;
-            case totalPayload -> ((Object)this) instanceof Payloadc pay ? pay.payloadUsed() : 0;
+            case totalPayload -> ((Object)this) instanceof Payloadc pay ? pay.payloadUsed() / (tilesize * tilesize) : 0;
             case payloadCapacity -> type.payloadCapacity / tilePayload;
             case size -> hitSize / tilesize;
             case color -> Color.toDoubleBits(team.color.r, team.color.g, team.color.b, 1f);
@@ -442,6 +446,12 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
         return controller instanceof AIController;
     }
 
+    /** @return whether the unit *can* be commanded, even if its controller is not currently CommandAI. */
+    public boolean allowCommand(){
+        return controller instanceof CommandAI;
+    }
+
+    /** @return whether the unit has a CommandAI controller */
     public boolean isCommandable(){
         return controller instanceof CommandAI;
     }
@@ -486,6 +496,11 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
                 abilities[i] = type.abilities.get(i).copy();
             }
         }
+        if(controller == null) controller(type.createController(self()));
+    }
+
+    public boolean playerControllable(){
+        return type.playerControllable && !(controller instanceof LogicAI ai && ai.controller != null && ai.controller.block.privileged);
     }
 
     public boolean targetable(Team targeter){
@@ -703,7 +718,7 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
             type.deathExplosionEffect.at(x, y, bounds() / 2f / 8f);
         }
 
-        float shake = hitSize / 3f;
+        float shake = type.deathShake < 0 ? 3f + hitSize / 3f : type.deathShake;
 
         if(type.createScorch){
             Effect.scorch(x, y, (int)(hitSize / 5));
@@ -728,7 +743,7 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
         //if this unit crash landed (was flying), damage stuff in a radius
         if(type.flying && !spawnedByCore && type.createWreck && state.rules.unitCrashDamage(team) > 0){
             var shields = indexer.getEnemy(team, BlockFlag.shield);
-            float crashDamage = Mathf.pow(hitSize, 0.75f) * type.crashDamageMultiplier * 5f * state.rules.unitCrashDamage(team);
+            float crashDamage = Mathf.pow(hitSize, 0.75f) * type.crashDamageMultiplier * 2.5f * state.rules.unitCrashDamage(team);
             if(shields.isEmpty() || !shields.contains(b -> b instanceof ExplosionShield s && s.absorbExplosion(x, y, crashDamage))){
                 Damage.damage(team, x, y, Mathf.pow(hitSize, 0.94f) * 1.25f, crashDamage, true, false, true);
             }

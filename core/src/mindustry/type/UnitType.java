@@ -76,6 +76,8 @@ public class UnitType extends UnlockableContent implements Senseable{
     rippleScale = 1f,
     /** boosting rise speed as fraction */
     riseSpeed = 0.08f,
+    /** boosting descent speed as fraction */
+    descentSpeed = 0.08f,
     /** how fast this unit falls when not boosting */
     fallSpeed = 0.018f,
     /** how many ticks it takes this missile to accelerate to full speed */
@@ -443,6 +445,8 @@ public class UnitType extends UnlockableContent implements Senseable{
     /** Whether to emit a splashing noise in water. */
     public boolean emitWalkSound = true;
     /** Whether to emit a splashing effect in water (fasle implies emitWalkSound false). */
+    public boolean emitWalkEffect = true;
+    /** Ammo resupply range. Legacy thing. */
     public float ammoResupplyRange = 100f;
 
     //MECH UNITS
@@ -580,6 +584,10 @@ public class UnitType extends UnlockableContent implements Senseable{
 
     public boolean targetable(Unit unit, Team targeter){
         return targetable || (vulnerableWithPayloads && unit instanceof Payloadc p && p.hasPayload());
+    }
+
+    public boolean killable(Unit unit){
+        return killable;
     }
 
     public boolean hittable(Unit unit){
@@ -769,6 +777,7 @@ public class UnitType extends UnlockableContent implements Senseable{
         if(example instanceof WaterMovec){
             naval = true;
             canDrown = false;
+            emitWalkSound = false;
             omniMovement = false;
             immunities.add(StatusEffects.wet);
             if(shadowElevation < 0f){
@@ -798,7 +807,7 @@ public class UnitType extends UnlockableContent implements Senseable{
         }
 
         clipSize = Math.max(clipSize, lightRadius * 1.1f);
-        singleTarget = weapons.size <= 1 && !forceMultiTarget;
+        singleTarget |= weapons.size <= 1 && !forceMultiTarget;
 
         if(itemCapacity < 0){
             itemCapacity = Math.max(Mathf.round((int)(hitSize * 4f), 10), 10);
@@ -841,6 +850,10 @@ public class UnitType extends UnlockableContent implements Senseable{
 
         if(mechStride < 0){
             mechStride = 4f + (hitSize -8f)/2.1f;
+        }
+
+        if(segmentSpacing < 0){
+            segmentSpacing = hitSize;
         }
 
         if(aimDst < 0){
@@ -967,7 +980,7 @@ public class UnitType extends UnlockableContent implements Senseable{
             //suicide enemy
             if(weapons.contains(w -> w.bullet.killShooter)){
                 //scale down DPS to be insignificant
-                dpsEstimate /= 25f;
+                dpsEstimate /= 15f;
             }
         }
 
@@ -1023,9 +1036,11 @@ public class UnitType extends UnlockableContent implements Senseable{
 
         segmentRegions = new TextureRegion[segments];
         segmentOutlineRegions = new TextureRegion[segments];
+        segmentCellRegions = new TextureRegion[segments];
         for(int i = 0; i < segments; i++){
             segmentRegions[i] = Core.atlas.find(name + "-segment" + i);
             segmentOutlineRegions[i] = Core.atlas.find(name + "-segment-outline" + i);
+            segmentCellRegions[i] = Core.atlas.find(name + "-segment-cell" + i);
         }
 
         clipSize = Math.max(region.width * 2f, clipSize);

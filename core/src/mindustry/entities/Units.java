@@ -474,6 +474,9 @@ public class Units{
         return false;
     }
 
+    public static void notifyUnitSpawn(Unit spawned){
+    }
+
     public interface Sortf{
         float cost(Unit unit, float x, float y);
     }

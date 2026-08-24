@@ -14,12 +14,12 @@ import mindustry.ui.*;
 import mindustry.world.draw.*;
 import mindustry.world.meta.*;
 
-public class ImpactReactor extends PowerGenerator {
+public class ImpactReactor extends PowerGenerator{
     public final int timerUse = timers++;
     public float warmupSpeed = 0.001f;
     public float itemDuration = 60f;
 
-    public ImpactReactor(String name) {
+    public ImpactReactor(String name){
         super(name);
         hasPower = true;
         hasLiquids = true;
@@ -42,7 +42,7 @@ public class ImpactReactor extends PowerGenerator {
     }
 
     @Override
-    public void setBars() {
+    public void setBars(){
         super.setBars();
 
         addBar("power", (GeneratorBuild entity) -> new Bar(() ->
@@ -53,10 +53,10 @@ public class ImpactReactor extends PowerGenerator {
     }
 
     @Override
-    public void setStats() {
+    public void setStats(){
         super.setStats();
 
-        if (hasItems) {
+        if(hasItems){
             stats.add(Stat.productionTime, itemDuration / 60f, StatUnit.seconds);
         }
         //exponential decay formula
@@ -77,7 +77,7 @@ public class ImpactReactor extends PowerGenerator {
                 boolean prevOut = getPowerProduction() <= consPower.requestedPower(this);
 
                 warmup = Mathf.lerpDelta(warmup, 1f, warmupSpeed * timeScale);
-                if (Mathf.equal(warmup, 1f, 0.001f)) {
+                if(Mathf.equal(warmup, 1f, 0.001f)){
                     warmup = 1f;
                 }
 
@@ -85,10 +85,10 @@ public class ImpactReactor extends PowerGenerator {
                     Events.fire(Trigger.impactPower);
                 }
 
-                if (timer(timerUse, itemDuration / timeScale)) {
+                if(timer(timerUse, itemDuration / timeScale)){
                     consume();
                 }
-            } else {
+            }else{
                 warmup = Mathf.lerpDelta(warmup, 0f, 0.01f);
             }
 
@@ -98,34 +98,34 @@ public class ImpactReactor extends PowerGenerator {
         }
 
         @Override
-        public float warmup() {
+        public float warmup(){
             return warmup;
         }
 
         @Override
-        public float totalProgress() {
+        public float totalProgress(){
             return totalProgress;
         }
 
         @Override
-        public float ambientVolume() {
+        public float ambientVolume(){
             return warmup;
         }
 
         @Override
-        public double sense(LAccess sensor) {
-            if (sensor == LAccess.heat) return warmup;
+        public double sense(LAccess sensor){
+            if(sensor == LAccess.heat) return warmup;
             return super.sense(sensor);
         }
 
         @Override
-        public void write(Writes write) {
+        public void write(Writes write){
             super.write(write);
             write.f(warmup);
         }
 
         @Override
-        public void read(Reads read, byte revision) {
+        public void read(Reads read, byte revision){
             super.read(read, revision);
             warmup = read.f();
         }

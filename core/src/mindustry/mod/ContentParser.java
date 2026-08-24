@@ -61,6 +61,10 @@ public class ContentParser{
     ObjectSet<Class<?>> implicitNullable = ObjectSet.with(TextureRegion.class, TextureRegion[].class, TextureRegion[][].class, TextureRegion[][][].class);
     ObjectMap<String, AssetDescriptor<?>> sounds = new ObjectMap<>();
     Seq<ParseListener> listeners = new Seq<>();
+    /** If false, arbitrary class names cannot be resolved with Class.forName. */
+    boolean allowClassResolution = true;
+    /** If false, sound asset loading is disabled. */
+    boolean allowAssetLoading = true;
 
     ObjectMap<Class<?>, FieldParser> classParsers = new ObjectMap<>(){{
         put(Effect.class, (type, data) -> {

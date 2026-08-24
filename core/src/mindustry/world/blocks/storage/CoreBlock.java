@@ -45,8 +45,10 @@ public class CoreBlock extends StorageBlock{
 
     public @Load(value = "@-thruster1", fallback = "clear-effect") TextureRegion thruster1; //top right
     public @Load(value = "@-thruster2", fallback = "clear-effect") TextureRegion thruster2; //bot left
-    public float thrusterLength = 14f/4f;
+    public float thrusterLength = 14f/4f, thrusterOffset = 0f;
     public boolean isFirstTier;
+    /** If false, players can't respawn at this core. */
+    public boolean allowSpawn = true;
     /** If true, this core type requires a core zone to upgrade. */
     public boolean requiresCoreZone;
     public boolean incinerateNonBuildable = false;
@@ -68,6 +70,7 @@ public class CoreBlock extends StorageBlock{
         solid = true;
         update = true;
         hasItems = true;
+        alwaysAllowDeposit = true;
         priority = TargetPriority.core;
         flags = EnumSet.of(BlockFlag.core);
         unitCapModifier = 10;
@@ -244,6 +247,7 @@ public class CoreBlock extends StorageBlock{
         public Team lastDamage = Team.derelict;
         public float iframes = -1f;
         public float thrusterTime = 0f;
+        public @Nullable Vec2 commandPos;
 
         protected float cloudSeed, landParticleTimer;
 
@@ -638,7 +642,7 @@ public class CoreBlock extends StorageBlock{
 
         @Override
         public int getMaximumAccepted(Item item){
-            return state.rules.coreIncinerates ? storageCapacity * 20 : storageCapacity;
+            return state.rules.coreIncinerates ? Integer.MAX_VALUE/2 : storageCapacity;
         }
 
         @Override
@@ -652,8 +656,11 @@ public class CoreBlock extends StorageBlock{
             }
             state.teams.registerCore(this);
 
-            storageCapacity = itemCapacity + proximity().sum(e -> owns(e) ? e.block.itemCapacity : 0);
+            storageCapacity = itemCapacity + proximity.sum(e -> owns(e) ? e.block.itemCapacity : 0);
             proximity.each(this::owns, t -> {
+                if(t.items != items){
+                    items.add(t.items);
+                }
                 t.items = items;
                 ((StorageBuild)t).linkedCore = this;
             });

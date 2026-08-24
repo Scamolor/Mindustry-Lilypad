@@ -32,7 +32,7 @@ public class World{
 
     public Tiles tiles = new Tiles(0, 0);
     /** The number of times tiles have changed in this session. Used for blocks that need to poll world state, but not frequently. */
-    public int tileChanges = -1;
+    public int tileChanges = 1, floorChanges = 1;
 
     private boolean generating, invalidMap;
     private ObjectMap<Map, Runnable> customMapLoaders = new ObjectMap<>();
@@ -154,6 +154,10 @@ public class World{
     @Nullable
     public Building buildWorld(float x, float y){
         return build(Math.round(x / tilesize), Math.round(y / tilesize));
+    }
+
+    public @Nullable Building buildWorld(Position pos){
+        return buildWorld(pos.getX(), pos.getY());
     }
 
     /** Convert from world to logic tile coordinates. Whole numbers are at centers of tiles. */

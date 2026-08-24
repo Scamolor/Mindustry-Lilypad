@@ -124,22 +124,22 @@ public class Vars implements Loadable{
     public static boolean updateEditorOnChange = false;
     /** all choosable player colors in join/host dialog */
     public static final Color[] playerColors = {
-        Color.valueOf("82759a"),
-        Color.valueOf("c0c1c5"),
-        Color.valueOf("ffffff"),
-        Color.valueOf("7d2953"),
-        Color.valueOf("ff074e"),
-        Color.valueOf("ff072a"),
-        Color.valueOf("ff76a6"),
-        Color.valueOf("a95238"),
-        Color.valueOf("ffa108"),
-        Color.valueOf("feeb2c"),
-        Color.valueOf("ffcaa8"),
-        Color.valueOf("008551"),
-        Color.valueOf("00e339"),
-        Color.valueOf("423c7b"),
-        Color.valueOf("4b5ef1"),
-        Color.valueOf("2cabfe"),
+    Color.valueOf("82759a"),
+    Color.valueOf("c0c1c5"),
+    Color.valueOf("ffffff"),
+    Color.valueOf("7d2953"),
+    Color.valueOf("ff074e"),
+    Color.valueOf("ff072a"),
+    Color.valueOf("ff76a6"),
+    Color.valueOf("a95238"),
+    Color.valueOf("ffa108"),
+    Color.valueOf("feeb2c"),
+    Color.valueOf("ffcaa8"),
+    Color.valueOf("008551"),
+    Color.valueOf("00e339"),
+    Color.valueOf("423c7b"),
+    Color.valueOf("4b5ef1"),
+    Color.valueOf("2cabfe"),
     };
     /** Icons available to the user for customization in certain dialogs. */
     public static final String[] accessibleIcons = {
@@ -335,10 +335,10 @@ public class Vars implements Loadable{
         bases = new BaseRegistry();
         logicVars = new GlobalVars();
         javaPath =
-            new Fi(OS.prop("java.home")).child("bin/java").exists() ? new Fi(OS.prop("java.home")).child("bin/java").absolutePath() :
-            Core.files.local("jre/bin/java").exists() ? Core.files.local("jre/bin/java").absolutePath() : // Unix
-            Core.files.local("jre/bin/java.exe").exists() ? Core.files.local("jre/bin/java.exe").absolutePath() : // Windows
-            "java";
+        new Fi(OS.prop("java.home")).child("bin/java").exists() ? new Fi(OS.prop("java.home")).child("bin/java").absolutePath() :
+        Core.files.local("jre/bin/java").exists() ? Core.files.local("jre/bin/java").absolutePath() : // Unix
+        Core.files.local("jre/bin/java.exe").exists() ? Core.files.local("jre/bin/java.exe").absolutePath() : // Windows
+        "java";
 
         state = new GameState();
 

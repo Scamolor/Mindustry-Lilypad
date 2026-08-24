@@ -69,6 +69,7 @@ public class ClassMap{
         classes.put("ParticleEffect", mindustry.entities.effect.ParticleEffect.class);
         classes.put("RadialEffect", mindustry.entities.effect.RadialEffect.class);
         classes.put("SeqEffect", mindustry.entities.effect.SeqEffect.class);
+        classes.put("SoundEffect", mindustry.entities.effect.SoundEffect.class);
         classes.put("WaveEffect", mindustry.entities.effect.WaveEffect.class);
         classes.put("WrapEffect", mindustry.entities.effect.WrapEffect.class);
         classes.put("DrawPart", mindustry.entities.part.DrawPart.class);
@@ -76,6 +77,7 @@ public class ClassMap{
         classes.put("PartMove", mindustry.entities.part.DrawPart.PartMove.class);
         classes.put("PartParams", mindustry.entities.part.DrawPart.PartParams.class);
         classes.put("PartProgress", mindustry.entities.part.DrawPart.PartProgress.class);
+        classes.put("EffectSpawnerPart", mindustry.entities.part.EffectSpawnerPart.class);
         classes.put("FlarePart", mindustry.entities.part.FlarePart.class);
         classes.put("HaloPart", mindustry.entities.part.HaloPart.class);
         classes.put("HoverPart", mindustry.entities.part.HoverPart.class);

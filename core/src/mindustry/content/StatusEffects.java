@@ -91,7 +91,7 @@ public class StatusEffects{
                 opposite(burning, melting);
             });
         }};
-		
+
         muddy = new StatusEffect("muddy"){{
             color = Color.valueOf("46382a");
             speedMultiplier = 0.94f;
@@ -193,8 +193,12 @@ public class StatusEffects{
         }};
 
         corroded = new StatusEffect("corroded"){{
-            color = Pal.plastanium;
-            damage = 0.1f;
+            color = Color.valueOf("e4ffd6");
+            //intervalDamage = 20f;
+            //intervalDamageTime = 15f;
+
+            effectChance = 0.1f;
+            effect = Fx.corrosionVapor;
         }};
 
         disarmed = new StatusEffect("disarmed"){{

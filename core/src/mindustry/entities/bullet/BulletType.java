@@ -135,6 +135,8 @@ public class BulletType extends Content implements Cloneable{
     public boolean collideTerrain = false;
     /** Whether velocity is inherited from the shooter. */
     public boolean keepVelocity = true;
+    /** If keepVelocity = true, whether to reduce lifetime proportionally to the added speed, making range consistent. */
+    public boolean scaleKeepVelocity = false;
     /** Whether to scale lifetime (not actually velocity!) to disappear at the target position. Used for artillery. */
     public boolean scaleLife;
     /** Whether this bullet can be hit by point defense. */
@@ -409,6 +411,9 @@ public class BulletType extends Content implements Cloneable{
         if(spawnUnit != null){
             return spawnUnit.estimateDps();
         }
+        if(despawnUnit != null){
+            return despawnUnit.estimateDps();
+        }
 
         float sum = (damage + splashDamage*0.75f) * (pierce ? pierceCap == -1 ? 2 : Mathf.clamp(pierceCap, 1, 2) : 1f);
         if(fragBullet != null && fragBullet != this){
@@ -424,6 +429,7 @@ public class BulletType extends Content implements Cloneable{
     protected float calculateRange(){
         if(rangeOverride > 0) return rangeOverride;
         if(spawnUnit != null) return spawnUnit.lifetime * spawnUnit.speed;
+        if(despawnUnit != null) return despawnUnit.lifetime * despawnUnit.speed;
         return Math.max(Mathf.zero(drag) ? speed * lifetime : speed * (1f - Mathf.pow(1f - drag, lifetime)) / drag, maxRange);
     }
 
@@ -524,18 +530,22 @@ public class BulletType extends Content implements Cloneable{
     }
 
     public void hit(Bullet b){
-        hit(b, b.x, b.y);
+        hit(b, b.x, b.y, true);
     }
 
     public void hit(Bullet b, float x, float y){
+        hit(b, x, y, true);
+    }
+
+    public void hit(Bullet b, float x, float y, boolean createFrags){
         hitEffect.at(x, y, b.rotation(), hitColor);
-        hitSound.at(x, y, hitSoundPitch, hitSoundVolume);
+        hitSound.at(x, y, hitSoundPitch + Mathf.range(hitSoundPitchRange), hitSoundVolume);
 
         Effect.shake(hitShake, hitShake, b);
 
-        if(fragOnHit){
+        if(createFrags && fragOnHit){
             if(delayFrags && fragBullet != null && fragBullet.delayFrags){
-                Core.app.post(() -> createFrags(b, x, y));
+                Time.run(0f, () -> createFrags(b, x, y));
             }else{
                 createFrags(b, x, y);
             }
@@ -593,7 +603,7 @@ public class BulletType extends Content implements Cloneable{
     }
 
     public void createFrags(Bullet b, float x, float y){
-        if(fragBullet != null && (fragOnAbsorb || !b.absorbed) && !(b.frags >= pierceFragCap && pierceFragCap > 0)){
+        if(fragBullet != null && (fragOnAbsorb || !b.absorbed) && (pierceFragCap < 0 || b.frags < pierceFragCap)){
             for(int i = 0; i < fragBullets; i++){
                 float len = Mathf.random(fragOffsetMin, fragOffsetMax);
                 float a = b.rotation() + Mathf.range(fragRandomSpread / 2) + fragAngle + fragSpread * i - (fragBullets - 1) * fragSpread / 2f;
@@ -604,11 +614,12 @@ public class BulletType extends Content implements Cloneable{
     }
 
     public void createUnits(Bullet b, float x, float y){
-        if(despawnUnit != null && Mathf.chance(despawnUnitChance)){
+        if(!net.client() && despawnUnit != null && Mathf.chance(despawnUnitChance)){
             for(int i = 0; i < despawnUnitCount; i++){
                 Tmp.v1.rnd(Mathf.random(despawnUnitRadius));
                 var u = despawnUnit.spawn(b.team, x + Tmp.v1.x, y + Tmp.v1.y);
                 u.rotation = faceOutwards ? Tmp.v1.angle() : b.rotation();
+                Units.notifyUnitSpawn(u);
             }
         }
     }
@@ -616,17 +627,13 @@ public class BulletType extends Content implements Cloneable{
     /** Called when the bullet reaches the end of its lifetime or is destroyed by something external. */
     public void despawned(Bullet b){
         if(despawnHit){
-            hit(b);
+            hit(b, b.x, b.y, false);
         }else{
             createUnits(b, b.x, b.y);
         }
 
-        if(!fragOnHit){
-            createFrags(b, b.x, b.y);
-        }
-
         despawnEffect.at(b.x, b.y, b.rotation(), hitColor);
-        despawnSound.at(b);
+        despawnSound.at(b, 1f + Mathf.range(hitSoundPitchRange));
 
         Effect.shake(despawnShake, despawnShake, b);
     }
@@ -636,10 +643,14 @@ public class BulletType extends Content implements Cloneable{
         if(trailLength > 0 && b.trail != null && b.trail.size() > 0){
             Fx.trailFade.at(b.x, b.y, trailWidth, trailColor, b.trail.copy());
         }
+
+        if(b.frags == 0 && fragOnDespawn && fragBullet != null){
+            createFrags(b, b.x, b.y);
+        }
     }
 
     public float buildingDamage(Bullet b){
-        return b.damage() * buildingDamageMultiplier;
+        return b.damage() * b.buildingDamageMultiplier;
     }
 
     public float shieldDamage(Bullet b){
@@ -817,6 +828,7 @@ public class BulletType extends Content implements Cloneable{
 
         if(fragBullet != null){
             fragBullet.keepVelocity = false;
+            fragBullet.scaleKeepVelocity = false;
         }
 
         if(lightningType == null){
@@ -918,6 +930,7 @@ public class BulletType extends Content implements Cloneable{
 
                 }
                 spawned.add();
+                Units.notifyUnitSpawn(spawned);
             }
             //Since bullet init is never called, handle killing shooter here
             if(killShooter && owner instanceof Healthc h && !h.dead()) h.kill();
@@ -941,23 +954,31 @@ public class BulletType extends Content implements Cloneable{
         bullet.aimY = aimY;
 
         bullet.initVel(angle, speed * velocityScl * (velocityScaleRandMin != 1f || velocityScaleRandMax != 1f ? Mathf.random(velocityScaleRandMin, velocityScaleRandMax) : 1f));
-        if(backMove){
-            bullet.set(x - bullet.vel.x * Time.delta, y - bullet.vel.y * Time.delta);
-        }else{
-            bullet.set(x, y);
-        }
+        bullet.set(x, y);
+        bullet.lastX = x;
+        bullet.lastY = y;
         bullet.lifetime = lifetime * lifetimeScl * (lifeScaleRandMin != 1f || lifeScaleRandMax != 1f ? Mathf.random(lifeScaleRandMin, lifeScaleRandMax) : 1f);
         bullet.data = data;
         bullet.hitSize = hitSize;
         bullet.mover = mover;
         bullet.damage = (damage < 0 ? this.damage : damage) * bullet.damageMultiplier();
+        bullet.buildingDamageMultiplier = buildingDamageMultiplier;
         //reset trail
         if(bullet.trail != null){
             bullet.trail.clear();
         }
         bullet.add();
 
-        if(keepVelocity && owner instanceof Velc v) bullet.vel.add(v.vel());
+        if(keepVelocity && owner instanceof Velc v){
+            float len = bullet.vel.len();
+            bullet.vel.add(v.vel());
+
+            if(scaleKeepVelocity){
+                float newLen = bullet.vel.len();
+                //only reduce lifetime, never add
+                if(newLen > 0f) bullet.lifetime *= Math.min(1f, len / newLen);
+            }
+        }
         return bullet;
     }
 

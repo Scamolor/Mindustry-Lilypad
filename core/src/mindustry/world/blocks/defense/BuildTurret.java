@@ -13,6 +13,8 @@ import mindustry.game.Teams.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.io.*;
+import mindustry.logic.*;
+import mindustry.mod.*;
 import mindustry.type.*;
 import mindustry.world.*;
 import mindustry.world.blocks.ConstructBlock.*;

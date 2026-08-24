@@ -62,6 +62,8 @@ public class Turret extends ReloadTurret{
     public float shootX = 0f, shootY = Float.NEGATIVE_INFINITY;
     /** Random spread on the X axis. */
     public float xRand = 0f;
+    /** If true, a range ring is also drawn for minRange. */
+    public boolean drawMinRange;
     /** Range at which it finds and locks on to the target, but does not shoot. */
     public float trackingRange = 0f;
     /** Minimum bullet range. Used for artillery only. */
@@ -116,6 +118,10 @@ public class Turret extends ReloadTurret{
     public Sound shootSound = Sounds.shoot;
     /** Sound emitted when shoot.firstShotDelay is >0 and shooting begins. */
     public Sound chargeSound = Sounds.none;
+    /** The sound that this block makes while active. One sound loop. Do not overuse. */
+    public Sound loopSound = Sounds.none;
+    /** Active sound base volume. */
+    public float loopSoundVolume = 0.5f;
     /** Range for pitch of shoot sound. */
     public float soundPitchMin = 0.9f, soundPitchMax = 1.1f;
     /** Backwards Y offset of ammo eject effect. */

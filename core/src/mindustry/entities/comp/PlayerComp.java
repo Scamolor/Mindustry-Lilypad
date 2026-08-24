@@ -19,6 +19,7 @@ import mindustry.game.EventType.*;
 import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
+import mindustry.input.InputHandler.*;
 import mindustry.net.Administration.*;
 import mindustry.net.*;
 import mindustry.net.Packets.*;
@@ -33,6 +34,7 @@ import static mindustry.Vars.*;
 @Component(base = true)
 abstract class PlayerComp implements UnitController, Entityc, Syncc, Timerc, Drawc{
     static final float deathDelay = 60f;
+    static final float pingDuration = 20f * 60f;
 
     @Import float x, y;
 
@@ -40,12 +42,15 @@ abstract class PlayerComp implements UnitController, Entityc, Syncc, Timerc, Dra
     transient @Nullable NetConnection con;
     @ReadOnly Team team = Team.sharded;
     @SyncLocal boolean typing, shooting, boosting;
+    @SyncLocal @Nullable Block selectedBlock;
+    @SyncLocal int selectedRotation;
     @SyncLocal float mouseX, mouseY;
     /** command the unit had before it was controlled. */
     @Nullable @NoSync UnitCommand lastCommand;
     boolean admin;
     String name = "frog";
     Color color = new Color();
+
     transient String locale = "en";
     transient float deathTimer;
     transient String lastText = "";
@@ -70,12 +75,24 @@ abstract class PlayerComp implements UnitController, Entityc, Syncc, Timerc, Dra
     /** @return largest/closest core, with largest cores getting priority */
     @Nullable
     public CoreBuild bestCore(){
+        var cores = team.cores();
+        //if someone screws up the map and adds an invalid core, prioritize the core that's supported
+        //if there's only one core, there are no other options
         return team.cores().min(Structs.comps(Structs.comparingInt(c -> -c.block.size), Structs.comparingFloat(c -> c.dst(x, y))));
     }
 
     public TextureRegion icon(){
         //display default icon for dead players
-        if(dead()) return core() == null ? UnitTypes.alpha.fullIcon : ((CoreBlock)bestCore().block).unitType.fullIcon;
+        if(dead()){
+            if(core() == null){
+                return UnitTypes.alpha.uiIcon;
+            }
+            var bestCore = (CoreBuild)bestCore();
+            if(bestCore == null){
+                return UnitTypes.alpha.uiIcon;
+            }
+            return ((CoreBlock)bestCore.block).unitType.uiIcon;
+        }
 
         return unit.icon();
     }
@@ -143,7 +160,7 @@ abstract class PlayerComp implements UnitController, Entityc, Syncc, Timerc, Dra
 
     @Override
     public void update(){
-        if(!unit.isValid()){
+        if(unit != null && !unit.isValid()){
             clearUnit();
         }
 

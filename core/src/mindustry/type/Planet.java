@@ -2,6 +2,7 @@ package mindustry.type;
 
 import arc.*;
 import arc.audio.*;
+import arc.files.*;
 import arc.func.*;
 import arc.graphics.*;
 import arc.graphics.g3d.*;
@@ -20,6 +21,7 @@ import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.graphics.g3d.*;
 import mindustry.graphics.g3d.PlanetGrid.*;
+import mindustry.io.*;
 import mindustry.maps.generators.*;
 import mindustry.world.*;
 import mindustry.world.blocks.*;
@@ -35,6 +37,7 @@ public class Planet extends UnlockableContent{
     private static final Mat3D mat = new Mat3D();
     /** drawArc() temp curve points. */
     private static final Seq<Vec3> points = new Seq<>();
+    private static final Vec3 tmpNormal = new Vec3();
 
     /** Mesh used for rendering. Created on load() - will be null on the server! */
     public @Nullable GenericMesh mesh;
@@ -58,6 +61,8 @@ public class Planet extends UnlockableContent{
     public float camRadius;
     /** Minimum camera zoom value. */
     public float minZoom = 0.5f;
+    /** Maximum camera zoom value. */
+    public float maxZoom = 2f;
     /** Whether to draw the orbital circle. */
     public boolean drawOrbit = true;
     /** Atmosphere radius adjustment parameters. */
@@ -116,10 +121,16 @@ public class Planet extends UnlockableContent{
     public boolean allowWaveSimulation = false;
     /** Whether to simulate sector invasions from enemy bases. */
     public boolean allowSectorInvasion = false;
+    /** If true, legacy launch pads can be enabled. */
+    public boolean allowLegacyLaunchPads = false;
     /** If true, sectors saves are cleared when lost. */
     public boolean clearSectorOnLose = false;
     /** Multiplier for enemy rebuild speeds; only applied in campaign (not standard rules) */
     public float enemyBuildSpeedMultiplier = 1f;
+    /** Default activation delay for enemy factories, if not set in the campaign. */
+    public float enemyFactoryActivationDelay = 0;
+    /** If true, the enemy team always has infinite items. */
+    public boolean enemyInfiniteItems = true;
     /** If true, enemy cores are replaced with spawnpoints on this planet (for invasions) */
     public boolean enemyCoreSpawnReplace = false;
     /** If true, blocks in the radius of the core will be removed and "built up" in a shockwave upon landing. */
@@ -128,6 +139,8 @@ public class Planet extends UnlockableContent{
     public boolean allowWaves = false;
     /** If false, players are unable to land on this planet's numbered sectors. */
     public boolean allowLaunchToNumbered = true;
+    /** If true, the player is allowed to change the difficulty/rules in the planet UI. */
+    public boolean allowCampaignRules = false;
     /** Icon as displayed in the planet selection dialog. This is a string, as drawables are null at load time. */
     public String icon = "planet";
     /** Plays in the planet dialog when this planet is selected. */

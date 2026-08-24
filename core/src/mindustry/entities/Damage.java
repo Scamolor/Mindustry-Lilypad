@@ -16,6 +16,8 @@ import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.type.*;
 import mindustry.world.*;
+import mindustry.world.blocks.*;
+import mindustry.world.meta.*;
 
 import static mindustry.Vars.*;
 
@@ -38,11 +40,15 @@ public class Damage{
     private static Building tmpBuilding;
     private static Unit tmpUnit;
 
-    public static void applySuppression(Team team, float x, float y, float range, float reload, float maxDelay, float applyParticleChance, @Nullable Position source, Color suppressColor){
+    public static void applySuppression(Team team, float x, float y, float range, float reload, float maxDelay, float applyParticleChance, @Nullable Position source){
+        applySuppression(team, x, y, range, reload, maxDelay, applyParticleChance, source, Pal.sapBullet);
+    }
+
+    public static void applySuppression(Team team, float x, float y, float range, float reload, float maxDelay, float applyParticleChance, @Nullable Position source, Color effectColor){
         builds.clear();
         indexer.eachBlock(null, x, y, range, build -> build.team != team, build -> {
             float prev = build.healSuppressionTime;
-            build.applyHealSuppression(reload + 1f);
+            build.applyHealSuppression(reload + 1f, effectColor);
 
             //TODO maybe should be block field instead of instanceof check
             if(build.wasRecentlyHealed(60f * 12f) || build.block.suppressable){
@@ -59,7 +65,7 @@ public class Damage{
         for(var build : builds){
             if(Mathf.chance(scaledChance)){
                 Time.run(Mathf.random(maxDelay), () -> {
-                    Fx.regenSuppressSeek.at(build.x + Mathf.range(build.block.size * tilesize / 2f), build.y + Mathf.range(build.block.size * tilesize / 2f), 0f, source);
+                    Fx.regenSuppressSeek.at(build.x + Mathf.range(build.block.size * tilesize / 2f), build.y + Mathf.range(build.block.size * tilesize / 2f), 0f, effectColor, source);
                 });
             }
         }
@@ -165,6 +171,8 @@ public class Damage{
     }
     
     public static float findPierceLength(Bullet b, int pierceCap, boolean laser, float length){
+        if(pierceCap <= 0) return length;
+
         vec.trnsExact(b.rotation(), length);
         rect.setPosition(b.x, b.y).setSize(vec.x, vec.y).normalize().grow(3f);
 
