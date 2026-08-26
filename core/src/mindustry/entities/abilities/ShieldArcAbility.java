@@ -9,6 +9,7 @@ import arc.scene.ui.layout.*;
 import arc.util.*;
 import mindustry.*;
 import mindustry.content.*;
+import mindustry.entities.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.type.*;
@@ -55,6 +56,18 @@ public class ShieldArcAbility extends Ability{
     public boolean whenShooting = true;
     /** Width of shield line. */
     public float width = 6f;
+    /** Bullet deflection chance. -1 to disable */
+    public float chanceDeflect = -1f;
+    /** Multiplier for reflected bullet building damage. -1 to disable */
+    public float reflectBuildingDamage = 1f;
+    /** Velocity multiplier for reflected bullets on the opposite axis. Negative values = concave, positive values = convex */
+    public float reflectVel = 1f;
+    /** Time multiplier for reflected bullets. */
+    public float reflectTime = 1f - 0.5f;
+    /** Deflection sound. */
+    public float hitSoundVolume = 0.12f;
+    /** Multiplier for shield damage taken from missile units. */
+    public float missileUnitMultiplier = 2f;
 
     /** Whether to draw the arc line. */
     public boolean drawArc = true;
@@ -64,9 +77,16 @@ public class ShieldArcAbility extends Ability{
     public @Nullable Color color;
     /** If true, sprite position will be influenced by x/y. */
     public boolean offsetRegion = false;
+    /** If true, enemy units are pushed out. */
+    public boolean pushUnits = true;
+    public Effect pushEffect = Fx.circleColorSpark;
 
     /** State. */
     protected float widthScale, alpha;
+
+    public float scaledMax(Unit unit){
+        return max * Vars.state.rules.unitHealth(unit.team);
+    }
 
     @Override
     public void addStats(Table t){
@@ -76,6 +96,10 @@ public class ShieldArcAbility extends Ability{
         t.add(abilityStat("repairspeed", Strings.autoFixed(regen * 60f, 2)));
         t.row();
         t.add(abilityStat("cooldown", Strings.autoFixed(cooldown / 60f, 2)));
+        if(chanceDeflect > 0f){
+            t.row();
+            t.add(abilityStat("deflectchance", Strings.autoFixed(chanceDeflect *100f, 2)));
+        }
     }
 
     @Override

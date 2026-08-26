@@ -3,6 +3,8 @@ package mindustry.world.blocks.logic;
 import arc.Graphics.*;
 import arc.Graphics.Cursor.*;
 import arc.func.*;
+import arc.graphics.*;
+import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.math.geom.*;
 import arc.scene.ui.layout.*;
@@ -10,6 +12,7 @@ import arc.struct.Bits;
 import arc.struct.*;
 import arc.util.*;
 import arc.util.io.*;
+import arc.util.pooling.*;
 import mindustry.ai.types.*;
 import mindustry.core.*;
 import mindustry.gen.*;
@@ -31,6 +34,12 @@ import static mindustry.Vars.*;
 
 public class LogicBlock extends Block{
     private static final int maxByteLen = 1024 * 100;
+    private static final int maxLinks = 6000;
+    public static final int maxNameLength = 32;
+
+    private static final IntSet usedBuildings = new IntSet();
+    private static final IntSeq waitIndices = new IntSeq();
+    private static final FloatSeq waitValues = new FloatSeq();
 
     public int maxInstructionScale = 5;
     public int instructionsPerTick = 1;
@@ -45,6 +54,7 @@ public class LogicBlock extends Block{
         configurable = true;
         group = BlockGroup.logic;
         schematicPriority = 5;
+        ignoreResizeConfig = true;
 
         //universal, no real requirements
         envEnabled = Env.any;

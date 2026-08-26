@@ -11,6 +11,7 @@ import arc.util.io.*;
 import mindustry.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.ctype.*;
+import mindustry.game.EventType.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.logic.*;
@@ -41,12 +42,21 @@ public class LogicDisplay extends Block{
         commandResetTransform = 15
     ;
 
+    public static final Seq<LogicDisplayBuild> displays = new Seq<>(false);
+    /** When the content type of a draw command is this number, it counts as a display. */
+    public static final int displayDrawType = 30;
+
     public static final float scaleStep = 0.05f;
 
     public int maxSides = 25;
 
     public int displaySize = 64;
     public float scaleFactor = 1f;
+    public Color backgroundColor = Pal.darkerMetal;
+
+    static{
+        Events.on(ResetEvent.class, e -> displays.clear());
+    }
 
     public LogicDisplay(String name){
         super(name);
@@ -65,12 +75,23 @@ public class LogicDisplay extends Block{
         stats.add(Stat.displaySize, "@x@", displaySize, displaySize);
     }
 
+    @Override
+    public void init(){
+        super.init();
+
+        clipSize = Math.max(clipSize, scaleFactor * Draw.scl * displaySize);
+    }
+
     public class LogicDisplayBuild extends Building{
+        //The root display (bottom left corner of display for tileable displays)
+        public LogicDisplayBuild rootDisplay = this;
         public @Nullable FrameBuffer buffer;
         public float color = Color.whiteFloatBits;
         public float stroke = 1f;
         public LongQueue commands = new LongQueue(256);
         public @Nullable Mat transform;
+        public long operations;
+        public int index = -1;
 
         @Override
         public void draw(){
@@ -99,11 +120,38 @@ public class LogicDisplay extends Block{
             Draw.blend();
         }
 
+        @Override
+        public double sense(LAccess sensor){
+            return switch(sensor){
+                case displayWidth, displayHeight -> displaySize;
+                case bufferSize -> rootDisplay.commands.size;
+                case operations -> rootDisplay.operations;
+                default -> super.sense(sensor);
+            };
+        }
+
         public void flushCommands(LongSeq graphicsBuffer){
             int added = Math.min(graphicsBuffer.size, LExecutor.maxDisplayBuffer - commands.size);
 
             for(int i = 0; i < added; i++){
                 commands.addLast(graphicsBuffer.items[i]);
+            }
+
+            operations++;
+        }
+
+        public void ensureBuffer() {
+            if(buffer == null){
+                buffer = new FrameBuffer(displaySize, displaySize);
+                //clear the buffer - some OSs leave garbage in it
+                buffer.begin(backgroundColor);
+                buffer.end();
+            }
+        }
+
+        public void getBufferRegion(TextureRegion region){
+            if(buffer != null){
+                region.set(buffer.getTexture(), 0, buffer.getTexture().height, buffer.getTexture().width, -buffer.getTexture().height);
             }
         }
 
@@ -111,6 +159,8 @@ public class LogicDisplay extends Block{
             //don't bother processing commands if displays are off
             if(!commands.isEmpty() && buffer != null){
                 Draw.draw(Draw.z(), () -> {
+                    if(buffer == null || commands.isEmpty()) return;
+
                     Tmp.m1.set(Draw.proj());
                     Tmp.m2.set(Draw.trans());
                     Draw.proj(0, 0, buffer.getWidth(), buffer.getHeight());
@@ -200,6 +250,14 @@ public class LogicDisplay extends Block{
                     }
                 }
             }
+        }
+
+        @Override
+        public void add(){
+            super.add();
+
+            index = displays.size;
+            displays.add(this);
         }
 
         @Override
